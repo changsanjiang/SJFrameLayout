@@ -136,12 +136,12 @@ NS_ASSUME_NONNULL_BEGIN
             break;
         case SJFLAttributeTop: {
             CGPoint top = [dep_view convertPoint:CGPointZero toView:tar_superview];
-            dep_value = top.y;
+            dep_value = top.y + _offset;
         }
             break;
         case SJFLAttributeLeft: {
             CGPoint left = [dep_view convertPoint:CGPointZero toView:tar_superview];
-            dep_value = left.x;
+            dep_value = left.x + _offset;
         }
             break;
         case SJFLAttributeBottom: {
@@ -163,7 +163,7 @@ NS_ASSUME_NONNULL_BEGIN
                 }
             }
             
-            dep_value = top + height; // return maxY
+            dep_value = top + height + _offset; // return maxY
         }
             break;
         case SJFLAttributeRight: {
@@ -184,30 +184,30 @@ NS_ASSUME_NONNULL_BEGIN
                 }
             }
             
-            dep_value = left + width; // return maxX
+            dep_value = left + width + _offset; // return maxX
         }
             break;
         case SJFLAttributeWidth: {
-            dep_value = CGRectGetWidth(dep_frame);
+            dep_value = CGRectGetWidth(dep_frame) + _offset;
         }
             break;
         case SJFLAttributeHeight: {
-            dep_value = CGRectGetHeight(dep_frame);
+            dep_value = CGRectGetHeight(dep_frame) + _offset;
         }
             break;
         case SJFLAttributeCenterX: {
             CGPoint center = [dep_view convertPoint:SJFLViewGetCenterPoint(dep_view) toView:tar_superview];
-            dep_value = center.x;
+            dep_value = center.x + _offset;
         }
             break;
         case SJFLAttributeCenterY: {
             CGPoint center = [dep_view convertPoint:SJFLViewGetCenterPoint(dep_view) toView:tar_superview];
-            dep_value = center.y;
+            dep_value = center.y + _offset;
         }
             break;
     }
     
-    return dep_value + _offset;
+    return dep_value;
 }
 
 // - getter -
