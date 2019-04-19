@@ -1,11 +1,11 @@
 //
-//  SJFLLayout.m
+//  SJFLLayoutMask.m
 //  Pods
 //
 //  Created by BlueDancer on 2019/4/19.
 //
 
-#import "SJFLLayout.h"
+#import "SJFLLayoutMask.h"
 #import "SJFLRecorder.h"
 
 typedef enum : NSUInteger {
@@ -21,7 +21,7 @@ typedef enum : NSUInteger {
 } SJFLAttributeMask;
 
 NS_ASSUME_NONNULL_BEGIN
-@implementation SJFLLayout {
+@implementation SJFLLayoutMask {
     SJFLAttributeMask _attrs;
     SJFLRecorder *_recorder;
 }
@@ -34,48 +34,48 @@ NS_ASSUME_NONNULL_BEGIN
     return self;
 }
 
-- (SJFLLayout *)top {
+- (SJFLLayoutMask *)top {
     _attrs |= SJFLAttributeMaskTop;
     return self;
 }
 
-- (SJFLLayout *)left {
+- (SJFLLayoutMask *)left {
     _attrs |= SJFLAttributeMaskLeft;
     return self;
 }
 
-- (SJFLLayout *)bottom {
+- (SJFLLayoutMask *)bottom {
     _attrs |= SJFLAttributeMaskBottom;
     return self;
 }
 
-- (SJFLLayout *)right {
+- (SJFLLayoutMask *)right {
     _attrs |= SJFLAttributeMaskRight;
     return self;
 }
 
-- (SJFLLayout *)width {
+- (SJFLLayoutMask *)width {
     _attrs |= SJFLAttributeMaskWidth;
     return self;
 }
 
-- (SJFLLayout *)height {
+- (SJFLLayoutMask *)height {
     _attrs |= SJFLAttributeMaskHeight;
     return self;
 }
 
-- (SJFLLayout *)centerX {
+- (SJFLLayoutMask *)centerX {
     _attrs |= SJFLAttributeMaskCenterX;
     return self;
 }
 
-- (SJFLLayout *)centerY {
+- (SJFLLayoutMask *)centerY {
     _attrs |= SJFLAttributeMaskCenterY;
     return self;
 }
 
 - (SJFLEqualToHandler)equalTo {
-    return ^SJFLLayout *(id layout) {
+    return ^SJFLLayoutMask *(id layout) {
         self->_recorder->FL_dependency = layout;
         return self;
     };

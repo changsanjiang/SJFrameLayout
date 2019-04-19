@@ -6,20 +6,20 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "SJFLLayout.h"
+#import "SJFLLayoutMask.h"
 
 NS_ASSUME_NONNULL_BEGIN
 @interface SJFLMaker : NSObject
-@property (nonatomic, strong, readonly) SJFLLayout *top;
-@property (nonatomic, strong, readonly) SJFLLayout *left;
-@property (nonatomic, strong, readonly) SJFLLayout *bottom;
-@property (nonatomic, strong, readonly) SJFLLayout *right;
+@property (nonatomic, strong, readonly) SJFLLayoutMask *top;
+@property (nonatomic, strong, readonly) SJFLLayoutMask *left;
+@property (nonatomic, strong, readonly) SJFLLayoutMask *bottom;
+@property (nonatomic, strong, readonly) SJFLLayoutMask *right;
 
-@property (nonatomic, strong, readonly) SJFLLayout *width;
-@property (nonatomic, strong, readonly) SJFLLayout *height;
+@property (nonatomic, strong, readonly) SJFLLayoutMask *width;
+@property (nonatomic, strong, readonly) SJFLLayoutMask *height;
 
-@property (nonatomic, strong, readonly) SJFLLayout *centerX;
-@property (nonatomic, strong, readonly) SJFLLayout *centerY;
+@property (nonatomic, strong, readonly) SJFLLayoutMask *centerX;
+@property (nonatomic, strong, readonly) SJFLLayoutMask *centerY;
 
 - (instancetype)initWithView:(UIView *)view;
 - (void)install;
