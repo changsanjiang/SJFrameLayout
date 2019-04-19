@@ -7,11 +7,12 @@
 //
 
 #import "SJAppDelegate.h"
-
+//#import <MTHawkeye/MTRunHawkeyeInOneLine.h>
 @implementation SJAppDelegate
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
+//    [MTRunHawkeyeInOneLine start];
     // Override point for customization after application launch.
     return YES;
 }
