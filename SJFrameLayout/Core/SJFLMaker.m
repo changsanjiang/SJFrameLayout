@@ -53,6 +53,12 @@ NS_ASSUME_NONNULL_BEGIN
     return layout;
 }
 
+- (SJFLLayoutMask *)edge {
+    SJFLLayoutMask *layout = [[SJFLLayoutMask alloc] initWithAttributes:SJFLAttributeMaskEdge];
+    [_m addObject:layout];
+    return layout;
+}
+
 - (SJFLLayoutMask *)width {
     SJFLLayoutMask *layout = [[SJFLLayoutMask alloc] initWithAttribute:SJFLAttributeWidth];
     [_m addObject:layout];
@@ -65,6 +71,12 @@ NS_ASSUME_NONNULL_BEGIN
     return layout;
 }
 
+- (SJFLLayoutMask *)size {
+    SJFLLayoutMask *layout = [[SJFLLayoutMask alloc] initWithAttributes:SJFLAttributeMaskSize];
+    [_m addObject:layout];
+    return layout;
+}
+
 - (SJFLLayoutMask *)centerX {
     SJFLLayoutMask *layout = [[SJFLLayoutMask alloc] initWithAttribute:SJFLAttributeCenterX];
     [_m addObject:layout];
@@ -73,6 +85,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (SJFLLayoutMask *)centerY {
     SJFLLayoutMask *layout = [[SJFLLayoutMask alloc] initWithAttribute:SJFLAttributeCenterY];
+    [_m addObject:layout];
+    return layout;
+}
+
+- (SJFLLayoutMask *)center {
+    SJFLLayoutMask *layout = [[SJFLLayoutMask alloc] initWithAttributes:SJFLAttributeMaskCenter];
     [_m addObject:layout];
     return layout;
 }

@@ -70,7 +70,7 @@ NS_ASSUME_NONNULL_BEGIN
     }
 
     CGFloat newValue = self.value;
-    if ( SJFLValueCompare(newValue, _before) ) {
+    if ( SJFLFloatCompare(newValue, _before) ) {
         return;
     }
     
@@ -79,17 +79,18 @@ NS_ASSUME_NONNULL_BEGIN
     
     if ( view ) {
         switch ( _target.attribute ) {
-            case SJFLAttributeNone:
-                break;
+            case SJFLAttributeNone: break; ///< Target does not need to do anything
             case SJFLAttributeTop: {
                 SJFLViewSetY(view, newValue);
                 
+                // update bottom layout
                 [SJFLViewGetLayoutElement(view, SJFLAttributeBottom) installValueToTargetIfNeeded];
             }
                 break;
             case SJFLAttributeLeft: {
                 SJFLViewSetX(view, newValue);
                 
+                // update right layout
                 [SJFLViewGetLayoutElement(view, SJFLAttributeRight) installValueToTargetIfNeeded];
             }
                 break;
@@ -123,6 +124,7 @@ NS_ASSUME_NONNULL_BEGIN
     }
 }
 
+// solve equation
 - (CGFloat)value {
     UIView *dep_view = _dep_view;
     CGRect dep_frame = dep_view.frame;
@@ -140,17 +142,17 @@ NS_ASSUME_NONNULL_BEGIN
     
     switch ( dep_attr ) {
         case SJFLAttributeNone: break;
-        case SJFLAttributeTop: {
+        case SJFLAttributeTop: { ///< top
             CGPoint top = [dep_view convertPoint:CGPointZero toView:tar_superview];
             dep_value = top.y + _offset;
         }
             break;
-        case SJFLAttributeLeft: {
+        case SJFLAttributeLeft: { ///< left
             CGPoint left = [dep_view convertPoint:CGPointZero toView:tar_superview];
             dep_value = left.x + _offset;
         }
             break;
-        case SJFLAttributeBottom: {
+        case SJFLAttributeBottom: { ///< top + height = maxY
             CGFloat top = 0;
             CGFloat height = 0;
             
@@ -172,7 +174,7 @@ NS_ASSUME_NONNULL_BEGIN
             dep_value = top + height + _offset; // return maxY
         }
             break;
-        case SJFLAttributeRight: {
+        case SJFLAttributeRight: { ///< left + width = maxX
             CGFloat left = 0;
             CGFloat width = 0;
             
@@ -193,11 +195,11 @@ NS_ASSUME_NONNULL_BEGIN
             dep_value = left + width + _offset; // return maxX
         }
             break;
-        case SJFLAttributeWidth: {
+        case SJFLAttributeWidth: { ///< width
             dep_value = CGRectGetWidth(dep_frame) + _offset;
         }
             break;
-        case SJFLAttributeHeight: {
+        case SJFLAttributeHeight: { ///< height
             dep_value = CGRectGetHeight(dep_frame) + _offset;
         }
             break;
@@ -246,11 +248,11 @@ UIKIT_STATIC_INLINE CGPoint SJFLViewGetCenterPoint(UIView *view) {
     return (CGPoint){SJFLViewGetWidth(view) * 0.5, SJFLViewGetHeight(view) * 0.5};
 }
 
-UIKIT_STATIC_INLINE BOOL SJFLValueIsZero(CGFloat value) {
+UIKIT_STATIC_INLINE BOOL SJFLFloatIsZero(CGFloat value) {
     return fabs(value) <= 0.00001f;
 }
 
-UIKIT_STATIC_INLINE BOOL SJFLValueCompare(CGFloat value1, CGFloat value2) {
+UIKIT_STATIC_INLINE BOOL SJFLFloatCompare(CGFloat value1, CGFloat value2) {
     return floor(value1 + 0.5) == floor(value2 + 0.5);
 }
 
@@ -276,22 +278,22 @@ UIKIT_STATIC_INLINE BOOL SJFLViewAttributeCanSettable(UIView *view, SJFLAttribut
 
 UIKIT_STATIC_INLINE BOOL SJFLViewCenterXCanSettable(UIView *view) {
     CGRect frame = view.frame;
-    return !SJFLValueIsZero(CGRectGetWidth(frame)) || !SJFLValueIsZero(CGRectGetMinX(frame));
+    return !SJFLFloatIsZero(CGRectGetWidth(frame)) || !SJFLFloatIsZero(CGRectGetMinX(frame));
 }
 
 UIKIT_STATIC_INLINE BOOL SJFLViewCenterYCanSettable(UIView *view) {
     CGRect frame = view.frame;
-    return !SJFLValueIsZero(CGRectGetHeight(frame)) || !SJFLValueIsZero(CGRectGetMinY(frame));
+    return !SJFLFloatIsZero(CGRectGetHeight(frame)) || !SJFLFloatIsZero(CGRectGetMinY(frame));
 }
 
 UIKIT_STATIC_INLINE BOOL SJFLViewBottomCanSettable(UIView *view) {
     CGRect frame = view.frame;
-    return !SJFLValueIsZero(CGRectGetMinY(frame)) || !SJFLValueIsZero(CGRectGetHeight(frame)) || !SJFLValueIsZero(SJFLViewGetCenterY(view));
+    return !SJFLFloatIsZero(CGRectGetMinY(frame)) || !SJFLFloatIsZero(CGRectGetHeight(frame)) || !SJFLFloatIsZero(SJFLViewGetCenterY(view));
 }
 
 UIKIT_STATIC_INLINE BOOL SJFLViewRightCanSettable(UIView *view) {
     CGRect frame = view.frame;
-    return !SJFLValueIsZero(CGRectGetMinX(frame)) || !SJFLValueIsZero(CGRectGetWidth(frame)) || !SJFLValueIsZero(SJFLViewGetCenterX(view));
+    return !SJFLFloatIsZero(CGRectGetMinX(frame)) || !SJFLFloatIsZero(CGRectGetWidth(frame)) || !SJFLFloatIsZero(SJFLViewGetCenterX(view));
 }
 
 // - setter -

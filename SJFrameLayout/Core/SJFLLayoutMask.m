@@ -8,30 +8,22 @@
 #import "SJFLLayoutMask.h"
 #import "SJFLRecorder.h"
 
-typedef enum : NSUInteger {
-    SJFLAttributeMaskNone = 1 << SJFLAttributeNone,
-    SJFLAttributeMaskTop = 1 << SJFLAttributeTop,
-    SJFLAttributeMaskLeft = 1 << SJFLAttributeLeft,
-    SJFLAttributeMaskBottom = 1 << SJFLAttributeBottom,
-    SJFLAttributeMaskRight = 1 << SJFLAttributeRight,
-    SJFLAttributeMaskWidth = 1 << SJFLAttributeWidth,
-    SJFLAttributeMaskHeight = 1 << SJFLAttributeHeight,
-    SJFLAttributeMaskCenterX = 1 << SJFLAttributeCenterX,
-    SJFLAttributeMaskCenterY = 1 << SJFLAttributeCenterY
-} SJFLAttributeMask;
-
 NS_ASSUME_NONNULL_BEGIN
 @implementation SJFLLayoutMask {
     SJFLAttributeMask _attrs;
     SJFLRecorder *_recorder;
 }
 
-- (instancetype)initWithAttribute:(SJFLAttribute)attr {
+- (instancetype)initWithAttributes:(SJFLAttributeMask)attrs {
     self = [super init];
     if ( !self ) return nil;
-    _attrs = 1 << attr;
+    _attrs = attrs;
     _recorder = [SJFLRecorder new];
     return self;
+}
+
+- (instancetype)initWithAttribute:(SJFLAttribute)attr {
+    return [self initWithAttributes:1 << attr];
 }
 
 - (SJFLLayoutMask *)top {
@@ -54,6 +46,11 @@ NS_ASSUME_NONNULL_BEGIN
     return self;
 }
 
+- (SJFLLayoutMask *)edge {
+    _attrs |= SJFLAttributeMaskEdge;
+    return self;
+}
+
 - (SJFLLayoutMask *)width {
     _attrs |= SJFLAttributeMaskWidth;
     return self;
@@ -64,6 +61,11 @@ NS_ASSUME_NONNULL_BEGIN
     return self;
 }
 
+- (SJFLLayoutMask *)size {
+    _attrs |= SJFLAttributeMaskSize;
+    return self;
+}
+
 - (SJFLLayoutMask *)centerX {
     _attrs |= SJFLAttributeMaskCenterX;
     return self;
@@ -71,6 +73,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (SJFLLayoutMask *)centerY {
     _attrs |= SJFLAttributeMaskCenterY;
+    return self;
+}
+
+- (SJFLLayoutMask *)center {
+    _attrs |= SJFLAttributeMaskCenter;
     return self;
 }
 

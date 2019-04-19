@@ -9,18 +9,7 @@
 #import "SJFLLayoutMask.h"
 
 NS_ASSUME_NONNULL_BEGIN
-@interface SJFLMaker : NSObject
-@property (nonatomic, strong, readonly) SJFLLayoutMask *top;
-@property (nonatomic, strong, readonly) SJFLLayoutMask *left;
-@property (nonatomic, strong, readonly) SJFLLayoutMask *bottom;
-@property (nonatomic, strong, readonly) SJFLLayoutMask *right;
-
-@property (nonatomic, strong, readonly) SJFLLayoutMask *width;
-@property (nonatomic, strong, readonly) SJFLLayoutMask *height;
-
-@property (nonatomic, strong, readonly) SJFLLayoutMask *centerX;
-@property (nonatomic, strong, readonly) SJFLLayoutMask *centerY;
-
+@interface SJFLMaker : NSObject<SJFLLayoutProtocol>
 - (instancetype)initWithView:(UIView *)view;
 - (void)install;
 @end
