@@ -8,57 +8,69 @@
 #import "SJFLLayout.h"
 #import "SJFLRecorder.h"
 
+typedef enum : NSUInteger {
+    SJFLAttributeMaskNone = 1 << SJFLAttributeNone,
+    SJFLAttributeMaskTop = 1 << SJFLAttributeTop,
+    SJFLAttributeMaskLeft = 1 << SJFLAttributeLeft,
+    SJFLAttributeMaskBottom = 1 << SJFLAttributeBottom,
+    SJFLAttributeMaskRight = 1 << SJFLAttributeRight,
+    SJFLAttributeMaskWidth = 1 << SJFLAttributeWidth,
+    SJFLAttributeMaskHeight = 1 << SJFLAttributeHeight,
+    SJFLAttributeMaskCenterX = 1 << SJFLAttributeCenterX,
+    SJFLAttributeMaskCenterY = 1 << SJFLAttributeCenterY
+} SJFLAttributeMask;
+
 NS_ASSUME_NONNULL_BEGIN
 @implementation SJFLLayout {
-    SJFLAttribute _attrs;
+    SJFLAttributeMask _attrs;
     SJFLRecorder *_recorder;
 }
 
 - (instancetype)initWithAttribute:(SJFLAttribute)attr {
     self = [super init];
     if ( !self ) return nil;
-    _attrs = attr;
+    _attrs = 1 << attr;
     _recorder = [SJFLRecorder new];
     return self;
 }
 
 - (SJFLLayout *)top {
-    _attrs |= SJFLAttributeTop;
+    _attrs |= SJFLAttributeMaskTop;
     return self;
 }
 
 - (SJFLLayout *)left {
-    _attrs |= SJFLAttributeLeft;
+    _attrs |= SJFLAttributeMaskLeft;
     return self;
 }
 
 - (SJFLLayout *)bottom {
-    _attrs |= SJFLAttributeBottom;
+    _attrs |= SJFLAttributeMaskBottom;
     return self;
 }
 
 - (SJFLLayout *)right {
-    _attrs |= SJFLAttributeRight;
+    _attrs |= SJFLAttributeMaskRight;
     return self;
 }
 
 - (SJFLLayout *)width {
-    _attrs |= SJFLAttributeWidth;
+    _attrs |= SJFLAttributeMaskWidth;
     return self;
 }
 
 - (SJFLLayout *)height {
-    _attrs |= SJFLAttributeHeight;
+    _attrs |= SJFLAttributeMaskHeight;
     return self;
 }
 
 - (SJFLLayout *)centerX {
-    _attrs |= SJFLAttributeCenterX;
+    _attrs |= SJFLAttributeMaskCenterX;
     return self;
 }
 
 - (SJFLLayout *)centerY {
-    _attrs |= SJFLAttributeCenterY;
+    _attrs |= SJFLAttributeMaskCenterY;
     return self;
 }
 
@@ -75,7 +87,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (BOOL)layoutExistsForAttribtue:(SJFLAttribute)attr {
-    return _attrs & attr;
+    return _attrs & (1 << attr);
 }
 
 - (SJFLRecorder *)recorder {

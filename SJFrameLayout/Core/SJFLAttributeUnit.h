@@ -9,15 +9,15 @@
 
 NS_ASSUME_NONNULL_BEGIN
 typedef enum : NSUInteger {
-    SJFLAttributeNone = 1 << 0,
-    SJFLAttributeTop = 1 << 1,
-    SJFLAttributeLeft = 1 << 2,
-    SJFLAttributeBottom = 1 << 3,
-    SJFLAttributeRight = 1 << 4,
-    SJFLAttributeWidth = 1 << 5,
-    SJFLAttributeHeight = 1 << 6,
-    SJFLAttributeCenterX = 1 << 7,
-    SJFLAttributeCenterY = 1 << 8
+    SJFLAttributeNone,
+    SJFLAttributeTop,
+    SJFLAttributeLeft,
+    SJFLAttributeBottom,
+    SJFLAttributeRight,
+    SJFLAttributeWidth,
+    SJFLAttributeHeight,
+    SJFLAttributeCenterX,
+    SJFLAttributeCenterY
 } SJFLAttribute;
 
 @interface SJFLAttributeUnit : NSObject
