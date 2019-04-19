@@ -11,7 +11,7 @@
 NS_ASSUME_NONNULL_BEGIN
 @interface SJFLLayout () {
     SJFLAttributeUnit *_Nullable FL_dependency;
-    NSNumber *_Nullable FL_offset;
+    CGFloat FL_offset;
     SJFLAttributeUnit *FL_Unit;
 }
 @end
@@ -33,12 +33,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void (^)(CGFloat))offset {
     return ^(CGFloat offset) {
-        self->FL_offset = @(offset);
+        self->FL_offset = offset;
     };
 }
 
 - (SJFLLayoutElement *)generateElement {
-    return [[SJFLLayoutElement alloc] initWithTarget:FL_Unit equalTo:FL_dependency offset:[FL_offset doubleValue]];
+    return [[SJFLLayoutElement alloc] initWithTarget:FL_Unit equalTo:FL_dependency offset:FL_offset];
 }
 @end
 NS_ASSUME_NONNULL_END

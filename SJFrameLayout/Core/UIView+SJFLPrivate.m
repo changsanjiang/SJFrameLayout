@@ -6,11 +6,23 @@
 //
 
 #import "UIView+SJFLPrivate.h"
+#import "SJFLLayoutElement.h"
 #import <objc/message.h>
 
 NS_ASSUME_NONNULL_BEGIN
 @implementation UIView (SJFLPrivate)
-+ (void)FL_layoutElementWantReceiveNotificationForLayoutSubviews {
+- (void)FL_layoutSubviews {
+    [self FL_layoutSubviews];
+    for ( UIView *subview in self.subviews ) {
+        for ( SJFLLayoutElement *ele in subview.FL_elements ) {
+            UIView *dep = ele.dependency.view;
+            if ( dep == self)
+                [ele dependencyViewsDidLayoutSubViews];
+        }
+    }
+}
+
+- (void)setFL_elements:(NSArray<SJFLLayoutElement *> *_Nullable)FL_elements {
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
         Class nav = [self class];
@@ -26,24 +38,10 @@ NS_ASSUME_NONNULL_BEGIN
             method_exchangeImplementations(originalMethod, swizzledMethod);
         }
     });
-}
-
-- (void)FL_layoutSubviews {
-    [self FL_layoutSubviews];
-    [NSNotificationCenter.defaultCenter postNotificationName:SJFLViewLayoutSubviewsNotification object:self];
-}
-
-- (void)setFL_elements:(NSArray<SJFLLayoutElement *> *_Nullable)FL_elements {
     objc_setAssociatedObject(self, @selector(FL_elements), FL_elements, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
 - (NSArray<SJFLLayoutElement *> *_Nullable)FL_elements {
     return objc_getAssociatedObject(self, _cmd);
 }
-
-- (void)FL_replaceElement:(SJFLAttribute)attribute withElement:(SJFLLayoutElement *)element {
-    
-}
 @end
-
-NSNotificationName const SJFLViewLayoutSubviewsNotification = @"SJFLViewLayoutSubviewsNotification";
 NS_ASSUME_NONNULL_END

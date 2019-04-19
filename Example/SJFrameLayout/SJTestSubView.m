@@ -18,6 +18,13 @@
 }
 */
 
+- (void)dealloc
+{
+#ifdef DEBUG
+    NSLog(@"%d - %s", (int)__LINE__, __func__);
+#endif
+}
+
 - (void)setFrame:(CGRect)frame {
     [super setFrame:frame];
 }

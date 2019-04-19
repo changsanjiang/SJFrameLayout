@@ -17,6 +17,12 @@
     // Drawing code
 }
 */
+- (void)dealloc
+{
+#ifdef DEBUG
+    NSLog(@"%d - %s", (int)__LINE__, __func__);
+#endif
+}
 
 - (void)layoutSubviews {
     [super layoutSubviews];

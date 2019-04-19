@@ -17,5 +17,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, strong, readonly) SJFLAttributeUnit *target;
 @property (nonatomic, strong, readonly, nullable) SJFLAttributeUnit *dependency;
 @property (nonatomic, readonly) CGFloat offset;
+
+- (void)dependencyViewsDidLayoutSubViews;
 @end
 NS_ASSUME_NONNULL_END

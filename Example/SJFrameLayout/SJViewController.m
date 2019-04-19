@@ -8,13 +8,17 @@
 
 #import "SJViewController.h"
 #import <Masonry.h>
+#if __has_include(<SDAutoLayout/SDAutoLayout.h>)
+#import <SDAutoLayout/SDAutoLayout.h>
+#endif
 #import <SJFrameLayout/UIView+SJFrameLayout.h>
 #import <UIView+SJFLAdditions.h>
 #import "SJTestView.h"
 #import "SJTestSubView.h"
 #import <MMPlaceHolder.h>
+#import <SJFrameLayout/UIView+SJFLPrivate.h>
 
-#define ViewCount (500)
+#define ViewCount (30)
 
 @interface SJViewController ()
 
@@ -24,12 +28,11 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+//    self.view.FL_elements = nil;
     self.view.backgroundColor = [UIColor blackColor];
-    
 //    [self.view showPlaceHolder];
 }
 - (IBAction)testmas:(id)sender {
-    
     UIView *subview1 = [UIView new];
     subview1.backgroundColor = [UIColor redColor];
     [self.view addSubview:subview1];
@@ -39,30 +42,56 @@
         make.right.offset(-20);
         make.bottom.offset(-200);
     }];
-    [subview1 showPlaceHolder];
+    
+    for ( int i = 0 ; i < ViewCount ; ++ i ) {
+        UIView *s = [UIView new];
+        s.backgroundColor =  [UIColor colorWithRed:arc4random() % 256 / 255.0
+                                             green:arc4random() % 256 / 255.0
+                                              blue:arc4random() % 256 / 255.0
+                                             alpha:1];
+        [self.view.subviews.lastObject addSubview:s];
+        [s mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.top.equalTo(subview1).offset(8 + i);
+            make.left.equalTo(subview1).offset(8 + i);
+            make.right.equalTo(subview1).offset(-(8 + i));
+            make.bottom.equalTo(subview1).offset(-(8 + i));
+        }];
+    }
     
     
-    UIView *s2 = [UIView new];
-    s2.backgroundColor = [UIColor greenColor];
-    [subview1 addSubview:s2];
-    [s2 mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.bottom.offset(-8);
-        make.right.offset(-8);
-        make.width.offset(50);
-        make.height.offset(50);
-    }];
-    [s2 showPlaceHolder];
-    
-    UIView *s3 = [SJTestSubView new];
-    s3.backgroundColor = [UIColor purpleColor];
-    [self.view addSubview:s3];
-    [s3 mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.bottom.equalTo(s2).offset(-8);
-        make.right.equalTo(s2).offset(-8);
-        make.width.offset(20);
-        make.height.offset(20);
-    }];
-    
+//    UIView *subview1 = [UIView new];
+//    subview1.backgroundColor = [UIColor redColor];
+//    [self.view addSubview:subview1];
+//    [subview1 mas_makeConstraints:^(MASConstraintMaker *make) {
+//        make.top.offset(40);
+//        make.left.offset(180);
+//        make.right.offset(-20);
+//        make.bottom.offset(-200);
+//    }];
+//    [subview1 showPlaceHolder];
+//
+//
+//    UIView *s2 = [UIView new];
+//    s2.backgroundColor = [UIColor greenColor];
+//    [subview1 addSubview:s2];
+//    [s2 mas_makeConstraints:^(MASConstraintMaker *make) {
+//        make.bottom.offset(-8);
+//        make.right.offset(-8);
+//        make.width.offset(50);
+//        make.height.offset(50);
+//    }];
+//    [s2 showPlaceHolder];
+//
+//    UIView *s3 = [SJTestSubView new];
+//    s3.backgroundColor = [UIColor purpleColor];
+//    [self.view addSubview:s3];
+//    [s3 mas_makeConstraints:^(MASConstraintMaker *make) {
+//        make.bottom.equalTo(s2).offset(-8);
+//        make.right.equalTo(s2).offset(-8);
+//        make.width.offset(20);
+//        make.height.offset(20);
+//    }];
+//
     
     
 //    for ( int i = 0 ; i < ViewCount ; ++ i ) {
@@ -115,8 +144,63 @@
     //    [subview3 showPlaceHolder];
 
 }
+
+- (IBAction)testSD:(id)sender {
+#if __has_include(<SDAutoLayout/SDAutoLayout.h>)
+    UIView *subview1 = [UIView new];
+    subview1.backgroundColor =  [UIColor redColor];
+    [self.view addSubview:subview1];
+    
+    subview1.sd_layout
+    .topSpaceToView(self.view, 40)
+    .leftSpaceToView(self.view, 180)
+    .rightSpaceToView(self.view, 20)
+    .bottomSpaceToView(self.view, 200);
+    
+    
+    for ( int i = 0 ; i < ViewCount ; ++ i ) {
+        UIView *s = [UIView new];
+        s.backgroundColor = [UIColor colorWithRed:arc4random() % 256 / 255.0
+                                            green:arc4random() % 256 / 255.0
+                                             blue:arc4random() % 256 / 255.0
+                                            alpha:1];
+        [self.view.subviews.lastObject addSubview:s];
+
+        s.sd_layout
+        .topSpaceToView(subview1, 8 + i)
+        .leftSpaceToView(subview1,8 + i)
+        .rightSpaceToView(subview1, 8 + i)
+        .bottomSpaceToView(subview1, 8 + i);
+    }
+#endif
+}
+
 - (IBAction)testsj:(id)sender {
-//    for ( int i = 0 ; i < ViewCount ; ++ i ) {
+    
+    UIView *subview1 = [UIView new];
+    subview1.backgroundColor = [UIColor redColor];
+    [self.view addSubview:subview1];
+    [subview1 sj_makeFrameLayout:^(SJFLMaker * _Nonnull make) {
+        make.top.offset(40);
+        make.left.offset(180);
+        make.right.offset(-20);
+        make.bottom.offset(-200);
+    }];
+    
+    for ( int i = 0 ; i < ViewCount ; ++ i ) {
+        UIView *s = [SJTestView new];
+        s.backgroundColor =  [UIColor colorWithRed:arc4random() % 256 / 255.0
+                                             green:arc4random() % 256 / 255.0
+                                              blue:arc4random() % 256 / 255.0
+                                             alpha:1];
+        [self.view.subviews.lastObject addSubview:s];
+        [s sj_makeFrameLayout:^(SJFLMaker * _Nonnull make) {
+            make.top.equalTo(subview1.FL_Top).offset(8 + i);
+            make.left.equalTo(subview1.FL_Left).offset(8 + i);
+            make.right.equalTo(subview1.FL_Right).offset(-(8+i));
+            make.bottom.equalTo(subview1.FL_Bottom).offset(-(8+i));
+        }];
+        
 //        UIView *subview = [UIView new];
 //        subview.backgroundColor = [UIColor colorWithRed:arc4random() % 256 / 255.0
 //                                                  green:arc4random() % 256 / 255.0
@@ -137,43 +221,44 @@
 //
 //
 //        }];
-//    }
+
+        
+//        UIView *subview1 = [UIView new];
+//        subview1.backgroundColor = [UIColor redColor];
+//        [self.view addSubview:subview1];
+//        [subview1 sj_makeFrameLayout:^(SJFLMaker * _Nonnull make) {
+//            make.top.offset(40);
+//            make.left.offset(180);
+//            make.right.offset(-20);
+//            make.bottom.offset(-200);
+//        }];
+//        [subview1 showPlaceHolder];
+//
+//
+//        UIView *s2 = [UIView new];
+//        [subview1 addSubview:s2];
+//        s2.backgroundColor = [UIColor greenColor];
+//        [s2 sj_makeFrameLayout:^(SJFLMaker * _Nonnull make) {
+//            make.bottom.offset(-8);
+//            make.right.offset(-8);
+//            make.width.offset(50);
+//            make.height.offset(50);
+//        }];
+//        [s2 showPlaceHolder];
+//
+//        UIView *s3 = [SJTestSubView new];
+//        s3.backgroundColor = [UIColor purpleColor];
+//        [self.view addSubview:s3];
+//        [s3 sj_makeFrameLayout:^(SJFLMaker * _Nonnull make) {
+//            make.bottom.equalTo(s2.FL_Bottom).offset(-8);
+//            make.right.equalTo(s2.FL_Right).offset(-8);
+//            make.width.offset(20);
+//            make.height.offset(20);
+//        }];
+    }
     //
     
     
-    
-    UIView *subview1 = [UIView new];
-    subview1.backgroundColor = [UIColor redColor];
-    [self.view addSubview:subview1];
-    [subview1 sj_makeFrameLayout:^(SJFLMaker * _Nonnull make) {
-        make.top.offset(40);
-        make.left.offset(180);
-        make.right.offset(-20);
-        make.bottom.offset(-200);
-    }];
-    [subview1 showPlaceHolder];
-    
-    
-    UIView *s2 = [UIView new];
-    [subview1 addSubview:s2];
-    s2.backgroundColor = [UIColor greenColor];
-    [s2 sj_makeFrameLayout:^(SJFLMaker * _Nonnull make) {
-        make.bottom.offset(-8);
-        make.right.offset(-8);
-        make.width.offset(50);
-        make.height.offset(50);
-    }];
-    [s2 showPlaceHolder];
-    
-    UIView *s3 = [SJTestSubView new];
-    s3.backgroundColor = [UIColor purpleColor];
-    [self.view addSubview:s3];
-    [s3 sj_makeFrameLayout:^(SJFLMaker * _Nonnull make) {
-        make.bottom.equalTo(s2.FL_Bottom).offset(-8);
-        make.right.equalTo(s2.FL_Right).offset(-8);
-        make.width.offset(20);
-        make.height.offset(20);
-    }];
     
 //    UIView *center = [UIView new];
 //    center.backgroundColor = [UIColor purpleColor];
@@ -229,7 +314,7 @@
 //
 //        [subview3 showPlaceHolder];
     
-    [self.view showPlaceHolder];
+//    [self.view showPlaceHolder];
 
 }
 - (IBAction)clean:(id)sender {
@@ -240,5 +325,9 @@
         }
     }
 }
+- (IBAction)fl:(id)sender {
+    self.view.FL_elements = nil;
+}
+
 
 @end

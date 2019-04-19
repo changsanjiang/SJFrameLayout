@@ -6,16 +6,10 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "SJFLLayoutElement.h"
+@class SJFLLayoutElement;
 
 NS_ASSUME_NONNULL_BEGIN
-UIKIT_EXTERN NSNotificationName const SJFLViewLayoutSubviewsNotification;
-
 @interface UIView (SJFLPrivate)
-+ (void)FL_layoutElementWantReceiveNotificationForLayoutSubviews;
-
 @property (nonatomic, strong, nullable) NSArray<SJFLLayoutElement *> *FL_elements;
-
-- (void)FL_replaceElement:(SJFLAttribute)attribute withElement:(SJFLLayoutElement *)element;
 @end
 NS_ASSUME_NONNULL_END

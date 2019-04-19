@@ -38,11 +38,27 @@
                                 </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="elg-ZR-VMs">
-                                <rect key="frame" x="155" y="332" width="37" height="30"/>
+                                <rect key="frame" x="158" y="381" width="37" height="30"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <state key="normal" title="clean"/>
                                 <connections>
                                     <action selector="clean:" destination="whP-gf-Uak" eventType="touchUpInside" id="SJu-R1-s5X"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="rBE-Ya-uvW">
+                                <rect key="frame" x="158" y="128" width="30" height="30"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <state key="normal" title="SD"/>
+                                <connections>
+                                    <action selector="testSD:" destination="whP-gf-Uak" eventType="touchUpInside" id="D8l-zB-61d"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="cJk-uu-jvc">
+                                <rect key="frame" x="165" y="318" width="30" height="30"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <state key="normal" title="FL"/>
+                                <connections>
+                                    <action selector="fl:" destination="whP-gf-Uak" eventType="touchUpInside" id="Lh9-bW-4cY"/>
                                 </connections>
                             </button>
                         </subviews>

@@ -10,16 +10,15 @@
 #import "UIView+SJFLPrivate.h"
 
 NS_ASSUME_NONNULL_BEGIN
-@interface SJFLLayoutElement ()
-@property (nonatomic) CGFloat before;
+@interface SJFLLayoutElement () {
+    __weak UIView *_Nullable _view;
+    __weak UIView *_Nullable _dep_view;
+    CGFloat _before;
+}
 @property (nonatomic, readonly) CGFloat value;
 @end
 
 @implementation SJFLLayoutElement
-
-+ (void)initialize {
-    [UIView FL_layoutElementWantReceiveNotificationForLayoutSubviews];
-}
 
 - (instancetype)initWithTarget:(SJFLAttributeUnit *)target offset:(CGFloat)offset {
     return [self initWithTarget:target equalTo:nil offset:offset];
@@ -53,27 +52,19 @@ NS_ASSUME_NONNULL_BEGIN
     
     _dependency = dependency;
     
-    UIView *sueprview = _target.view.superview;
-    [NSNotificationCenter.defaultCenter addObserver:self selector:@selector(dependencyViewsDidLayoutSubviews:) name:SJFLViewLayoutSubviewsNotification object:_target.view.superview];
-    
-    if ( _dependency.view != sueprview ) {
-        [NSNotificationCenter.defaultCenter addObserver:self selector:@selector(dependencyViewsDidLayoutSubviews:) name:SJFLViewLayoutSubviewsNotification object:_dependency.view];
-    }
+    _view = target.view;
+    _dep_view = dependency.view;
     return self;
 }
 
-- (void)dealloc {
-    [NSNotificationCenter.defaultCenter removeObserver:self];
-}
-
-- (void)dependencyViewsDidLayoutSubviews:(NSNotification *)note {
-    if ( !_dependency.view || !_target.view )
+- (void)dependencyViewsDidLayoutSubViews {
+    if ( !_dep_view || !_view )
         return;
     [self installValueToTargetIfNeeded];
 }
 
 - (void)installValueToTargetIfNeeded {
-    UIView *_Nullable view = _target.view;
+    UIView *_Nullable view = _view;
     if ( !SJFLViewAttributeCanSettable(view, _target.attribute) ) {
         return;
     }
@@ -87,57 +78,56 @@ NS_ASSUME_NONNULL_BEGIN
     _before = newValue;
     
     if ( view ) {
-        CGFloat value = self.value;
         switch ( _target.attribute ) {
             case SJFLAttributeNone:
                 break;
             case SJFLAttributeTop: {
-                SJFLViewSetY(view, value);
+                SJFLViewSetY(view, newValue);
                 
                 [SJFLViewGetLayoutElement(view, SJFLAttributeBottom) installValueToTargetIfNeeded];
             }
                 break;
             case SJFLAttributeLeft: {
-                SJFLViewSetX(view, value);
+                SJFLViewSetX(view, newValue);
                 
                 [SJFLViewGetLayoutElement(view, SJFLAttributeRight) installValueToTargetIfNeeded];
             }
                 break;
             case SJFLAttributeBottom:
-                SJFLViewSetBottom(view, value);
+                SJFLViewSetBottom(view, newValue);
                 break;
             case SJFLAttributeRight:
-                SJFLViewSetRight(view, value);
+                SJFLViewSetRight(view, newValue);
                 break;
             case SJFLAttributeWidth: {
-                SJFLViewSetWidth(view, value);
+                SJFLViewSetWidth(view, newValue);
                 
                 [SJFLViewGetLayoutElement(view, SJFLAttributeCenterX) installValueToTargetIfNeeded];
                 [SJFLViewGetLayoutElement(view, SJFLAttributeRight) installValueToTargetIfNeeded];
             }
                 break;
             case SJFLAttributeHeight: {
-                SJFLViewSetHeight(view, value);
+                SJFLViewSetHeight(view, newValue);
                 
                 [SJFLViewGetLayoutElement(view, SJFLAttributeCenterY) installValueToTargetIfNeeded];
                 [SJFLViewGetLayoutElement(view, SJFLAttributeBottom) installValueToTargetIfNeeded];
             }
                 break;
             case SJFLAttributeCenterX:
-                SJFLViewSetCenterX(view, value);
+                SJFLViewSetCenterX(view, newValue);
                 break;
             case SJFLAttributeCenterY:
-                SJFLViewSetCenterY(view, value);
+                SJFLViewSetCenterY(view, newValue);
                 break;
         }
     }
 }
 
 - (CGFloat)value {
-    UIView *dep_view = _dependency.view;
+    UIView *dep_view = _dep_view;
     CGRect dep_frame = dep_view.frame;
 
-    UIView *tar_view = _target.view;
+    UIView *tar_view = _view;
     UIView *tar_superview = tar_view.superview;
 
     CGFloat dep_value = 0;
@@ -145,13 +135,13 @@ NS_ASSUME_NONNULL_BEGIN
         case SJFLAttributeNone:
             break;
         case SJFLAttributeTop: {
-            CGPoint offset = [dep_view convertPoint:CGPointZero toView:tar_superview];
-            dep_value = offset.y;
+            CGPoint top = [dep_view convertPoint:CGPointZero toView:tar_superview];
+            dep_value = top.y;
         }
             break;
         case SJFLAttributeLeft: {
-            CGPoint offset = [dep_view convertPoint:CGPointZero toView:tar_superview];
-            dep_value = offset.x;
+            CGPoint left = [dep_view convertPoint:CGPointZero toView:tar_superview];
+            dep_value = left.x;
         }
             break;
         case SJFLAttributeBottom: {
@@ -206,17 +196,17 @@ NS_ASSUME_NONNULL_BEGIN
         }
             break;
         case SJFLAttributeCenterX: {
-            CGPoint offset = [dep_view convertPoint:SJFLViewGetCenterPoint(dep_view) toView:tar_superview];
-            dep_value = offset.x;
+            CGPoint center = [dep_view convertPoint:SJFLViewGetCenterPoint(dep_view) toView:tar_superview];
+            dep_value = center.x;
         }
             break;
         case SJFLAttributeCenterY: {
-            CGPoint offset = [dep_view convertPoint:SJFLViewGetCenterPoint(dep_view) toView:tar_superview];
-            dep_value = offset.y;
+            CGPoint center = [dep_view convertPoint:SJFLViewGetCenterPoint(dep_view) toView:tar_superview];
+            dep_value = center.y;
         }
             break;
     }
-
+    
     return dep_value + _offset;
 }
 
@@ -228,14 +218,6 @@ UIKIT_STATIC_INLINE SJFLLayoutElement *_Nullable SJFLViewGetLayoutElement(UIView
             return ele;
     }
     return nil;
-}
-
-UIKIT_STATIC_INLINE CGFloat SJFLViewGetX(UIView *view) {
-    return view.frame.origin.x;
-}
-
-UIKIT_STATIC_INLINE CGFloat SJFLViewGetY(UIView *view) {
-    return view.frame.origin.y;
 }
 
 UIKIT_STATIC_INLINE CGFloat SJFLViewGetWidth(UIView *view) {
@@ -287,19 +269,23 @@ UIKIT_STATIC_INLINE BOOL SJFLViewAttributeCanSettable(UIView *view, SJFLAttribut
 }
 
 UIKIT_STATIC_INLINE BOOL SJFLViewCenterXCanSettable(UIView *view) {
-    return !SJFLValueIsZero(SJFLViewGetWidth(view)) || !SJFLValueIsZero(SJFLViewGetX(view));
+    CGRect frame = view.frame;
+    return !SJFLValueIsZero(CGRectGetWidth(frame)) || !SJFLValueIsZero(CGRectGetMinX(frame));
 }
 
 UIKIT_STATIC_INLINE BOOL SJFLViewCenterYCanSettable(UIView *view) {
-    return !SJFLValueIsZero(SJFLViewGetHeight(view)) || !SJFLValueIsZero(SJFLViewGetY(view));
+    CGRect frame = view.frame;
+    return !SJFLValueIsZero(CGRectGetHeight(frame)) || !SJFLValueIsZero(CGRectGetMinY(frame));
 }
 
 UIKIT_STATIC_INLINE BOOL SJFLViewBottomCanSettable(UIView *view) {
-    return !SJFLValueIsZero(SJFLViewGetY(view)) || !SJFLValueIsZero(SJFLViewGetHeight(view)) || !SJFLValueIsZero(SJFLViewGetCenterY(view));
+    CGRect frame = view.frame;
+    return !SJFLValueIsZero(CGRectGetMinY(frame)) || !SJFLValueIsZero(CGRectGetHeight(frame)) || !SJFLValueIsZero(SJFLViewGetCenterY(view));
 }
 
 UIKIT_STATIC_INLINE BOOL SJFLViewRightCanSettable(UIView *view) {
-    return !SJFLValueIsZero(SJFLViewGetX(view)) || !SJFLValueIsZero(SJFLViewGetWidth(view)) || !SJFLValueIsZero(SJFLViewGetCenterX(view));
+    CGRect frame = view.frame;
+    return !SJFLValueIsZero(CGRectGetMinX(frame)) || !SJFLValueIsZero(CGRectGetWidth(frame)) || !SJFLValueIsZero(SJFLViewGetCenterX(view));
 }
 
 // - setter -
