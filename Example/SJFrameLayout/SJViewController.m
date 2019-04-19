@@ -18,7 +18,7 @@
 #import <MMPlaceHolder.h>
 #import <SJFrameLayout/UIView+SJFLPrivate.h>
 
-#define ViewCount (30)
+#define ViewCount (100)
 
 @interface SJViewController ()
 
@@ -152,10 +152,10 @@
     [self.view addSubview:subview1];
     
     subview1.sd_layout
-    .topSpaceToView(self.view, 40)
-    .leftSpaceToView(self.view, 180)
+    .heightIs(300)
+    .leftSpaceToView(self.view, 20)
     .rightSpaceToView(self.view, 20)
-    .bottomSpaceToView(self.view, 200);
+    .bottomSpaceToView(self.view, 49);
     
     
     for ( int i = 0 ; i < ViewCount ; ++ i ) {
@@ -181,10 +181,10 @@
     subview1.backgroundColor = [UIColor redColor];
     [self.view addSubview:subview1];
     [subview1 sj_makeFrameLayout:^(SJFLMaker * _Nonnull make) {
-        make.top.offset(40);
-        make.left.offset(180);
+        make.left.offset(20);
+        make.bottom.offset(-49);
         make.right.offset(-20);
-        make.bottom.offset(-200);
+        make.height.offset(300);
     }];
     
     for ( int i = 0 ; i < ViewCount ; ++ i ) {
@@ -200,7 +200,9 @@
             make.right.equalTo(subview1.FL_Right).offset(-(8+i));
             make.bottom.equalTo(subview1.FL_Bottom).offset(-(8+i));
         }];
-        
+
+    }
+    
 //        UIView *subview = [UIView new];
 //        subview.backgroundColor = [UIColor colorWithRed:arc4random() % 256 / 255.0
 //                                                  green:arc4random() % 256 / 255.0
@@ -255,7 +257,6 @@
 //            make.width.offset(20);
 //            make.height.offset(20);
 //        }];
-    }
     //
     
     

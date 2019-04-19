@@ -131,9 +131,15 @@ NS_ASSUME_NONNULL_BEGIN
     UIView *tar_superview = tar_view.superview;
 
     CGFloat dep_value = 0;
-    switch ( _dependency.attribute ) {
-        case SJFLAttributeNone:
-            break;
+    
+    SJFLAttribute dep_attr = _dependency.attribute;
+    
+    if ( dep_attr == SJFLAttributeNone ) {
+        return _offset;
+    }
+    
+    switch ( dep_attr ) {
+        case SJFLAttributeNone: break;
         case SJFLAttributeTop: {
             CGPoint top = [dep_view convertPoint:CGPointZero toView:tar_superview];
             dep_value = top.y + _offset;

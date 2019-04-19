@@ -10,11 +10,6 @@
 
 NS_ASSUME_NONNULL_BEGIN
 @interface SJFLMaker : NSObject
-- (instancetype)initWithView:(UIView *)view;
-
-#warning next ...
-//        make.top.left.right.height.offset(20)
-
 @property (nonatomic, strong, readonly) SJFLLayout *top;
 @property (nonatomic, strong, readonly) SJFLLayout *left;
 @property (nonatomic, strong, readonly) SJFLLayout *bottom;
@@ -26,6 +21,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, strong, readonly) SJFLLayout *centerX;
 @property (nonatomic, strong, readonly) SJFLLayout *centerY;
 
+- (instancetype)initWithView:(UIView *)view;
 - (void)install;
 @end
 NS_ASSUME_NONNULL_END

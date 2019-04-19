@@ -9,11 +9,15 @@
 #import <objc/message.h>
 #import "UIView+SJFLAdditions.h"
 #import "UIView+SJFLPrivate.h"
+#import "SJFLRecorder.h"
+#import "SJFLLayoutElement.h"
+#import "SJFLAttributeUnit.h"
 
 NS_ASSUME_NONNULL_BEGIN
-@interface SJFLMaker ()
-@property (nonatomic, weak, readonly, nullable) UIView *view;
-@property (nonatomic, strong, readonly) SJFLAttributeUnit *unit;
+@interface SJFLMaker () {
+    __weak UIView *_Nullable _view;
+    NSMutableArray<SJFLLayout *> *_m;
+}
 @end
 
 @implementation SJFLMaker
@@ -21,81 +25,95 @@ NS_ASSUME_NONNULL_BEGIN
     self = [super init];
     if ( !self ) return nil;
     _view = view;
+    _m = [NSMutableArray array];
     return self;
 }
-@synthesize top = _top;
+
 - (SJFLLayout *)top {
-    if ( !_top ) {
-        _top = [[SJFLLayout alloc] initWithUnit:[[SJFLAttributeUnit alloc] initWithView:_view attribute:SJFLAttributeTop]];
-    }
-    return _top;
+    SJFLLayout *layout = [[SJFLLayout alloc] initWithAttribute:SJFLAttributeTop];
+    [_m addObject:layout];
+    return layout;
 }
-@synthesize left = _left;
+
 - (SJFLLayout *)left {
-    if ( !_left ) {
-        _left = [[SJFLLayout alloc] initWithUnit:[[SJFLAttributeUnit alloc] initWithView:_view attribute:SJFLAttributeLeft]];
-    }
-    return _left;
+    SJFLLayout *layout = [[SJFLLayout alloc] initWithAttribute:SJFLAttributeLeft];
+    [_m addObject:layout];
+    return layout;
 }
-@synthesize bottom = _bottom;
+
 - (SJFLLayout *)bottom {
-    if ( !_bottom ) {
-        _bottom = [[SJFLLayout alloc] initWithUnit:[[SJFLAttributeUnit alloc] initWithView:_view attribute:SJFLAttributeBottom]];
-    }
-    return _bottom;
+    SJFLLayout *layout = [[SJFLLayout alloc] initWithAttribute:SJFLAttributeBottom];
+    [_m addObject:layout];
+    return layout;
 }
-@synthesize right = _right;
+
 - (SJFLLayout *)right {
-    if ( !_right ) {
-        _right = [[SJFLLayout alloc] initWithUnit:[[SJFLAttributeUnit alloc] initWithView:_view attribute:SJFLAttributeRight]];
-    }
-    return _right;
+    SJFLLayout *layout = [[SJFLLayout alloc] initWithAttribute:SJFLAttributeRight];
+    [_m addObject:layout];
+    return layout;
 }
-@synthesize width = _width;
+
 - (SJFLLayout *)width {
-    if ( !_width ) {
-        _width = [[SJFLLayout alloc] initWithUnit:[[SJFLAttributeUnit alloc] initWithView:_view attribute:SJFLAttributeWidth]];
-    }
-    return _width;
+    SJFLLayout *layout = [[SJFLLayout alloc] initWithAttribute:SJFLAttributeWidth];
+    [_m addObject:layout];
+    return layout;
 }
-@synthesize height = _height;
+
 - (SJFLLayout *)height {
-    if ( !_height ) {
-        _height = [[SJFLLayout alloc] initWithUnit:[[SJFLAttributeUnit alloc] initWithView:_view attribute:SJFLAttributeHeight]];
-    }
-    return _height;
+    SJFLLayout *layout = [[SJFLLayout alloc] initWithAttribute:SJFLAttributeHeight];
+    [_m addObject:layout];
+    return layout;
 }
-@synthesize centerX = _centerX;
+
 - (SJFLLayout *)centerX {
-    if ( !_centerX ) {
-        _centerX = [[SJFLLayout alloc] initWithUnit:[[SJFLAttributeUnit alloc] initWithView:_view attribute:SJFLAttributeCenterX]];
-    }
-    return _centerX;
+    SJFLLayout *layout = [[SJFLLayout alloc] initWithAttribute:SJFLAttributeCenterX];
+    [_m addObject:layout];
+    return layout;
 }
-@synthesize centerY = _centerY;
+
 - (SJFLLayout *)centerY {
-    if ( !_centerY ) {
-        _centerY = [[SJFLLayout alloc] initWithUnit:[[SJFLAttributeUnit alloc] initWithView:_view attribute:SJFLAttributeCenterY]];
-    }
-    return _centerY;
+    SJFLLayout *layout = [[SJFLLayout alloc] initWithAttribute:SJFLAttributeCenterY];
+    [_m addObject:layout];
+    return layout;
 }
+
 - (void)install {
-    NSMutableArray<SJFLLayoutElement *> *m = [NSMutableArray array];
-#define SJFLLayoutGenerateElement(_layout_) \
-    if ( _layout_ != nil ) { \
-        [m addObject:[_layout_ generateElement]]; \
+    SJFLRecorder *_Nullable rec_top = nil;
+    SJFLRecorder *_Nullable rec_left = nil;
+    SJFLRecorder *_Nullable rec_bottom = nil;
+    SJFLRecorder *_Nullable rec_right = nil;
+    SJFLRecorder *_Nullable rec_width = nil;
+    SJFLRecorder *_Nullable rec_height = nil;
+    SJFLRecorder *_Nullable rec_centerX = nil;
+    SJFLRecorder *_Nullable rec_centerY = nil;
+    
+    for ( SJFLLayout *layout in _m ) {
+        SJFLRecorder *recorder = [layout recorder];
+        if ( [layout layoutExistsForAttribtue:SJFLAttributeTop] )       rec_top = recorder;
+        if ( [layout layoutExistsForAttribtue:SJFLAttributeLeft] )      rec_left = recorder;
+        if ( [layout layoutExistsForAttribtue:SJFLAttributeBottom] )    rec_bottom = recorder;
+        if ( [layout layoutExistsForAttribtue:SJFLAttributeRight] )     rec_right = recorder;
+        if ( [layout layoutExistsForAttribtue:SJFLAttributeWidth] )     rec_width = recorder;
+        if ( [layout layoutExistsForAttribtue:SJFLAttributeHeight] )    rec_height = recorder;
+        if ( [layout layoutExistsForAttribtue:SJFLAttributeCenterX] )   rec_centerX = recorder;
+        if ( [layout layoutExistsForAttribtue:SJFLAttributeCenterY] )   rec_centerY = recorder;
     }
     
-    SJFLLayoutGenerateElement(_top);
-    SJFLLayoutGenerateElement(_left);
-    SJFLLayoutGenerateElement(_bottom);
-    SJFLLayoutGenerateElement(_right);
-    SJFLLayoutGenerateElement(_width);
-    SJFLLayoutGenerateElement(_height);
-    SJFLLayoutGenerateElement(_centerX);
-    SJFLLayoutGenerateElement(_centerY);
-    
+    NSMutableArray<SJFLLayoutElement *> *m = [NSMutableArray array];
+    if ( rec_top )      [m addObject:[self createElementForRecorder:rec_top attribute:SJFLAttributeTop]];
+    if ( rec_left )     [m addObject:[self createElementForRecorder:rec_left attribute:SJFLAttributeLeft]];
+    if ( rec_bottom )   [m addObject:[self createElementForRecorder:rec_bottom attribute:SJFLAttributeBottom]];
+    if ( rec_right )    [m addObject:[self createElementForRecorder:rec_right attribute:SJFLAttributeRight]];
+    if ( rec_width )    [m addObject:[self createElementForRecorder:rec_width attribute:SJFLAttributeWidth]];
+    if ( rec_height )   [m addObject:[self createElementForRecorder:rec_height attribute:SJFLAttributeHeight]];
+    if ( rec_centerX )  [m addObject:[self createElementForRecorder:rec_centerX attribute:SJFLAttributeCenterX]];
+    if ( rec_centerY )  [m addObject:[self createElementForRecorder:rec_centerX attribute:SJFLAttributeCenterY]];
     _view.FL_elements = m;
+}
+
+- (SJFLLayoutElement *)createElementForRecorder:(SJFLRecorder *)recorder attribute:(SJFLAttribute)attr {
+    SJFLAttributeUnit *unit = [[SJFLAttributeUnit alloc] initWithView:_view attribute:attr];
+    return [[SJFLLayoutElement alloc] initWithTarget:unit equalTo:recorder->FL_dependency offset:recorder->FL_offset];
 }
 @end
 NS_ASSUME_NONNULL_END
