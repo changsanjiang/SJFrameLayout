@@ -182,8 +182,7 @@
     [self.view addSubview:subview1];
     [subview1 sj_makeFrameLayout:^(SJFLMaker * _Nonnull make) {
         make.left.offset(20);
-        make.bottom.offset(-49);
-        make.right.offset(-20);
+        make.bottom.right.offset(-20);
         make.height.offset(300);
     }];
     
