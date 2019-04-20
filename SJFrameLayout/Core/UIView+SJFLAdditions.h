@@ -17,7 +17,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, strong, readonly) SJFLAttributeUnit *FL_Height;
 @property (nonatomic, strong, readonly) SJFLAttributeUnit *FL_CenterX;
 @property (nonatomic, strong, readonly) SJFLAttributeUnit *FL_CenterY;
-
 - (SJFLAttributeUnit *_Nullable)FL_attributeUnitForAttribute:(SJFLAttribute)attr;
+- (void)FL_reset;
 @end
 NS_ASSUME_NONNULL_END

@@ -15,11 +15,11 @@
 #import <UIView+SJFLAdditions.h>
 #import "SJTestView.h"
 #import "SJTestSubView.h"
-#import <MMPlaceHolder.h>
+//#import <MMPlaceHolder.h>
 #import <SJFrameLayout/UIView+SJFLPrivate.h>
 
 
-#define ViewCount (100)
+#define ViewCount (130)
 
 @interface SJViewController ()
 
@@ -186,9 +186,10 @@
     [self.view addSubview:subview1];
     
     [subview1 sj_makeFrameLayout:^(SJFLMaker * _Nonnull make) {
-        make.left.offset(20);
-        make.bottom.right.offset(-20);
-        make.height.offset(300);
+        make.center.offset(0);
+//        make.left.offset(20);
+//        make.bottom.right.offset(-20);
+//        make.height.offset(300);
     }];
     
     UIView *s = [SJTestView new];
@@ -196,21 +197,20 @@
     [self.view addSubview:s];
 
     [s sj_makeFrameLayout:^(SJFLMaker * _Nonnull make) {
-        make.bottom.equalTo(subview1.FL_Top).offset(-8);
-        make.centerX.equalTo(subview1);
+//        make.center.offset(0);
         make.size.offset(50);
+        make.edges.offset(0);
     }];
 
 //    for ( int i = 0 ; i < 1 ; ++ i ) {
-//        UIView *s = [UIView new];
-//        s.backgroundColor =  [UIColor colorWithRed:arc4random() % 256 / 255.0
+//        UIView *a = [UIView new];
+//        a.backgroundColor =  [UIColor colorWithRed:arc4random() % 256 / 255.0
 //                                             green:arc4random() % 256 / 255.0
 //                                              blue:arc4random() % 256 / 255.0
 //                                             alpha:1];
-//        [subview1 addSubview:s];
+//        [s addSubview:a];
 //
-//        [s sj_makeFrameLayout:^(SJFLMaker * _Nonnull make) {
-////            make.size.offset(200);
+//        [a sj_makeFrameLayout:^(SJFLMaker * _Nonnull make) {
 //            make.edges.box_equalTo(UIEdgeInsetsMake(8 + i, 8 + i, -(8 + i), -(8 + i)));
 //        }];
 //    }

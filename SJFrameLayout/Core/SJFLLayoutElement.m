@@ -11,6 +11,12 @@
 #import "UIView+SJFLPrivate.h"
 
 NS_ASSUME_NONNULL_BEGIN
+#if 1
+#ifdef DEBUG
+#undef DEBUG
+#endif
+#endif
+
 @interface SJFLLayoutSetInfo : NSObject
 - (void)set:(SJFLAttribute)attribute;
 - (BOOL)get:(SJFLAttribute)attribute;

@@ -13,6 +13,12 @@
 #import "SJFLAttributeUnit.h"
 
 NS_ASSUME_NONNULL_BEGIN
+#if 1
+#ifdef DEBUG
+#undef DEBUG
+#endif
+#endif
+
 @interface SJFLMaker () {
     __weak UIView *_Nullable _view;
 }
@@ -22,6 +28,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithView:(UIView *)view {
     self = [super init];
     if ( !self ) return nil;
+    [view FL_reset];
+    view.FL_elements = nil;
     _view = view;
     return self;
 }
