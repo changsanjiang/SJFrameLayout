@@ -6,7 +6,7 @@ target 'SJFrameLayout_Example' do
   pod 'SJFrameLayout', :path => '../'
 pod 'Masonry'
 pod 'MMPlaceHolder', :inhibit_warnings => true
-pod 'SDAutoLayout'
+#pod 'SDAutoLayout'
 #pod 'MTHawkeye'
 
   target 'SJFrameLayout_Tests' do

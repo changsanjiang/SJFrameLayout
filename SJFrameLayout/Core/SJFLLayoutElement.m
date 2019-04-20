@@ -2,7 +2,7 @@
 //  SJFLLayoutElement.m
 //  Pods
 //
-//  Created by BlueDancer on 2019/4/18.
+//  Created by 畅三江 on 2019/4/18.
 //
 
 #import "SJFLLayoutElement.h"
@@ -13,24 +13,21 @@ NS_ASSUME_NONNULL_BEGIN
 @interface SJFLLayoutElement () {
     __weak UIView *_Nullable _view;
     __weak UIView *_Nullable _dep_view;
+    SJFLAttribute _dep_attr;
     CGFloat _before;
 }
 @property (nonatomic, readonly) CGFloat value;
 @end
 
 @implementation SJFLLayoutElement
-
-- (instancetype)initWithTarget:(SJFLAttributeUnit *)target offset:(CGFloat)offset {
-    return [self initWithTarget:target equalTo:nil offset:offset];
-}
-
-- (instancetype)initWithTarget:(SJFLAttributeUnit *)target equalTo:(nullable SJFLAttributeUnit *)dependency offset:(CGFloat)offset {
+- (instancetype)initWithTarget:(SJFLAttributeUnit *)target {
     self = [super init];
     if ( !self ) return nil;
-    _target = target;
-    _offset = offset;
     _before = -1;
+    _target = target;
+    _view = target.view;
     
+    SJFLAttributeUnit *_Nullable dependency = target.equalToUnit;
     if ( !dependency ) {
         switch ( _target.attribute ) {
             case SJFLAttributeNone:
@@ -48,13 +45,15 @@ NS_ASSUME_NONNULL_BEGIN
             }
                 break;
         }
+        [target equalTo:dependency];
     }
-    
-    _dependency = dependency;
-    
-    _view = target.view;
     _dep_view = dependency.view;
+    _dep_attr = dependency.attribute;
     return self;
+}
+
+- (UIView * _Nullable)dependencyView {
+    return _dep_view;
 }
 
 - (void)dependencyViewsDidLayoutSubViews {
@@ -134,22 +133,23 @@ NS_ASSUME_NONNULL_BEGIN
 
     CGFloat dep_value = 0;
     
-    SJFLAttribute dep_attr = _dependency.attribute;
+    SJFLAttribute dep_attr = _dep_attr;
+    CGFloat offset = _target.offset;
     
     if ( dep_attr == SJFLAttributeNone ) {
-        return _offset;
+        return offset;
     }
     
     switch ( dep_attr ) {
         case SJFLAttributeNone: break;
         case SJFLAttributeTop: { ///< top
             CGPoint top = [dep_view convertPoint:CGPointZero toView:tar_superview];
-            dep_value = top.y + _offset;
+            dep_value = top.y + offset;
         }
             break;
         case SJFLAttributeLeft: { ///< left
             CGPoint left = [dep_view convertPoint:CGPointZero toView:tar_superview];
-            dep_value = left.x + _offset;
+            dep_value = left.x + offset;
         }
             break;
         case SJFLAttributeBottom: { ///< top + height = maxY
@@ -171,7 +171,7 @@ NS_ASSUME_NONNULL_BEGIN
                 }
             }
             
-            dep_value = top + height + _offset; // return maxY
+            dep_value = top + height + offset; // return maxY
         }
             break;
         case SJFLAttributeRight: { ///< left + width = maxX
@@ -192,25 +192,25 @@ NS_ASSUME_NONNULL_BEGIN
                 }
             }
             
-            dep_value = left + width + _offset; // return maxX
+            dep_value = left + width + offset; // return maxX
         }
             break;
         case SJFLAttributeWidth: { ///< width
-            dep_value = CGRectGetWidth(dep_frame) + _offset;
+            dep_value = CGRectGetWidth(dep_frame) + offset;
         }
             break;
         case SJFLAttributeHeight: { ///< height
-            dep_value = CGRectGetHeight(dep_frame) + _offset;
+            dep_value = CGRectGetHeight(dep_frame) + offset;
         }
             break;
         case SJFLAttributeCenterX: {
             CGPoint center = [dep_view convertPoint:SJFLViewGetCenterPoint(dep_view) toView:tar_superview];
-            dep_value = center.x + _offset;
+            dep_value = center.x + offset;
         }
             break;
         case SJFLAttributeCenterY: {
             CGPoint center = [dep_view convertPoint:SJFLViewGetCenterPoint(dep_view) toView:tar_superview];
-            dep_value = center.y + _offset;
+            dep_value = center.y + offset;
         }
             break;
     }

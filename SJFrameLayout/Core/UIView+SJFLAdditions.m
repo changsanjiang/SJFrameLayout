@@ -1,8 +1,8 @@
 //
 //  UIView+SJFLAdditions.m
-//  Masonry
+//  Pods
 //
-//  Created by BlueDancer on 2019/4/18.
+//  Created by 畅三江 on 2019/4/18.
 //
 
 #import "UIView+SJFLAdditions.h"
@@ -10,29 +10,60 @@
 
 NS_ASSUME_NONNULL_BEGIN
 @implementation UIView (SJFLAdditions)
+#define RETURN_FL_ATTR_UNIT(__attr__) \
+SJFLAttributeUnit *_Nullable unit = objc_getAssociatedObject(self, _cmd); \
+if ( !unit ) { \
+    unit = [[SJFLAttributeUnit alloc] initWithView:self attribute:__attr__]; \
+    objc_setAssociatedObject(self, _cmd, unit, OBJC_ASSOCIATION_RETAIN_NONATOMIC); \
+} \
+return unit;
+
 - (SJFLAttributeUnit *)FL_Top {
-    return [[SJFLAttributeUnit alloc] initWithView:self attribute:SJFLAttributeTop];
+    RETURN_FL_ATTR_UNIT(SJFLAttributeTop);
 }
 - (SJFLAttributeUnit *)FL_Left {
-    return [[SJFLAttributeUnit alloc] initWithView:self attribute:SJFLAttributeLeft];
+    RETURN_FL_ATTR_UNIT(SJFLAttributeLeft);
 }
 - (SJFLAttributeUnit *)FL_Bottom {
-    return [[SJFLAttributeUnit alloc] initWithView:self attribute:SJFLAttributeBottom];
+    RETURN_FL_ATTR_UNIT(SJFLAttributeBottom);
 }
 - (SJFLAttributeUnit *)FL_Right {
-    return [[SJFLAttributeUnit alloc] initWithView:self attribute:SJFLAttributeRight];
+    RETURN_FL_ATTR_UNIT(SJFLAttributeRight);
 }
 - (SJFLAttributeUnit *)FL_Width {
-    return [[SJFLAttributeUnit alloc] initWithView:self attribute:SJFLAttributeWidth];
+    RETURN_FL_ATTR_UNIT(SJFLAttributeWidth);
 }
 - (SJFLAttributeUnit *)FL_Height {
-    return [[SJFLAttributeUnit alloc] initWithView:self attribute:SJFLAttributeHeight];
+    RETURN_FL_ATTR_UNIT(SJFLAttributeHeight);
 }
 - (SJFLAttributeUnit *)FL_CenterX {
-    return [[SJFLAttributeUnit alloc] initWithView:self attribute:SJFLAttributeCenterX];
+    RETURN_FL_ATTR_UNIT(SJFLAttributeCenterX);
 }
 - (SJFLAttributeUnit *)FL_CenterY {
-    return [[SJFLAttributeUnit alloc] initWithView:self attribute:SJFLAttributeCenterY];
+    RETURN_FL_ATTR_UNIT(SJFLAttributeCenterY);
+}
+- (SJFLAttributeUnit *_Nullable)FL_attributeUnitForAttribute:(SJFLAttribute)attr {
+    switch ( attr ) {
+        case SJFLAttributeNone:
+            break;
+        case SJFLAttributeTop:
+            return objc_getAssociatedObject(self, @selector(FL_Top));
+        case SJFLAttributeLeft:
+            return objc_getAssociatedObject(self, @selector(FL_Left));
+        case SJFLAttributeBottom:
+            return objc_getAssociatedObject(self, @selector(FL_Bottom));
+        case SJFLAttributeRight:
+            return objc_getAssociatedObject(self, @selector(FL_Right));
+        case SJFLAttributeWidth:
+            return objc_getAssociatedObject(self, @selector(FL_Width));
+        case SJFLAttributeHeight:
+            return objc_getAssociatedObject(self, @selector(FL_Height));
+        case SJFLAttributeCenterX:
+            return objc_getAssociatedObject(self, @selector(FL_CenterX));
+        case SJFLAttributeCenterY:
+            return objc_getAssociatedObject(self, @selector(FL_CenterY));
+    }
+    return nil;
 }
 @end
 NS_ASSUME_NONNULL_END

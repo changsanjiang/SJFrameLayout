@@ -1,20 +1,17 @@
 PODS:
   - Masonry (1.1.0)
   - MMPlaceHolder (1.9)
-  - SDAutoLayout (2.2.1)
   - SJFrameLayout (0.1.0)
 
 DEPENDENCIES:
   - Masonry
   - MMPlaceHolder
-  - SDAutoLayout
   - SJFrameLayout (from `../`)
 
 SPEC REPOS:
   https://github.com/cocoapods/specs.git:
     - Masonry
     - MMPlaceHolder
-    - SDAutoLayout
 
 EXTERNAL SOURCES:
   SJFrameLayout:
@@ -23,9 +20,8 @@ EXTERNAL SOURCES:
 SPEC CHECKSUMS:
   Masonry: 678fab65091a9290e40e2832a55e7ab731aad201
   MMPlaceHolder: 40212b9dfe8760134b1b2fce3232f0d46200178f
-  SDAutoLayout: 8bf6b3bbc8b01f775d4defbb4fda2ace805461be
   SJFrameLayout: fc613b029a07e25364381661f02b5fefff96d133
 
-PODFILE CHECKSUM: ec3241a9d4342bd703b235ee4a98e6bd0fe20f69
+PODFILE CHECKSUM: 55bcb46008fd03eeaa8ded79e2fff037580cd8d9
 
 COCOAPODS: 1.7.0.beta.3

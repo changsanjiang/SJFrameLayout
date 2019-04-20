@@ -18,6 +18,7 @@
 #import <MMPlaceHolder.h>
 #import <SJFrameLayout/UIView+SJFLPrivate.h>
 
+
 #define ViewCount (100)
 
 @interface SJViewController ()
@@ -41,6 +42,8 @@
         make.left.offset(180);
         make.right.offset(-20);
         make.bottom.offset(-200);
+        
+        make.edges.mas_offset(0);
     }];
     
     for ( int i = 0 ; i < ViewCount ; ++ i ) {
@@ -55,6 +58,8 @@
             make.left.equalTo(subview1).offset(8 + i);
             make.right.equalTo(subview1).offset(-(8 + i));
             make.bottom.equalTo(subview1).offset(-(8 + i));
+//            make.bottom.mas_offset(@(2));
+//            make.edges.equalTo(self.view);
         }];
     }
     
@@ -180,6 +185,7 @@
     UIView *subview1 = [UIView new];
     subview1.backgroundColor = [UIColor redColor];
     [self.view addSubview:subview1];
+    
     [subview1 sj_makeFrameLayout:^(SJFLMaker * _Nonnull make) {
         make.left.offset(20);
         make.bottom.right.offset(-20);
@@ -193,13 +199,10 @@
                                               blue:arc4random() % 256 / 255.0
                                              alpha:1];
         [self.view.subviews.lastObject addSubview:s];
+        
         [s sj_makeFrameLayout:^(SJFLMaker * _Nonnull make) {
-            make.top.equalTo(subview1.FL_Top).offset(8 + i);
-            make.left.equalTo(subview1.FL_Left).offset(8 + i);
-            make.right.equalTo(subview1.FL_Right).offset(-(8+i));
-            make.bottom.equalTo(subview1.FL_Bottom).offset(-(8+i));
+            make.edges.box_equalTo(UIEdgeInsetsMake(8 + i, 8 + i, -(8 + i), -(8 + i)));
         }];
-
     }
     
 //        UIView *subview = [UIView new];

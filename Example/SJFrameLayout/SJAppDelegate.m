@@ -7,11 +7,24 @@
 //
 
 #import "SJAppDelegate.h"
+#import "SJFLBoxValue.h"
 //#import <MTHawkeye/MTRunHawkeyeInOneLine.h>
 @implementation SJAppDelegate
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
+    CGFloat floatValue = 0.0;
+    CGPoint pointValue = CGPointZero;
+    CGSize sizeValue = CGSizeZero;
+    UIEdgeInsets insetsValue = UIEdgeInsetsZero;
+    
+    
+    NSNumber *num = @(9.0);
+    
+    [num getValue:&insetsValue];
+    
+    NSLog(@"");
+    
 //    [MTRunHawkeyeInOneLine start];
     // Override point for customization after application launch.
     return YES;

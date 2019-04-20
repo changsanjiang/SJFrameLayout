@@ -2,7 +2,7 @@
 //  UIView+SJFLPrivate.m
 //  Pods
 //
-//  Created by BlueDancer on 2019/4/18.
+//  Created by 畅三江 on 2019/4/18.
 //
 
 #import "UIView+SJFLPrivate.h"
@@ -15,7 +15,7 @@ NS_ASSUME_NONNULL_BEGIN
     [self FL_layoutSubviews];
     for ( UIView *subview in self.subviews ) {
         for ( SJFLLayoutElement *ele in subview.FL_elements ) {
-            UIView *dep = ele.dependency.view;
+            UIView *dep = ele.dependencyView;
             if ( dep == self)
                 [ele dependencyViewsDidLayoutSubViews];
         }
