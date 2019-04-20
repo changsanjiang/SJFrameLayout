@@ -186,10 +186,10 @@
     [self.view addSubview:subview1];
     
     [subview1 sj_makeFrameLayout:^(SJFLMaker * _Nonnull make) {
-        make.center.offset(0);
-//        make.left.offset(20);
-//        make.bottom.right.offset(-20);
-//        make.height.offset(300);
+//        make.center.offset(0);
+        make.left.offset(20);
+        make.bottom.right.offset(-20);
+        make.height.offset(300);
     }];
     
     UIView *s = [SJTestView new];
@@ -197,23 +197,23 @@
     [self.view addSubview:s];
 
     [s sj_makeFrameLayout:^(SJFLMaker * _Nonnull make) {
-//        make.center.offset(0);
+        make.center.offset(0);
         make.size.offset(50);
-        make.edges.offset(0);
+//        make.edges.offset(0);
     }];
 
-//    for ( int i = 0 ; i < 1 ; ++ i ) {
-//        UIView *a = [UIView new];
-//        a.backgroundColor =  [UIColor colorWithRed:arc4random() % 256 / 255.0
-//                                             green:arc4random() % 256 / 255.0
-//                                              blue:arc4random() % 256 / 255.0
-//                                             alpha:1];
-//        [s addSubview:a];
-//
-//        [a sj_makeFrameLayout:^(SJFLMaker * _Nonnull make) {
-//            make.edges.box_equalTo(UIEdgeInsetsMake(8 + i, 8 + i, -(8 + i), -(8 + i)));
-//        }];
-//    }
+    for ( int i = 0 ; i < ViewCount ; ++ i ) {
+        UIView *a = [UIView new];
+        a.backgroundColor =  [UIColor colorWithRed:arc4random() % 256 / 255.0
+                                             green:arc4random() % 256 / 255.0
+                                              blue:arc4random() % 256 / 255.0
+                                             alpha:1];
+        [subview1 addSubview:a];
+
+        [a sj_makeFrameLayout:^(SJFLMaker * _Nonnull make) {
+            make.edges.box_equalTo(UIEdgeInsetsMake(8 + i, 8 + i, -(8 + i), -(8 + i)));
+        }];
+    }
 }
 - (IBAction)clean:(id)sender {
     
