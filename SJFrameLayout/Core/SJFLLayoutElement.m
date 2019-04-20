@@ -6,10 +6,100 @@
 //
 
 #import "SJFLLayoutElement.h"
+#import <objc/message.h>
 #import "UIView+SJFLAdditions.h"
 #import "UIView+SJFLPrivate.h"
 
 NS_ASSUME_NONNULL_BEGIN
+@interface SJFLLayoutSetInfo : NSObject
+- (void)setLayout:(SJFLAttribute)attribute;
+- (BOOL)isSet:(SJFLAttribute)attribute;
+@end
+
+@implementation SJFLLayoutSetInfo {
+    struct {
+        BOOL isSetNone;
+        BOOL isSetTop;
+        BOOL isSetLeft;
+        BOOL isSetBottom;
+        BOOL isSetRight;
+        BOOL isSetWidth;
+        BOOL isSetHeight;
+        BOOL isSetCenterX;
+        BOOL isSetCenterY;
+    } info;
+}
+
+- (void)setLayout:(SJFLAttribute)attribute {
+    switch ( attribute ) {
+        case SJFLAttributeNone:
+            info.isSetNone = YES;
+            break;
+        case SJFLAttributeTop:
+            info.isSetTop = YES;
+            break;
+        case SJFLAttributeLeft:
+            info.isSetLeft = YES;
+            break;
+        case SJFLAttributeBottom:
+            info.isSetBottom = YES;
+            break;
+        case SJFLAttributeRight:
+            info.isSetRight = YES;
+            break;
+        case SJFLAttributeWidth:
+            info.isSetWidth = YES;
+            break;
+        case SJFLAttributeHeight:
+            info.isSetHeight = YES;
+            break;
+        case SJFLAttributeCenterX:
+            info.isSetCenterX = YES;
+            break;
+        case SJFLAttributeCenterY:
+            info.isSetCenterY = YES;
+            break;
+    }
+}
+- (BOOL)isSet:(SJFLAttribute)attribute {
+    switch ( attribute ) {
+        case SJFLAttributeNone:
+            return info.isSetNone;
+        case SJFLAttributeTop:
+            return info.isSetTop;
+        case SJFLAttributeLeft:
+            return info.isSetLeft;
+        case SJFLAttributeBottom:
+            return info.isSetBottom;
+        case SJFLAttributeRight:
+            return info.isSetRight;
+        case SJFLAttributeWidth:
+            return info.isSetWidth;
+        case SJFLAttributeHeight:
+            return info.isSetHeight;
+        case SJFLAttributeCenterX:
+            return info.isSetCenterX;
+        case SJFLAttributeCenterY:
+            return info.isSetCenterY;
+    }
+    return NO;
+}
+@end
+
+@interface UIView (SJFLLayoutSetInfo)
+@property (nonatomic, strong, readonly) SJFLLayoutSetInfo *FL_info;
+@end
+@implementation UIView (SJFLLayoutSetInfo)
+- (SJFLLayoutSetInfo *)FL_info {
+    SJFLLayoutSetInfo *_Nullable info = objc_getAssociatedObject(self, _cmd);
+    if ( !info ) {
+        info = [SJFLLayoutSetInfo new];
+        objc_setAssociatedObject(self, _cmd, info, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    }
+    return info;
+}
+@end
+
 @interface SJFLLayoutElement () {
     __weak UIView *_Nullable _tar_view;
     SJFLAttribute _tar_attr;
@@ -332,33 +422,23 @@ UIKIT_STATIC_INLINE BOOL SJFLViewAttributeCanSettable(UIView *view, SJFLAttribut
 }
 
 UIKIT_STATIC_INLINE BOOL SJFLViewCenterXCanSettable(UIView *view) {
-    CGRect frame = view.frame;
-    return !SJFLFloatIsZero(CGRectGetWidth(frame)) || !SJFLFloatIsZero(CGRectGetMinX(frame));
+    SJFLLayoutSetInfo *info = view.FL_info;
+    return [info isSet:SJFLAttributeWidth] || [info isSet:SJFLAttributeTop] || [info isSet:SJFLAttributeBottom];
 }
 
 UIKIT_STATIC_INLINE BOOL SJFLViewCenterYCanSettable(UIView *view) {
-    CGRect frame = view.frame;
-    return !SJFLFloatIsZero(CGRectGetHeight(frame)) || !SJFLFloatIsZero(CGRectGetMinY(frame));
+    SJFLLayoutSetInfo *info = view.FL_info;
+    return [info isSet:SJFLAttributeHeight] || [info isSet:SJFLAttributeLeft] || [info isSet:SJFLAttributeRight];
 }
 
 UIKIT_STATIC_INLINE BOOL SJFLViewBottomCanSettable(UIView *view) {
-    SJFLAttributeUnit *_Nullable top = [view FL_attributeUnitForAttribute:SJFLAttributeTop];
-    SJFLAttributeUnit *_Nullable height = [view FL_attributeUnitForAttribute:SJFLAttributeHeight];
-    if ( top.equalToUnit != nil && height != nil ) return NO;
-    CGRect frame = view.frame;
-    if ( top ) return !SJFLFloatIsZero(CGRectGetMinY(frame)) || top.offset == 0;
-    if ( height ) return !SJFLFloatIsZero(CGRectGetHeight(frame));
-    return NO;
+    SJFLLayoutSetInfo *info = view.FL_info;
+    return [info isSet:SJFLAttributeHeight] || [info isSet:SJFLAttributeTop];
 }
 
 UIKIT_STATIC_INLINE BOOL SJFLViewRightCanSettable(UIView *view) {
-    SJFLAttributeUnit *_Nullable left = [view FL_attributeUnitForAttribute:SJFLAttributeLeft];
-    SJFLAttributeUnit *_Nullable width = [view FL_attributeUnitForAttribute:SJFLAttributeWidth];
-    if ( left != nil && width != nil ) return NO;
-    CGRect frame = view.frame;
-    if ( left ) return !SJFLFloatIsZero(CGRectGetMinX(frame)) || left.offset == 0;
-    if ( width ) return !SJFLFloatIsZero(CGRectGetHeight(frame));
-    return NO;
+    SJFLLayoutSetInfo *info = view.FL_info;
+    return [info isSet:SJFLAttributeWidth] || [info isSet:SJFLAttributeLeft];
 }
 
 // - setter -
@@ -367,36 +447,42 @@ UIKIT_STATIC_INLINE void SJFLViewSetX(UIView *view, CGFloat x) {
     CGRect frame = view.frame;
     frame.origin.x = x;
     view.frame = frame;
+    [view.FL_info setLayout:SJFLAttributeLeft];
 }
 
 UIKIT_STATIC_INLINE void SJFLViewSetY(UIView *view, CGFloat y) {
     CGRect frame = view.frame;
     frame.origin.y = y;
     view.frame = frame;
+    [view.FL_info setLayout:SJFLAttributeTop];
 }
 
 UIKIT_STATIC_INLINE void SJFLViewSetWidth(UIView *view, CGFloat width) {
     CGRect frame = view.frame;
     frame.size.width = width;
     view.frame = frame;
+    [view.FL_info setLayout:SJFLAttributeWidth];
 }
 
 UIKIT_STATIC_INLINE void SJFLViewSetHeight(UIView *view, CGFloat height) {
     CGRect frame = view.frame;
     frame.size.height = height;
     view.frame = frame;
+    [view.FL_info setLayout:SJFLAttributeHeight];
 }
 
 UIKIT_STATIC_INLINE void SJFLViewSetCenterX(UIView *view, CGFloat centerX) {
     CGPoint center = view.center;
     center.x = centerX;
     view.center = center;
+    [view.FL_info setLayout:SJFLAttributeCenterX];
 }
 
 UIKIT_STATIC_INLINE void SJFLViewSetCenterY(UIView *view, CGFloat centerY) {
     CGPoint center = view.center;
     center.y = centerY;
     view.center = center;
+    [view.FL_info setLayout:SJFLAttributeCenterY];
 }
 
 // set maxY
@@ -416,6 +502,7 @@ UIKIT_STATIC_INLINE void SJFLViewSetBottom(UIView *view, CGFloat bottom) {
         frame.origin.y = bottom - CGRectGetHeight(frame);
         view.frame = frame;
     }
+    [view.FL_info setLayout:SJFLAttributeBottom];
 }
 
 // set maxX
@@ -435,6 +522,7 @@ UIKIT_STATIC_INLINE void SJFLViewSetRight(UIView *view, CGFloat right) {
         frame.origin.x = right - CGRectGetWidth(frame);
         view.frame = frame;
     }
+    [view.FL_info setLayout:SJFLAttributeRight];
 }
 @end
 NS_ASSUME_NONNULL_END

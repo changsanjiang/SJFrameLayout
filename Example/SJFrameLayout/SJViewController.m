@@ -191,32 +191,26 @@
         make.height.offset(300);
     }];
     
+    UIView *s = [UIView new];
+    s.backgroundColor = [UIColor greenColor];
+    [self.view addSubview:s];
 
-//    UIView *s = [SJTestView new];
-//    s.backgroundColor = [UIColor greenColor];
-//    [self.view addSubview:s];
+    [s sj_makeFrameLayout:^(SJFLMaker * _Nonnull make) {
+        make.bottom.equalTo(subview1.FL_Top).offset(-8);
+        make.centerX.equalTo(subview1);
+        make.size.offset(50);
+    }];
 //
-//    [s sj_makeFrameLayout:^(SJFLMaker * _Nonnull make) {
-//        make.bottom.equalTo(subview1.FL_Top).offset(-8);
-//        make.centerX.equalTo(subview1);
-//        make.width.offset(50);
-//        make.height.offset(50);
-//    }];
-    
-
-    
-    
 //    for ( int i = 0 ; i < 1 ; ++ i ) {
 //        UIView *s = [SJTestView new];
 //        s.backgroundColor =  [UIColor colorWithRed:arc4random() % 256 / 255.0
 //                                             green:arc4random() % 256 / 255.0
 //                                              blue:arc4random() % 256 / 255.0
 //                                             alpha:1];
-//        [self.view.subviews.lastObject addSubview:s];
+//        [subview1 addSubview:s];
 //
 //        [s sj_makeFrameLayout:^(SJFLMaker * _Nonnull make) {
-//            make.size.offset(200);
-////            make.center.offset(0);
+////            make.size.offset(200);
 //            make.edges.box_equalTo(UIEdgeInsetsMake(8 + i, 8 + i, -(8 + i), -(8 + i)));
 //        }];
 //    }
