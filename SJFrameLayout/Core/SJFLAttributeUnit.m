@@ -9,6 +9,29 @@
 
 NS_ASSUME_NONNULL_BEGIN
 @implementation SJFLAttributeUnit
++ (NSString *)debug_attributeToString:(SJFLAttribute)attribute {
+    switch ( attribute ) {
+        case SJFLAttributeNone:
+            return @"SJFLAttributeNone";
+        case SJFLAttributeTop:
+            return @"SJFLAttributeTop";
+        case SJFLAttributeLeft:
+            return @"SJFLAttributeLeft";
+        case SJFLAttributeBottom:
+            return @"SJFLAttributeBottom";
+        case SJFLAttributeRight:
+            return @"SJFLAttributeRight";
+        case SJFLAttributeWidth:
+            return @"SJFLAttributeWidth";
+        case SJFLAttributeHeight:
+            return @"SJFLAttributeHeight";
+        case SJFLAttributeCenterX:
+            return @"SJFLAttributeCenterX";
+        case SJFLAttributeCenterY:
+            return @"SJFLAttributeCenterY";
+    }
+}
+
 - (instancetype)initWithView:(__weak UIView *)view attribute:(SJFLAttribute)attribute {
     self = [super init];
     if ( !self ) return nil;

@@ -78,6 +78,14 @@ RETURN_FL_MAKER_LAYOUT_MASK(center, SJFLAttributeMaskCenter);
     if ( centerX != nil ) [m addObject:[[SJFLLayoutElement alloc] initWithTarget:centerX]];
     if ( centerY != nil ) [m addObject:[[SJFLLayoutElement alloc] initWithTarget:centerY]];
     _view.FL_elements = m;
+    
+#ifdef DEBUG
+    for ( SJFLLayoutElement *ele in m ) {
+        printf("\nElement: %s", ele.description.UTF8String);
+    }
+    printf("\n");
+    printf("\n");
+#endif
 }
 @end
 NS_ASSUME_NONNULL_END

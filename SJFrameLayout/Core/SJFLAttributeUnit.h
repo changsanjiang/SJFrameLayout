@@ -61,5 +61,6 @@ typedef enum : NSUInteger {
 - (CGFloat)offset;
 - (instancetype)init NS_UNAVAILABLE;
 + (instancetype)new NS_UNAVAILABLE;
++ (NSString *)debug_attributeToString:(SJFLAttribute)attribute;
 @end
 NS_ASSUME_NONNULL_END
