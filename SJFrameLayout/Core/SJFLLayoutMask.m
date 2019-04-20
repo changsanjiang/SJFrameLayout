@@ -6,7 +6,7 @@
 //
 
 #import "SJFLLayoutMask.h"
-#import "UIView+SJFLAdditions.h"
+#import "UIView+SJFLAttributeUnits.h"
 
 NS_ASSUME_NONNULL_BEGIN
 @implementation SJFLLayoutMask {

@@ -7,7 +7,7 @@
 
 #import "SJFLMaker.h"
 #import <objc/message.h>
-#import "UIView+SJFLAdditions.h"
+#import "UIView+SJFLAttributeUnits.h"
 #import "UIView+SJFLPrivate.h"
 #import "SJFLLayoutElement.h"
 #import "SJFLAttributeUnit.h"
@@ -28,7 +28,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithView:(UIView *)view {
     self = [super init];
     if ( !self ) return nil;
-    [view FL_reset];
+    [view FL_resetAttributeUnits];
     view.FL_elements = nil;
     _view = view;
     return self;

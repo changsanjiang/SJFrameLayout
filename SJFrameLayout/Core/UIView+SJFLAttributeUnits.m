@@ -1,15 +1,15 @@
 //
-//  UIView+SJFLAdditions.m
+//  UIView+SJFLAttributeUnits.m
 //  Pods
 //
 //  Created by 畅三江 on 2019/4/18.
 //
 
-#import "UIView+SJFLAdditions.h"
+#import "UIView+SJFLAttributeUnits.h"
 #import <objc/message.h>
 
 NS_ASSUME_NONNULL_BEGIN
-@implementation UIView (SJFLAdditions)
+@implementation UIView (SJFLAttributeUnits)
 static SEL FL_Top;
 static SEL FL_Left;
 static SEL FL_Bottom;
@@ -86,7 +86,7 @@ return unit;
     }
     return nil;
 }
-- (void)FL_reset {
+- (void)FL_resetAttributeUnits {
     FL_selectorsInit();
     objc_setAssociatedObject(self, FL_Top, nil, 0);
     objc_setAssociatedObject(self, FL_Left, nil, 0);

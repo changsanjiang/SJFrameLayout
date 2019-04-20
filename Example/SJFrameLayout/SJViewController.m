@@ -12,7 +12,7 @@
 #import <SDAutoLayout/SDAutoLayout.h>
 #endif
 #import <SJFrameLayout/UIView+SJFrameLayout.h>
-#import <UIView+SJFLAdditions.h>
+#import <UIView+SJFLAttributeUnits.h>
 #import "SJTestView.h"
 #import "SJTestSubView.h"
 //#import <MMPlaceHolder.h>

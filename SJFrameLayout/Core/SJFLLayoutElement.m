@@ -7,7 +7,7 @@
 
 #import "SJFLLayoutElement.h"
 #import <objc/message.h>
-#import "UIView+SJFLAdditions.h"
+#import "UIView+SJFLAttributeUnits.h"
 #import "UIView+SJFLPrivate.h"
 
 NS_ASSUME_NONNULL_BEGIN

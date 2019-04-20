@@ -1,5 +1,5 @@
 //
-//  UIView+SJFLAdditions.h
+//  UIView+SJFLAttributeUnits.h
 //  Pods
 //
 //  Created by 畅三江 on 2019/4/18.
@@ -8,7 +8,7 @@
 #import "SJFLAttributeUnit.h"
 
 NS_ASSUME_NONNULL_BEGIN
-@interface UIView (SJFLAdditions)
+@interface UIView (SJFLAttributeUnits)
 @property (nonatomic, strong, readonly) SJFLAttributeUnit *FL_Top;
 @property (nonatomic, strong, readonly) SJFLAttributeUnit *FL_Left;
 @property (nonatomic, strong, readonly) SJFLAttributeUnit *FL_Bottom;
@@ -18,6 +18,6 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, strong, readonly) SJFLAttributeUnit *FL_CenterX;
 @property (nonatomic, strong, readonly) SJFLAttributeUnit *FL_CenterY;
 - (SJFLAttributeUnit *_Nullable)FL_attributeUnitForAttribute:(SJFLAttribute)attr;
-- (void)FL_reset;
+- (void)FL_resetAttributeUnits;
 @end
 NS_ASSUME_NONNULL_END
