@@ -15,9 +15,8 @@ NS_ASSUME_NONNULL_BEGIN
     [self FL_layoutSubviews];
     for ( UIView *subview in self.subviews ) {
         for ( SJFLLayoutElement *ele in subview.FL_elements ) {
-            UIView *dep = ele.dependencyView;
-            if ( dep == self)
-                [ele dependencyViewsDidLayoutSubViews];
+            if ( ele.tar_superview == self || ele.dep_view == self )
+                [ele needRefreshLayout];
         }
     }
 }

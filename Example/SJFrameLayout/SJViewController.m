@@ -191,7 +191,7 @@
         make.height.offset(300);
     }];
     
-    UIView *s = [UIView new];
+    UIView *s = [SJTestView new];
     s.backgroundColor = [UIColor greenColor];
     [self.view addSubview:s];
 
@@ -200,9 +200,9 @@
         make.centerX.equalTo(subview1);
         make.size.offset(50);
     }];
-//
+
 //    for ( int i = 0 ; i < 1 ; ++ i ) {
-//        UIView *s = [SJTestView new];
+//        UIView *s = [UIView new];
 //        s.backgroundColor =  [UIColor colorWithRed:arc4random() % 256 / 255.0
 //                                             green:arc4random() % 256 / 255.0
 //                                              blue:arc4random() % 256 / 255.0
