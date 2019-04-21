@@ -106,7 +106,7 @@ NS_ASSUME_NONNULL_BEGIN
             if ( SJFLLayoutContainsAttribute(attributes, SJFLAttributeCenterX) ) [view.FL_CenterX equalTo:dep_view.FL_CenterX];
             if ( SJFLLayoutContainsAttribute(attributes, SJFLAttributeCenterY) ) [view.FL_CenterY equalTo:dep_view.FL_CenterY];
         }
-        else if ( [box isKindOfClass:NSValue.class] ) {
+        else {
             self.box_offset(box);
         }
         return self;

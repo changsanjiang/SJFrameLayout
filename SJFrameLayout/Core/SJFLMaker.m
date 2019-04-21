@@ -98,27 +98,5 @@ RETURN_FL_MAKER_LAYOUT_MASK(center, SJFLAttributeMaskCenter);
     printf("\n");
 #endif
 }
-
-//UIKIT_STATIC_INLINE BOOL SJFLViewLayoutNoHeight(UIView *view) {
-//    SJFLAttributeUnit *_Nullable height = [view FL_attributeUnitForAttribute:SJFLAttributeHeight];
-//    SJFLAttributeUnit *_Nullable top = [view FL_attributeUnitForAttribute:SJFLAttributeTop];
-//    SJFLAttributeUnit *_Nullable bottom = [view FL_attributeUnitForAttribute:SJFLAttributeBottom];
-//    // vertical
-//    // - height
-//    // - top & bottom
-//    BOOL h = (height != nil) || (top != nil && bottom != nil);
-//    return !h;
-//}
-//
-//UIKIT_STATIC_INLINE BOOL SJFLViewLayoutNoWidth(UIView *view) {
-//    SJFLAttributeUnit *_Nullable width = [view FL_attributeUnitForAttribute:SJFLAttributeWidth];
-//    SJFLAttributeUnit *_Nullable left = [view FL_attributeUnitForAttribute:SJFLAttributeLeft];
-//    SJFLAttributeUnit *_Nullable right = [view FL_attributeUnitForAttribute:SJFLAttributeRight];
-//    // horizontal
-//    // - width
-//    // - left & right
-//    BOOL v = (width != nil) || (left != nil && right != nil);
-//    return !v;
-//}
 @end
 NS_ASSUME_NONNULL_END

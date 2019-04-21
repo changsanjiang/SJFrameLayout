@@ -67,11 +67,19 @@ static SEL FL_elements;
     return objc_getAssociatedObject(self, _cmd);
 }
 
+- (SJFLLayoutElement *_Nullable)FL_elementForAttribute:(SJFLAttribute)attribute {
+    NSArray<SJFLLayoutElement *> *eles = self.FL_elements;
+    for ( SJFLLayoutElement *ele in eles ) {
+        if ( ele.tar_attr == attribute ) return ele;
+    }
+    return nil;
+}
+
 UIKIT_STATIC_INLINE void SJFLViewLayoutFixInnerWidthIfNeeded(UIView *view) {
     // subview: left <===> right
     CGFloat maxX = 0;
     for ( UIView *sub in view.subviews ) {
-        SJFLAttributeUnit *_Nullable right = [sub FL_attributeUnitForAttribute:SJFLAttributeRight];
+        SJFLAttributeUnit *_Nullable right = [sub FL_elementForAttribute:SJFLAttributeRight].target;;
         CGFloat subMaxX = CGRectGetMaxX(sub.frame) - right.offset;
         if ( subMaxX > maxX ) maxX = subMaxX;
     }
@@ -82,10 +90,9 @@ UIKIT_STATIC_INLINE void SJFLViewLayoutFixInnerWidthIfNeeded(UIView *view) {
 #ifdef DEBUG
             NSLog(@"view: %p, maxX: %lf", view, maxX);
 #endif
-
-            SJFLAttributeUnit *_Nullable width = [view FL_attributeUnitForAttribute:SJFLAttributeWidth];
+            SJFLAttributeUnit *_Nullable width = [view FL_elementForAttribute:SJFLAttributeWidth].target;
             if ( width == nil ) {
-                width = view.FL_Width;
+                width = [[SJFLAttributeUnit alloc] initWithView:view attribute:SJFLAttributeWidth];
                 NSMutableArray<SJFLLayoutElement *> *m = view.FL_elements.mutableCopy;
                 [m addObject:[[SJFLLayoutElement alloc] initWithTarget:width]];
                 view.FL_elements = m;
@@ -105,7 +112,7 @@ UIKIT_STATIC_INLINE void SJFLViewLayoutFixInnerHeightIfNeeded(UIView *view) {
     // subview: top <===> bottom
     CGFloat maxY = 0;
     for ( UIView *sub in view.subviews ) {
-        SJFLAttributeUnit *_Nullable bottom = [sub FL_attributeUnitForAttribute:SJFLAttributeBottom];
+        SJFLAttributeUnit *_Nullable bottom = [sub FL_elementForAttribute:SJFLAttributeBottom].target;
         CGFloat subMaxY = CGRectGetMaxY(sub.frame) - bottom.offset;
         if ( subMaxY > maxY ) maxY = subMaxY;
     }
@@ -116,10 +123,9 @@ UIKIT_STATIC_INLINE void SJFLViewLayoutFixInnerHeightIfNeeded(UIView *view) {
 #ifdef DEBUG
             NSLog(@"view: %p, maxY: %lf", view, maxY);
 #endif
-
-            SJFLAttributeUnit *_Nullable height = [view FL_attributeUnitForAttribute:SJFLAttributeHeight];
+            SJFLAttributeUnit *_Nullable height = [view FL_elementForAttribute:SJFLAttributeHeight].target;
             if ( height == nil ) {
-                height = view.FL_Height;
+                height = [[SJFLAttributeUnit alloc] initWithView:view attribute:SJFLAttributeHeight];
                 NSMutableArray<SJFLLayoutElement *> *m = view.FL_elements.mutableCopy;
                 [m addObject:[[SJFLLayoutElement alloc] initWithTarget:height]];
                 view.FL_elements = m;
