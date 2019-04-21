@@ -100,22 +100,43 @@ UIKIT_STATIC_INLINE void SJFLViewLayoutFixInnerWidthIfNeeded(UIView *view) {
     // subview: left <===> right
     CGFloat maxX = 0;
     for ( UIView *sub in view.subviews ) {
-        CGFloat subMaxX = CGRectGetMaxX(sub.frame);
+        SJFLAttributeUnit *_Nullable right = [sub FL_attributeUnitForAttribute:SJFLAttributeRight];
+        CGFloat subMaxX = CGRectGetMaxX(sub.frame) - right.offset;
         if ( subMaxX > maxX ) maxX = subMaxX;
     }
 
-    NSLog(@"maxX: %lf", maxX);
+    CGRect frame = view.frame;
+    
+    if ( !SJFLFloatCompare(frame.size.width, maxX) ) {
+        frame.size.width = maxX;
+        view.frame = frame;
+#ifdef DEBUG
+        NSLog(@"maxX: %lf", maxX);
+#endif
+    }
 }
 
 UIKIT_STATIC_INLINE void SJFLViewLayoutFixInnerHeightIfNeeded(UIView *view) {
     // subview: top <===> bottom
     CGFloat maxY = 0;
     for ( UIView *sub in view.subviews ) {
-        CGFloat subMaxY = CGRectGetMaxY(sub.frame);
+        SJFLAttributeUnit *_Nullable bottom = [sub FL_attributeUnitForAttribute:SJFLAttributeBottom];
+        CGFloat subMaxY = CGRectGetMaxY(sub.frame) - bottom.offset;
         if ( subMaxY > maxY ) maxY = subMaxY;
     }
+    
+    CGRect frame = view.frame;
+    if ( !SJFLFloatCompare(frame.size.height, maxY) ) {
+        frame.size.height = maxY;
+        view.frame = frame;
+#ifdef DEBUG
+        NSLog(@"maxY: %lf", maxY);
+#endif
+    }
+}
 
-    NSLog(@"maxY: %lf", maxY);
+UIKIT_STATIC_INLINE BOOL SJFLFloatCompare(CGFloat value1, CGFloat value2) {
+    return floor(value1 + 0.5) == floor(value2 + 0.5);
 }
 @end
 NS_ASSUME_NONNULL_END

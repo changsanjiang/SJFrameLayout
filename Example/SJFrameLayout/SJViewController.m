@@ -186,20 +186,30 @@
     [self.view addSubview:subview1];
     
     [subview1 sj_makeFrameLayout:^(SJFLMaker * _Nonnull make) {
-//        make.center.offset(0);
         make.left.offset(20);
-//        make.right.offset(-20);
         make.bottom.offset(-20);
+//        make.right.offset(-20);
 //        make.height.offset(300);
     }];
     
-    UIView *s = [SJTestView new];
+    UIView *s = [UIView new];
     s.backgroundColor = [UIColor greenColor];
     [subview1 addSubview:s];
 
     [s sj_makeFrameLayout:^(SJFLMaker * _Nonnull make) {
-        make.edges.offset(0);
+        make.top.left.offset(10);
+        make.right.offset(-10);
         make.size.offset(50);
+    }];
+    
+    UIView *s1 = [SJTestView new];
+    s1.backgroundColor = [UIColor orangeColor];
+    [subview1 addSubview:s1];
+    [s1 sj_makeFrameLayout:^(SJFLMaker * _Nonnull make) {
+        make.top.equalTo(s.FL_Bottom).offset(10);
+        make.left.offset(10);
+        make.size.offset(50);
+        make.bottom.offset(-10);
     }];
 
 //    for ( int i = 0 ; i < ViewCount ; ++ i ) {
