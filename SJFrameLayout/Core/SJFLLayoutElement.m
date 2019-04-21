@@ -282,7 +282,7 @@ NS_ASSUME_NONNULL_BEGIN
         UIView *tar_view = _tar_view;
         CGRect dep_frame = dep_view.frame;
         if ( _tar_attr == SJFLAttributeWidth ) {
-            switch ( _dep_attr ) {
+            switch ( dep_attr ) {
                 default: break;
                 case SJFLAttributeWidth: {
                     value = CGRectGetWidth(dep_frame);
@@ -295,7 +295,7 @@ NS_ASSUME_NONNULL_BEGIN
             }
         }
         else if ( _tar_attr == SJFLAttributeHeight ) {
-            switch ( _dep_attr ) {
+            switch ( dep_attr ) {
                 default: break;
                 case SJFLAttributeWidth: {
                     value = CGRectGetWidth(dep_frame);
@@ -323,7 +323,7 @@ NS_ASSUME_NONNULL_BEGIN
             
             CGPoint point = CGPointZero;
             if ( SJFLVerticalLayoutContains(_tar_attr) ) {
-                switch ( _dep_attr ) {
+                switch ( dep_attr ) {
                     case SJFLAttributeTop:
                         point = CGPointZero;
                         break;
@@ -339,15 +339,15 @@ NS_ASSUME_NONNULL_BEGIN
                 value = [dep_view convertPoint:point toView:tar_view.superview].y;
             }
             else {
-                switch ( _dep_attr ) {
-                    case SJFLAttributeRight:
-                        point = CGPointMake(CGRectGetWidth(dep_frame), 0);
-                        break;
+                switch ( dep_attr ) {
                     case SJFLAttributeLeft:
                         point = CGPointZero;
                         break;
                     case SJFLAttributeCenterX:
                         point = CGPointMake(CGRectGetWidth(dep_frame) * 0.5, 0);
+                        break;
+                    case SJFLAttributeRight:
+                        point = CGPointMake(CGRectGetWidth(dep_frame), 0);
                         break;
                     default:break;
                 }
