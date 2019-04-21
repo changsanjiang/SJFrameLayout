@@ -9,9 +9,10 @@
 #import <objc/message.h>
 #import "UIView+SJFLAttributeUnits.h"
 #import "UIView+SJFLPrivate.h"
+#import "SJFLViewTreePlaceholder.h"
 
 NS_ASSUME_NONNULL_BEGIN
-#if 1
+#if 0
 #ifdef DEBUG
 #undef DEBUG
 #endif
@@ -297,18 +298,19 @@ NS_ASSUME_NONNULL_BEGIN
             CGFloat height = 0;
             
             SJFLLayoutElement *_Nullable topElement = SJFLViewGetLayoutElement(tar_view, SJFLAttributeTop);
+            SJFLLayoutElement *_Nullable heightElement = SJFLViewGetLayoutElement(tar_view, SJFLAttributeHeight);
+
             if ( topElement != nil ) {
                 top = topElement.value;
-                height = CGRectGetHeight(dep_frame) - top;
-            }
-            else {
-                SJFLLayoutElement *_Nullable heightElement = SJFLViewGetLayoutElement(tar_view, SJFLAttributeHeight);
-                if ( heightElement != nil ) {
+                if ( heightElement != nil )
                     height = heightElement.value;
-                 
-                    CGPoint point = CGPointMake(0, CGRectGetHeight(dep_frame) - height);
-                    top = [dep_view convertPoint:point toView:tar_superview].y;
-                }
+                else
+                    height = CGRectGetHeight(dep_frame) - top;
+            }
+            else if ( heightElement != nil ) {
+                height = heightElement.value;
+                CGPoint point = CGPointMake(0, CGRectGetHeight(dep_frame) - height);
+                top = [dep_view convertPoint:point toView:tar_superview].y;
             }
             
             dep_value = top + height + offset; // return maxY
@@ -317,19 +319,21 @@ NS_ASSUME_NONNULL_BEGIN
         case SJFLAttributeRight: { ///< left + width = maxX
             CGFloat left = 0;
             CGFloat width = 0;
-            
+        
             SJFLLayoutElement *_Nullable leftElement = SJFLViewGetLayoutElement(tar_view, SJFLAttributeLeft);
+            SJFLLayoutElement *_Nullable widthElement = SJFLViewGetLayoutElement(tar_view, SJFLAttributeWidth);
+            
             if ( leftElement != nil ) {
                 left = leftElement.value;
-                width = CGRectGetWidth(dep_frame) - left;
-            }
-            else {
-                SJFLLayoutElement *_Nullable widthElement = SJFLViewGetLayoutElement(tar_view, SJFLAttributeWidth);
-                if ( widthElement != nil ) {
+                if ( widthElement != nil )
                     width = widthElement.value;
-                    CGPoint point = CGPointMake(CGRectGetWidth(dep_frame) - width, 0);
-                    left = [dep_view convertPoint:point toView:tar_superview].x;
-                }
+                else
+                    width = CGRectGetWidth(dep_frame) - left;
+            }
+            else if ( widthElement != nil ) {
+                width = widthElement.value;
+                CGPoint point = CGPointMake(CGRectGetWidth(dep_frame) - width, 0);
+                left = [dep_view convertPoint:point toView:tar_superview].x;
             }
             
             dep_value = left + width + offset; // return maxX
