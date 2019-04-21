@@ -213,6 +213,27 @@ if ( SJFLLayoutContainsAttribute(attributes, __attr__) ) { \
     };
 }
 
+- (SJFLMultiplierHandler)multipliedBy {
+    return ^SJFLLayoutMask *(CGFloat multiplier) {
+        SJFLAttributeMask attributes = self->_attrs;
+        UIView *view = self->_view;
+#define SET_FL_UNIT_MULTIPLIER(__attr__, __unit__) \
+if ( SJFLLayoutContainsAttribute(attributes, __attr__) ) { \
+    __unit__->multiplier = multiplier; \
+}
+        SET_FL_UNIT_MULTIPLIER(SJFLAttributeTop, view.FL_Top);
+        SET_FL_UNIT_MULTIPLIER(SJFLAttributeLeft, view.FL_Left);
+        SET_FL_UNIT_MULTIPLIER(SJFLAttributeBottom, view.FL_Bottom);
+        SET_FL_UNIT_MULTIPLIER(SJFLAttributeRight, view.FL_Right);
+        SET_FL_UNIT_MULTIPLIER(SJFLAttributeWidth, view.FL_Width);
+        SET_FL_UNIT_MULTIPLIER(SJFLAttributeHeight, view.FL_Height);
+        SET_FL_UNIT_MULTIPLIER(SJFLAttributeCenterX, view.FL_CenterX);
+        SET_FL_UNIT_MULTIPLIER(SJFLAttributeCenterY, view.FL_CenterY);
+        
+        return self;
+    };
+}
+
 UIKIT_STATIC_INLINE BOOL SJFLLayoutContainsAttribute(SJFLAttributeMask attrs, SJFLAttribute attr) {
     return attrs & (1 << attr);
 }

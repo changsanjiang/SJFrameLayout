@@ -37,6 +37,7 @@ NS_ASSUME_NONNULL_BEGIN
     if ( !self ) return nil;
     _attribute = attribute;
     _view = view;
+    self->multiplier = 1.0;
     return self;
 }
 

@@ -69,7 +69,7 @@ RETURN_FL_MAKER_LAYOUT(centerY, SJFLAttributeCenterY);
 RETURN_FL_MAKER_LAYOUT_MASK(center, SJFLAttributeMaskCenter);
 
 - (void)install {
-    NSMutableArray<SJFLLayoutElement *> *m = [NSMutableArray array];
+    NSMutableArray<SJFLLayoutElement *> *m = [NSMutableArray arrayWithCapacity:8];
     SJFLAttributeUnit *_Nullable top = [_view FL_attributeUnitForAttribute:SJFLAttributeTop];
     SJFLAttributeUnit *_Nullable left = [_view FL_attributeUnitForAttribute:SJFLAttributeLeft];
     SJFLAttributeUnit *_Nullable bottom = [_view FL_attributeUnitForAttribute:SJFLAttributeBottom];
@@ -89,6 +89,7 @@ RETURN_FL_MAKER_LAYOUT_MASK(center, SJFLAttributeMaskCenter);
     if ( centerY != nil ) [m addObject:[[SJFLLayoutElement alloc] initWithTarget:centerY]];
     
     _view.FL_elements = m;
+    [_view FL_resetAttributeUnits];
     
 #ifdef DEBUG
     for ( SJFLLayoutElement *ele in m ) {

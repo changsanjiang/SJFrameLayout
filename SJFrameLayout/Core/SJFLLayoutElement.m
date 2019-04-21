@@ -273,90 +273,89 @@ NS_ASSUME_NONNULL_BEGIN
     SJFLAttribute dep_attr = _dep_attr;
     CGFloat offset = _target.offset;
     
-    if ( dep_attr == SJFLAttributeNone ) {
-        return offset;
-    }
-
-    UIView *dep_view = _dep_view;
-    CGRect dep_frame = dep_view.frame;
-
-    UIView *tar_view = _tar_view;
-    
     CGFloat value = 0;
-    if ( _tar_attr == SJFLAttributeWidth ) {
-        switch ( _dep_attr ) {
-            default: break;
-            case SJFLAttributeWidth: {
-                value = CGRectGetWidth(dep_frame);
-            }
-                break;
-            case SJFLAttributeHeight: {
-                value = CGRectGetHeight(dep_frame);
-            }
-                break;
-        }
-    }
-    else if ( _tar_attr == SJFLAttributeHeight ) {
-        switch ( _dep_attr ) {
-            default: break;
-            case SJFLAttributeWidth: {
-                value = CGRectGetWidth(dep_frame);
-            }
-                break;
-            case SJFLAttributeHeight: {
-                value = CGRectGetHeight(dep_frame);
-            }
-                break;
-        }
+    if ( dep_attr == SJFLAttributeNone ) {
+        value = offset;
     }
     else {
-        /**
-         horizontal: left, width, right, centerX
-         vertical: top, height, bottom, centerY
-         
-         top=> top, bottom, centerY
-         bottom=> top, bottom, centerY
-         centerY=> top, bottom, centerY
-         
-         left=> left, right, centerX
-         right=> left, right, centerX
-         centerX=> left, right, centerX
-         */
-        
-        CGPoint point = CGPointZero;
-        if ( SJFLVerticalLayoutContains(_tar_attr) ) {
+        UIView *dep_view = _dep_view;
+        UIView *tar_view = _tar_view;
+        CGRect dep_frame = dep_view.frame;
+        if ( _tar_attr == SJFLAttributeWidth ) {
             switch ( _dep_attr ) {
-                case SJFLAttributeTop:
-                    point = CGPointZero;
+                default: break;
+                case SJFLAttributeWidth: {
+                    value = CGRectGetWidth(dep_frame);
+                }
                     break;
-                case SJFLAttributeCenterY:
-                    point = CGPointMake(0, CGRectGetHeight(dep_frame) * 0.5);
+                case SJFLAttributeHeight: {
+                    value = CGRectGetHeight(dep_frame);
+                }
                     break;
-                case SJFLAttributeBottom:
-                    point = CGPointMake(0, CGRectGetHeight(dep_frame));
-                    break;
-                default:break;
             }
-            
-            value = [dep_view convertPoint:point toView:tar_view.superview].y + offset;
+        }
+        else if ( _tar_attr == SJFLAttributeHeight ) {
+            switch ( _dep_attr ) {
+                default: break;
+                case SJFLAttributeWidth: {
+                    value = CGRectGetWidth(dep_frame);
+                }
+                    break;
+                case SJFLAttributeHeight: {
+                    value = CGRectGetHeight(dep_frame);
+                }
+                    break;
+            }
         }
         else {
-            switch ( _dep_attr ) {
-                case SJFLAttributeRight:
-                    point = CGPointMake(CGRectGetWidth(dep_frame), 0);
-                    break;
-                case SJFLAttributeLeft:
-                    point = CGPointZero;
-                    break;
-                case SJFLAttributeCenterX:
-                    point = CGPointMake(CGRectGetWidth(dep_frame) * 0.5, 0);
-                    break;
-                default:break;
+            /**
+             horizontal: left, width, right, centerX
+             vertical: top, height, bottom, centerY
+             
+             top=> top, bottom, centerY
+             bottom=> top, bottom, centerY
+             centerY=> top, bottom, centerY
+             
+             left=> left, right, centerX
+             right=> left, right, centerX
+             centerX=> left, right, centerX
+             */
+            
+            CGPoint point = CGPointZero;
+            if ( SJFLVerticalLayoutContains(_tar_attr) ) {
+                switch ( _dep_attr ) {
+                    case SJFLAttributeTop:
+                        point = CGPointZero;
+                        break;
+                    case SJFLAttributeCenterY:
+                        point = CGPointMake(0, CGRectGetHeight(dep_frame) * 0.5);
+                        break;
+                    case SJFLAttributeBottom:
+                        point = CGPointMake(0, CGRectGetHeight(dep_frame));
+                        break;
+                    default:break;
+                }
+                
+                value = [dep_view convertPoint:point toView:tar_view.superview].y;
             }
-            value = [dep_view convertPoint:point toView:tar_view.superview].x + offset;
+            else {
+                switch ( _dep_attr ) {
+                    case SJFLAttributeRight:
+                        point = CGPointMake(CGRectGetWidth(dep_frame), 0);
+                        break;
+                    case SJFLAttributeLeft:
+                        point = CGPointZero;
+                        break;
+                    case SJFLAttributeCenterX:
+                        point = CGPointMake(CGRectGetWidth(dep_frame) * 0.5, 0);
+                        break;
+                    default:break;
+                }
+                value = [dep_view convertPoint:point toView:tar_view.superview].x;
+            }
         }
     }
-    return value;
+    return value * _target->multiplier + offset;
 }
 
 // - getter -

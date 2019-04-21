@@ -51,6 +51,8 @@ typedef enum : NSUInteger {
         FL_CGSizeValue,
         FL_UIEdgeInsetsValue
     } offset_t;
+    
+    CGFloat multiplier; // default value is 1.0
 }
 - (instancetype)initWithView:(__weak UIView *)view attribute:(SJFLAttribute)attribute;
 @property (nonatomic, readonly) SJFLAttribute attribute;

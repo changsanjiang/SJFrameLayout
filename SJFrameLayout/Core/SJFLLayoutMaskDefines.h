@@ -32,9 +32,9 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 typedef SJFLLayoutMask *_Nonnull(^SJFLEqualToHandler)(id);
-typedef void(^SJFLOffsetHandler)(CGFloat);
-
 typedef SJFLLayoutMask *_Nonnull(^SJFLBoxEqualToHandler)(id);
+typedef SJFLLayoutMask *_Nonnull(^SJFLMultiplierHandler)(CGFloat);
+typedef void(^SJFLOffsetHandler)(CGFloat);
 typedef void(^SJFLBoxOffsetHandler)(id);
 
 
@@ -44,9 +44,12 @@ typedef void(^SJFLBoxOffsetHandler)(id);
 // - handlers -
 @protocol SJFLLayoutUpdaterProtocol <NSObject>
 @property (nonatomic, copy, readonly) SJFLEqualToHandler equalTo;
-@property (nonatomic, copy, readonly) SJFLOffsetHandler offset;
 @property (nonatomic, copy, readonly) SJFLEqualToHandler box_equalTo;
+
+@property (nonatomic, copy, readonly) SJFLOffsetHandler offset;
 @property (nonatomic, copy, readonly) SJFLBoxOffsetHandler box_offset;
+
+@property (nonatomic, copy, readonly) SJFLMultiplierHandler multipliedBy;
 @end
 NS_ASSUME_NONNULL_END
 #endif /* SJFLLayoutMaskDefines_h */
