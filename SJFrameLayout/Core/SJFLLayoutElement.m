@@ -114,7 +114,7 @@ NS_ASSUME_NONNULL_BEGIN
     __weak UIView *_Nullable _dep_view;
     SJFLAttribute _dep_attr;
     
-    CGFloat _before;
+//    CGFloat _before;
 }
 @property (nonatomic, readonly) CGFloat value;
 @end
@@ -151,7 +151,7 @@ NS_ASSUME_NONNULL_BEGIN
     _dep_view = dependency.view;
     _dep_attr = dependency.attribute;
     
-    _before = -1;
+//    _before = -1;
     return self;
 }
 
@@ -190,7 +190,7 @@ NS_ASSUME_NONNULL_BEGIN
 //    }
     
     // update
-    _before = newValue;
+//    _before = newValue;
     
     switch ( _tar_attr ) {
         case SJFLAttributeNone: break; ///< Target does not need to do anything

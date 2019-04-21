@@ -42,7 +42,10 @@ static SEL FL_elements;
 
 - (void)FL_layoutSubviews {
     [self FL_layoutSubviews];
-    
+    [self FL_refreshLayouts];
+}
+
+- (void)FL_refreshLayouts {
     for ( UIView *subview in self.subviews ) {
         for ( SJFLLayoutElement *ele in subview.FL_elements ) {
             if ( ele.tar_superview == self || ele.dep_view == self )
@@ -93,7 +96,7 @@ UIKIT_STATIC_INLINE void SJFLViewLayoutFixInnerWidthIfNeeded(UIView *view) {
             
             frame.size.width = maxX;
             view.frame = frame;
-            [view.superview layoutSubviews];
+            [view.superview FL_refreshLayouts];
         }
     }
 }
@@ -127,7 +130,7 @@ UIKIT_STATIC_INLINE void SJFLViewLayoutFixInnerHeightIfNeeded(UIView *view) {
             
             frame.size.height = maxY;
             view.frame = frame;
-            [view.superview layoutSubviews];
+            [view.superview FL_refreshLayouts];
         }
     }
 }

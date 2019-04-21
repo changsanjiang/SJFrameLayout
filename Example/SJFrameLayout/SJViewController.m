@@ -11,13 +11,11 @@
 #if __has_include(<SDAutoLayout/SDAutoLayout.h>)
 #import <SDAutoLayout/SDAutoLayout.h>
 #endif
-#import <SJFrameLayout/UIView+SJFrameLayout.h>
-#import <UIView+SJFLAttributeUnits.h>
 #import "SJTestView.h"
 #import "SJTestSubView.h"
 #import "SJTestView2.h"
+#import <SJFrameLayout.h>
 //#import <MMPlaceHolder.h>
-#import <SJFrameLayout/UIView+SJFLPrivate.h>
 
 
 #define ViewCount (500)
@@ -43,8 +41,6 @@
         make.left.offset(180);
         make.right.offset(-20);
         make.bottom.offset(-200);
-        
-        make.edges.mas_offset(0);
     }];
     
     for ( int i = 0 ; i < ViewCount ; ++ i ) {
@@ -253,7 +249,7 @@
     }
 }
 - (IBAction)fl:(id)sender {
-    self.view.FL_elements = nil;
+
 }
 
 

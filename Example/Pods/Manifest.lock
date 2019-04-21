@@ -1,6 +1,8 @@
 PODS:
   - Masonry (1.1.0)
-  - SJFrameLayout (0.1.0)
+  - SJFrameLayout (0.1.0):
+    - SJFrameLayout/Core (= 0.1.0)
+  - SJFrameLayout/Core (0.1.0)
   - SJUIKit/Queue (0.0.0.22)
 
 DEPENDENCIES:
@@ -19,7 +21,7 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   Masonry: 678fab65091a9290e40e2832a55e7ab731aad201
-  SJFrameLayout: fc613b029a07e25364381661f02b5fefff96d133
+  SJFrameLayout: 5fdd26af53edd5aca6c6a8cbca112610d5c536c8
   SJUIKit: 1554e77cb6061017157faaf853f98d771956e26a
 
 PODFILE CHECKSUM: b939a57b3d82ced64b76ea9f3bc56674b2eba86d

@@ -18,5 +18,11 @@
   "platforms": {
     "ios": "8.0"
   },
-  "source_files": "SJFrameLayout/**/*"
+  "source_files": "SJFrameLayout/*.{h,m}",
+  "subspecs": [
+    {
+      "name": "Core",
+      "source_files": "SJFrameLayout/Core/*.{h,m}"
+    }
+  ]
 }

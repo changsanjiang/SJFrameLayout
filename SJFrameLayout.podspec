@@ -30,7 +30,10 @@ TODO: Add long description of the pod here.
 
   s.ios.deployment_target = '8.0'
 
-  s.source_files = 'SJFrameLayout/**/*'
+  s.source_files = 'SJFrameLayout/*.{h,m}'
+  s.subspec 'Core' do |ss|
+    ss.source_files = 'SJFrameLayout/Core/*.{h,m}'
+  end
   
   # s.resource_bundles = {
   #   'SJFrameLayout' => ['SJFrameLayout/Assets/*.png']
