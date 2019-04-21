@@ -10,24 +10,11 @@
 
 @implementation SJTestView
 
-/*
-// Only override drawRect: if you perform custom drawing.
-// An empty implementation adversely affects performance during animation.
-- (void)drawRect:(CGRect)rect {
-    // Drawing code
-}
-*/
-- (void)dealloc
-{
-#ifdef DEBUG
-    NSLog(@"%d - %s", (int)__LINE__, __func__);
-#endif
-}
-
-- (void)layoutSubviews {
-    [super layoutSubviews];
-    
+//- (void)layoutSubviews {
+//    [super layoutSubviews];
+//#ifdef DEBUG
 //    NSLog(@"%@", self);
-}
+//#endif
+//}
 
 @end

@@ -10,16 +10,15 @@
 #import "UIView+SJFLAttributeUnits.h"
 #import <objc/message.h>
 
+NS_ASSUME_NONNULL_BEGIN
+#if 1
 #ifdef DEBUG
-#import "SJFLViewTreePlaceholder.h"
+#undef DEBUG
+#endif
 #endif
 
-
-NS_ASSUME_NONNULL_BEGIN
 @implementation UIView (SJFLPrivate)
 static SEL FL_elements;
-static SEL FL_needWidthToFit;
-static SEL FL_needHeightToFit;
 
 + (void)load {
     static dispatch_once_t onceToken;
@@ -38,8 +37,6 @@ static SEL FL_needHeightToFit;
         }
         
         FL_elements = @selector(FL_elements);
-        FL_needWidthToFit = @selector(FL_needWidthToFit);
-        FL_needHeightToFit = @selector(FL_needHeightToFit);
     });
 }
 
@@ -53,11 +50,8 @@ static SEL FL_needHeightToFit;
         }
     }
     
-    if ( self.FL_needWidthToFit ) {
+    if ( self.FL_elements != nil ) {
         SJFLViewLayoutFixInnerWidthIfNeeded(self);
-    }
-    
-    if ( self.FL_needHeightToFit ) {
         SJFLViewLayoutFixInnerHeightIfNeeded(self);
     }
 }
@@ -70,32 +64,6 @@ static SEL FL_needHeightToFit;
     return objc_getAssociatedObject(self, _cmd);
 }
 
-- (void)setFL_needWidthToFit:(BOOL)needWidthToFit {
-    objc_setAssociatedObject(self, FL_needWidthToFit, @(needWidthToFit), OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-}
-- (BOOL)FL_needWidthToFit {
-    return [objc_getAssociatedObject(self, _cmd) boolValue];
-}
-
-- (void)setFL_needHeightToFit:(BOOL)needHeightToFit {
-    objc_setAssociatedObject(self, FL_needHeightToFit, @(needHeightToFit), OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-}
-- (BOOL)FL_needHeightToFit {
-    return [objc_getAssociatedObject(self, _cmd) boolValue];
-}
-
-
-/**
- 如果父视图需要子视图来撑满
- 
- 父视图的size.width  = CGRectGetMaxX's
- 父视图的size.height = CGRectGetMaxY's
- 
- 给父视图一个很大的size, 当所有子视图布局完成后, 修改它的size
- 
- 子视图布局就是因为他没有size, 才导致如法布局的
- 
- */
 UIKIT_STATIC_INLINE void SJFLViewLayoutFixInnerWidthIfNeeded(UIView *view) {
     // subview: left <===> right
     CGFloat maxX = 0;
@@ -105,14 +73,28 @@ UIKIT_STATIC_INLINE void SJFLViewLayoutFixInnerWidthIfNeeded(UIView *view) {
         if ( subMaxX > maxX ) maxX = subMaxX;
     }
 
-    CGRect frame = view.frame;
-    
-    if ( !SJFLFloatCompare(frame.size.width, maxX) ) {
-        frame.size.width = maxX;
-        view.frame = frame;
+    if ( maxX > 0 ) {
+        CGRect frame = view.frame;
+        if ( !SJFLFloatCompare(frame.size.width, maxX) ) {
 #ifdef DEBUG
-        NSLog(@"maxX: %lf", maxX);
+            NSLog(@"view: %p, maxX: %lf", view, maxX);
 #endif
+
+            SJFLAttributeUnit *_Nullable width = [view FL_attributeUnitForAttribute:SJFLAttributeWidth];
+            if ( width == nil ) {
+                width = view.FL_Width;
+                NSMutableArray<SJFLLayoutElement *> *m = view.FL_elements.mutableCopy;
+                [m addObject:[[SJFLLayoutElement alloc] initWithTarget:width]];
+                view.FL_elements = m;
+            }
+            
+            width->offset.value = maxX;
+            width->offset_t = FL_CGFloatValue;
+            
+            frame.size.width = maxX;
+            view.frame = frame;
+            [view.superview layoutSubviews];
+        }
     }
 }
 
@@ -125,13 +107,28 @@ UIKIT_STATIC_INLINE void SJFLViewLayoutFixInnerHeightIfNeeded(UIView *view) {
         if ( subMaxY > maxY ) maxY = subMaxY;
     }
     
-    CGRect frame = view.frame;
-    if ( !SJFLFloatCompare(frame.size.height, maxY) ) {
-        frame.size.height = maxY;
-        view.frame = frame;
+    if ( maxY > 0 ) {
+        CGRect frame = view.frame;
+        if ( !SJFLFloatCompare(frame.size.height, maxY) ) {
 #ifdef DEBUG
-        NSLog(@"maxY: %lf", maxY);
+            NSLog(@"view: %p, maxY: %lf", view, maxY);
 #endif
+
+            SJFLAttributeUnit *_Nullable height = [view FL_attributeUnitForAttribute:SJFLAttributeHeight];
+            if ( height == nil ) {
+                height = view.FL_Height;
+                NSMutableArray<SJFLLayoutElement *> *m = view.FL_elements.mutableCopy;
+                [m addObject:[[SJFLLayoutElement alloc] initWithTarget:height]];
+                view.FL_elements = m;
+            }
+
+            height->offset.value = maxY;
+            height->offset_t = FL_CGFloatValue;
+            
+            frame.size.height = maxY;
+            view.frame = frame;
+            [view.superview layoutSubviews];
+        }
     }
 }
 

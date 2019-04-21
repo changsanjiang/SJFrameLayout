@@ -11,7 +11,6 @@
 #import "UIView+SJFLPrivate.h"
 #import "SJFLLayoutElement.h"
 #import "SJFLAttributeUnit.h"
-#import "SJFLViewTreePlaceholder.h"
 
 NS_ASSUME_NONNULL_BEGIN
 #if 1
@@ -70,9 +69,6 @@ RETURN_FL_MAKER_LAYOUT(centerY, SJFLAttributeCenterY);
 RETURN_FL_MAKER_LAYOUT_MASK(center, SJFLAttributeMaskCenter);
 
 - (void)install {
-    _view.FL_needWidthToFit = SJFLViewLayoutNoWidth(_view);
-    _view.FL_needHeightToFit = SJFLViewLayoutNoHeight(_view);
-        
     NSMutableArray<SJFLLayoutElement *> *m = [NSMutableArray array];
     SJFLAttributeUnit *_Nullable top = [_view FL_attributeUnitForAttribute:SJFLAttributeTop];
     SJFLAttributeUnit *_Nullable left = [_view FL_attributeUnitForAttribute:SJFLAttributeLeft];
@@ -103,41 +99,26 @@ RETURN_FL_MAKER_LAYOUT_MASK(center, SJFLAttributeMaskCenter);
 #endif
 }
 
-UIKIT_STATIC_INLINE BOOL SJFLViewLayoutNoHeight(UIView *view) {
-    SJFLAttributeUnit *_Nullable height = [view FL_attributeUnitForAttribute:SJFLAttributeHeight];
-    SJFLAttributeUnit *_Nullable top = [view FL_attributeUnitForAttribute:SJFLAttributeTop];
-    SJFLAttributeUnit *_Nullable bottom = [view FL_attributeUnitForAttribute:SJFLAttributeBottom];
-    // vertical
-    // - height
-    // - top & bottom
-    BOOL h = (height != nil) || (top != nil && bottom != nil);
-    return !h;
-}
-
-UIKIT_STATIC_INLINE BOOL SJFLViewLayoutNoWidth(UIView *view) {
-    SJFLAttributeUnit *_Nullable width = [view FL_attributeUnitForAttribute:SJFLAttributeWidth];
-    SJFLAttributeUnit *_Nullable left = [view FL_attributeUnitForAttribute:SJFLAttributeLeft];
-    SJFLAttributeUnit *_Nullable right = [view FL_attributeUnitForAttribute:SJFLAttributeRight];
-    // horizontal
-    // - width
-    // - left & right
-    BOOL v = (width != nil) || (left != nil && right != nil);
-    return !v;
-}
-
-static CGFloat const SJFLViewPlacehoderLayoutWidth   = 1234;
-static CGFloat const SJFLViewPlaceholdeLayoutrHeight = 1234;
-
-UIKIT_STATIC_INLINE void SJFLViewSetPlaceholderLayoutIfNeeded(UIView *view) {
-    if ( SJFLViewLayoutNoWidth(view) ) {
-        view.FL_Width->offset_t = FL_CGFloatValue;
-        view.FL_Width->offset.value = SJFLViewPlacehoderLayoutWidth;
-    }
-    
-    if ( SJFLViewLayoutNoHeight(view) ) {
-        view.FL_Height->offset_t = FL_CGFloatValue;
-        view.FL_Height->offset.value = SJFLViewPlaceholdeLayoutrHeight;
-    }
-}
+//UIKIT_STATIC_INLINE BOOL SJFLViewLayoutNoHeight(UIView *view) {
+//    SJFLAttributeUnit *_Nullable height = [view FL_attributeUnitForAttribute:SJFLAttributeHeight];
+//    SJFLAttributeUnit *_Nullable top = [view FL_attributeUnitForAttribute:SJFLAttributeTop];
+//    SJFLAttributeUnit *_Nullable bottom = [view FL_attributeUnitForAttribute:SJFLAttributeBottom];
+//    // vertical
+//    // - height
+//    // - top & bottom
+//    BOOL h = (height != nil) || (top != nil && bottom != nil);
+//    return !h;
+//}
+//
+//UIKIT_STATIC_INLINE BOOL SJFLViewLayoutNoWidth(UIView *view) {
+//    SJFLAttributeUnit *_Nullable width = [view FL_attributeUnitForAttribute:SJFLAttributeWidth];
+//    SJFLAttributeUnit *_Nullable left = [view FL_attributeUnitForAttribute:SJFLAttributeLeft];
+//    SJFLAttributeUnit *_Nullable right = [view FL_attributeUnitForAttribute:SJFLAttributeRight];
+//    // horizontal
+//    // - width
+//    // - left & right
+//    BOOL v = (width != nil) || (left != nil && right != nil);
+//    return !v;
+//}
 @end
 NS_ASSUME_NONNULL_END

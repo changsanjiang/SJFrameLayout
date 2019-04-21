@@ -1,14 +1,17 @@
 PODS:
   - Masonry (1.1.0)
   - SJFrameLayout (0.1.0)
+  - SJUIKit/Queue (0.0.0.22)
 
 DEPENDENCIES:
   - Masonry
   - SJFrameLayout (from `../`)
+  - SJUIKit/Queue
 
 SPEC REPOS:
   https://github.com/cocoapods/specs.git:
     - Masonry
+    - SJUIKit
 
 EXTERNAL SOURCES:
   SJFrameLayout:
@@ -17,7 +20,8 @@ EXTERNAL SOURCES:
 SPEC CHECKSUMS:
   Masonry: 678fab65091a9290e40e2832a55e7ab731aad201
   SJFrameLayout: fc613b029a07e25364381661f02b5fefff96d133
+  SJUIKit: 1554e77cb6061017157faaf853f98d771956e26a
 
-PODFILE CHECKSUM: ccf47c45932cbf2cdbc200a99e0f11221af921f4
+PODFILE CHECKSUM: b939a57b3d82ced64b76ea9f3bc56674b2eba86d
 
 COCOAPODS: 1.7.0.beta.3

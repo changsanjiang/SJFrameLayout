@@ -1,14 +1,14 @@
 //
-//  SJTestSubView.m
+//  SJTestView2.m
 //  SJFrameLayout_Example
 //
-//  Created by 畅三江 on 2019/4/18.
+//  Created by 畅三江 on 2019/4/21.
 //  Copyright © 2019 changsanjiang@gmail.com. All rights reserved.
 //
 
-#import "SJTestSubView.h"
+#import "SJTestView2.h"
 
-@implementation SJTestSubView
+@implementation SJTestView2
 
 //- (void)layoutSubviews {
 //    [super layoutSubviews];
@@ -16,4 +16,5 @@
 //    NSLog(@"%@", self);
 //#endif
 //}
+
 @end
