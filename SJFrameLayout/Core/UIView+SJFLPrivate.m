@@ -18,8 +18,6 @@ NS_ASSUME_NONNULL_BEGIN
 #endif
 
 @implementation UIView (SJFLPrivate)
-static SEL FL_elements;
-
 + (void)load {
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
@@ -35,8 +33,6 @@ static SEL FL_elements;
         else {
             method_exchangeImplementations(originalMethod, swizzledMethod);
         }
-        
-        FL_elements = @selector(FL_elements);
     });
 }
 
@@ -47,32 +43,70 @@ static SEL FL_elements;
 
 - (void)FL_refreshLayouts {
     for ( UIView *subview in self.subviews ) {
-        for ( SJFLLayoutElement *ele in subview.FL_elements ) {
+        for ( SJFLLayoutElement *ele in SJFLGetViewElementsContainerIfExists(subview) ) {
             if ( ele.tar_superview == self || ele.dep_view == self )
                 [ele needRefreshLayout];
         }
     }
     
-    if ( self.FL_elements != nil ) {
+    if ( SJFLGetViewElementsContainerIfExists(self) != nil ) {
         SJFLViewLayoutFixInnerWidthIfNeeded(self);
         SJFLViewLayoutFixInnerHeightIfNeeded(self);
     }
 }
 
-- (void)setFL_elements:(NSArray<SJFLLayoutElement *> *_Nullable)elements {
-    objc_setAssociatedObject(self, FL_elements, elements, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+- (void)FL_addElement:(SJFLLayoutElement *)element {
+    if ( element )
+        [SJFLGetViewElementsContainer(self) addObject:element];
 }
 
-- (NSArray<SJFLLayoutElement *> *_Nullable)FL_elements {
-    return objc_getAssociatedObject(self, _cmd);
+- (void)FL_addElementsFromArray:(NSArray<SJFLLayoutElement *> *)elements {
+    if ( elements.count != 0 )
+        [SJFLGetViewElementsContainer(self) addObjectsFromArray:elements];
+}
+
+- (void)FL_replaceElementForAttribute:(SJFLAttribute)attribute withElement:(SJFLLayoutElement *)element {
+    if ( element ) {
+        NSMutableArray<SJFLLayoutElement *> *m = SJFLGetViewElementsContainer(self);
+        BOOL replaced = NO;
+        for ( int i = 0 ; i < m.count ; ++ i ) {
+            SJFLLayoutElement *ele = m[i];
+            if ( ele.tar_attr == attribute ) {
+                [m replaceObjectAtIndex:i withObject:element];
+                replaced = YES;
+                break;
+            }
+        }
+        
+        if ( !replaced ) [m addObject:element];
+    }
+}
+
+- (void)FL_removeAllElements {
+    [SJFLGetViewElementsContainerIfExists(self) removeAllObjects];
 }
 
 - (SJFLLayoutElement *_Nullable)FL_elementForAttribute:(SJFLAttribute)attribute {
-    NSArray<SJFLLayoutElement *> *eles = self.FL_elements;
+    NSArray<SJFLLayoutElement *> *eles = SJFLGetViewElementsContainerIfExists(self);
     for ( SJFLLayoutElement *ele in eles ) {
         if ( ele.tar_attr == attribute ) return ele;
     }
     return nil;
+}
+
+// -
+
+UIKIT_STATIC_INLINE NSMutableArray<SJFLLayoutElement *> *SJFLGetViewElementsContainer(UIView *view) {
+    NSMutableArray <SJFLLayoutElement *> *m = objc_getAssociatedObject(view, (__bridge void *)view);
+    if ( !m ) {
+        m = [NSMutableArray array];
+        objc_setAssociatedObject(view, (__bridge void *)view, m, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    }
+    return m;
+}
+
+UIKIT_STATIC_INLINE NSMutableArray<SJFLLayoutElement *> *SJFLGetViewElementsContainerIfExists(UIView *view) {
+    return objc_getAssociatedObject(view, (__bridge void *)view);
 }
 
 UIKIT_STATIC_INLINE void SJFLViewLayoutFixInnerWidthIfNeeded(UIView *view) {
@@ -90,16 +124,11 @@ UIKIT_STATIC_INLINE void SJFLViewLayoutFixInnerWidthIfNeeded(UIView *view) {
 #ifdef DEBUG
             NSLog(@"view: %p, maxX: %lf", view, maxX);
 #endif
-            SJFLAttributeUnit *_Nullable width = [view FL_elementForAttribute:SJFLAttributeWidth].target;
-            if ( width == nil ) {
-                width = [[SJFLAttributeUnit alloc] initWithView:view attribute:SJFLAttributeWidth];
-                NSMutableArray<SJFLLayoutElement *> *m = view.FL_elements.mutableCopy;
-                [m addObject:[[SJFLLayoutElement alloc] initWithTarget:width]];
-                view.FL_elements = m;
-            }
-            
-            width->offset.value = maxX;
-            width->offset_t = FL_CGFloatValue;
+            SJFLAttributeUnit *newUnit = [[SJFLAttributeUnit alloc] initWithView:view attribute:SJFLAttributeWidth];
+            SJFLLayoutElement *newEle = [[SJFLLayoutElement alloc] initWithTarget:newUnit];
+            newUnit->offset.value = maxX;
+            newUnit->offset_t = FL_CGFloatValue;
+            [view FL_replaceElementForAttribute:SJFLAttributeWidth withElement:newEle];
             
             frame.size.width = maxX;
             view.frame = frame;
@@ -123,16 +152,11 @@ UIKIT_STATIC_INLINE void SJFLViewLayoutFixInnerHeightIfNeeded(UIView *view) {
 #ifdef DEBUG
             NSLog(@"view: %p, maxY: %lf", view, maxY);
 #endif
-            SJFLAttributeUnit *_Nullable height = [view FL_elementForAttribute:SJFLAttributeHeight].target;
-            if ( height == nil ) {
-                height = [[SJFLAttributeUnit alloc] initWithView:view attribute:SJFLAttributeHeight];
-                NSMutableArray<SJFLLayoutElement *> *m = view.FL_elements.mutableCopy;
-                [m addObject:[[SJFLLayoutElement alloc] initWithTarget:height]];
-                view.FL_elements = m;
-            }
-
-            height->offset.value = maxY;
-            height->offset_t = FL_CGFloatValue;
+            SJFLAttributeUnit *newUnit = [[SJFLAttributeUnit alloc] initWithView:view attribute:SJFLAttributeHeight];
+            SJFLLayoutElement *newEle = [[SJFLLayoutElement alloc] initWithTarget:newUnit];
+            newUnit->offset.value = maxY;
+            newUnit->offset_t = FL_CGFloatValue;
+            [view FL_replaceElementForAttribute:SJFLAttributeHeight withElement:newEle];
             
             frame.size.height = maxY;
             view.frame = frame;

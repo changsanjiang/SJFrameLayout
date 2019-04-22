@@ -28,13 +28,9 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithView:(UIView *)view {
     self = [super init];
     if ( !self ) return nil;
-    if ( view.FL_elements != nil ) {    
-        [view FL_resetAttributeUnits];
-        view.FL_elements = nil;
-    }
     _view = view;
     return self;
-}
+} 
 
 #define RETURN_FL_MAKER_LAYOUT(__layout__, __attr__) \
 @synthesize __layout__ = _##__layout__; \
@@ -69,15 +65,38 @@ RETURN_FL_MAKER_LAYOUT(centerY, SJFLAttributeCenterY);
 RETURN_FL_MAKER_LAYOUT_MASK(center, SJFLAttributeMaskCenter);
 
 - (void)install {
+    NSArray<SJFLLayoutElement *> *m = SJFLGenerateLayoutElements(_view);
+    [_view FL_addElementsFromArray:m];
+    [_view FL_resetAttributeUnits];
+    
+#ifdef DEBUG
+    for ( SJFLLayoutElement *ele in m ) {
+        printf("\nElement: %s", ele.description.UTF8String);
+    }
+    printf("\n");
+    printf("\n");
+#endif
+}
+
+- (void)update {
+    NSArray<SJFLLayoutElement *> *m = SJFLGenerateLayoutElements(_view);
+    for ( SJFLLayoutElement *ele in m ) {
+        [_view FL_replaceElementForAttribute:ele.tar_attr withElement:ele];
+    }
+    [_view FL_resetAttributeUnits];
+    [_view.superview layoutSubviews];
+}
+
+UIKIT_STATIC_INLINE NSArray<SJFLLayoutElement *> *SJFLGenerateLayoutElements(UIView *view) {
     NSMutableArray<SJFLLayoutElement *> *m = [NSMutableArray arrayWithCapacity:8];
-    SJFLAttributeUnit *_Nullable top = [_view FL_attributeUnitForAttribute:SJFLAttributeTop];
-    SJFLAttributeUnit *_Nullable left = [_view FL_attributeUnitForAttribute:SJFLAttributeLeft];
-    SJFLAttributeUnit *_Nullable bottom = [_view FL_attributeUnitForAttribute:SJFLAttributeBottom];
-    SJFLAttributeUnit *_Nullable right = [_view FL_attributeUnitForAttribute:SJFLAttributeRight];
-    SJFLAttributeUnit *_Nullable width = [_view FL_attributeUnitForAttribute:SJFLAttributeWidth];
-    SJFLAttributeUnit *_Nullable height = [_view FL_attributeUnitForAttribute:SJFLAttributeHeight];
-    SJFLAttributeUnit *_Nullable centerX = [_view FL_attributeUnitForAttribute:SJFLAttributeCenterX];
-    SJFLAttributeUnit *_Nullable centerY = [_view FL_attributeUnitForAttribute:SJFLAttributeCenterY];
+    SJFLAttributeUnit *_Nullable top = [view FL_attributeUnitForAttribute:SJFLAttributeTop];
+    SJFLAttributeUnit *_Nullable left = [view FL_attributeUnitForAttribute:SJFLAttributeLeft];
+    SJFLAttributeUnit *_Nullable bottom = [view FL_attributeUnitForAttribute:SJFLAttributeBottom];
+    SJFLAttributeUnit *_Nullable right = [view FL_attributeUnitForAttribute:SJFLAttributeRight];
+    SJFLAttributeUnit *_Nullable width = [view FL_attributeUnitForAttribute:SJFLAttributeWidth];
+    SJFLAttributeUnit *_Nullable height = [view FL_attributeUnitForAttribute:SJFLAttributeHeight];
+    SJFLAttributeUnit *_Nullable centerX = [view FL_attributeUnitForAttribute:SJFLAttributeCenterX];
+    SJFLAttributeUnit *_Nullable centerY = [view FL_attributeUnitForAttribute:SJFLAttributeCenterY];
     
     if ( top != nil ) [m addObject:[[SJFLLayoutElement alloc] initWithTarget:top]];
     if ( left != nil ) [m addObject:[[SJFLLayoutElement alloc] initWithTarget:left]];
@@ -88,16 +107,7 @@ RETURN_FL_MAKER_LAYOUT_MASK(center, SJFLAttributeMaskCenter);
     if ( centerX != nil ) [m addObject:[[SJFLLayoutElement alloc] initWithTarget:centerX]];
     if ( centerY != nil ) [m addObject:[[SJFLLayoutElement alloc] initWithTarget:centerY]];
     
-    _view.FL_elements = m;
-    [_view FL_resetAttributeUnits];
-    
-#ifdef DEBUG
-    for ( SJFLLayoutElement *ele in m ) {
-        printf("\nElement: %s", ele.description.UTF8String);
-    }
-    printf("\n");
-    printf("\n");
-#endif
+    return m;
 }
 @end
 NS_ASSUME_NONNULL_END

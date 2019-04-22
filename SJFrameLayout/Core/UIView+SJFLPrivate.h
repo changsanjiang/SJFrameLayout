@@ -11,7 +11,10 @@
 
 NS_ASSUME_NONNULL_BEGIN
 @interface UIView (SJFLPrivate)
-@property (nonatomic, strong, nullable) NSArray<SJFLLayoutElement *> *FL_elements;
+- (void)FL_addElement:(SJFLLayoutElement *)element;
+- (void)FL_addElementsFromArray:(NSArray<SJFLLayoutElement *> *)elements;
+- (void)FL_replaceElementForAttribute:(SJFLAttribute)attribute withElement:(SJFLLayoutElement *)element;
+- (void)FL_removeAllElements;
 - (SJFLLayoutElement *_Nullable)FL_elementForAttribute:(SJFLAttribute)attribute;
 @end
 NS_ASSUME_NONNULL_END

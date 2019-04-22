@@ -14,5 +14,10 @@ NS_ASSUME_NONNULL_BEGIN
     block(maker);
     [maker install];
 }
+- (void)sj_updateFrameLayout:(void(^)(SJFLMaker *make))block {
+    SJFLMaker *maker = [[SJFLMaker alloc] initWithView:self];
+    block(maker);
+    [maker update];
+}
 @end
 NS_ASSUME_NONNULL_END

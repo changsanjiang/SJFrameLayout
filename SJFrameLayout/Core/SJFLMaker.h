@@ -12,5 +12,6 @@ NS_ASSUME_NONNULL_BEGIN
 @interface SJFLMaker : NSObject<SJFLLayoutProtocol>
 - (instancetype)initWithView:(UIView *)view;
 - (void)install;
+- (void)update;
 @end
 NS_ASSUME_NONNULL_END

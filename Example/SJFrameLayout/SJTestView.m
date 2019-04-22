@@ -17,4 +17,10 @@
 //#endif
 //}
 
+- (void)dealloc {
+#ifdef DEBUG
+    NSLog(@"%d - %s", (int)__LINE__, __func__);
+#endif
+}
+
 @end

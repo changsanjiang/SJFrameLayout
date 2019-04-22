@@ -21,7 +21,7 @@
 #define ViewCount (500)
 
 @interface SJViewController ()
-
+@property (nonatomic, strong) UIView *testView;
 @end
 
 @implementation SJViewController
@@ -188,7 +188,7 @@
 }
 
 - (IBAction)testsj:(id)sender {
-    UIView *subview1 = [UIView new];
+    UIView *subview1 = [SJTestView new];
     subview1.backgroundColor = [UIColor redColor];
     [self.view addSubview:subview1];
     [subview1 sj_makeFrameLayout:^(SJFLMaker * _Nonnull make) {
@@ -198,9 +198,10 @@
         make.bottom.offset(-200);
     }];
     
-    UIView *sub = [UIView new];
+    UIView *sub = [SJTestView new];
     sub.backgroundColor = [UIColor greenColor];
     [self.view addSubview:sub];
+    _testView = sub;
     
     [sub sj_makeFrameLayout:^(SJFLMaker * _Nonnull make) {
         make.top.left.equalTo(subview1).offset(8);

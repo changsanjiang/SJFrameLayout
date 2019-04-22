@@ -11,5 +11,6 @@
 NS_ASSUME_NONNULL_BEGIN
 @interface UIView (SJFrameLayout)
 - (void)sj_makeFrameLayout:(void(^)(SJFLMaker *make))block;
+- (void)sj_updateFrameLayout:(void(^)(SJFLMaker *make))block;
 @end
 NS_ASSUME_NONNULL_END
