@@ -435,16 +435,18 @@ UIKIT_STATIC_INLINE BOOL SJFLViewCenterYCanSettable(UIView *view) {
 }
 
 UIKIT_STATIC_INLINE BOOL SJFLViewBottomCanSettable(UIView *view) {
-    SJFLAttributeUnit *_Nullable topAttr = [view FL_elementForAttribute:SJFLAttributeTop].target;
-    SJFLAttributeUnit *_Nullable heightAttr = [view FL_elementForAttribute:SJFLAttributeHeight].target;
+    NSArray<SJFLLayoutElement *> *m = [view FL_elements];
+    SJFLAttributeUnit *_Nullable topAttr = SJFLGetElement(m, SJFLAttributeTop, 0).target;
+    SJFLAttributeUnit *_Nullable heightAttr = SJFLGetElement(m, SJFLAttributeHeight, 0).target;
     if ( topAttr != nil  && heightAttr != nil ) return NO;
     SJFLLayoutSetInfo *info = view.FL_info;
     return [info get:SJFLAttributeTop] || [info get:SJFLAttributeHeight];
 }
 
 UIKIT_STATIC_INLINE BOOL SJFLViewRightCanSettable(UIView *view) {
-    SJFLAttributeUnit *_Nullable leftAttr = [view FL_elementForAttribute:SJFLAttributeLeft].target;
-    SJFLAttributeUnit *_Nullable widthAttr = [view FL_elementForAttribute:SJFLAttributeWidth].target;
+    NSArray<SJFLLayoutElement *> *m = [view FL_elements];
+    SJFLAttributeUnit *_Nullable leftAttr = SJFLGetElement(m, SJFLAttributeLeft, 0).target;
+    SJFLAttributeUnit *_Nullable widthAttr = SJFLGetElement(m, SJFLAttributeWidth, 0).target;
     if ( leftAttr != nil  && widthAttr != nil ) return NO;
     SJFLLayoutSetInfo *info = view.FL_info;
     return [info get:SJFLAttributeLeft] || [info get:SJFLAttributeWidth];
