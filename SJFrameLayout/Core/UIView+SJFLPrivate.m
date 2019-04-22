@@ -170,6 +170,9 @@ UIKIT_STATIC_INLINE void SJFLViewLayoutFixInnerSizeIfNeeded(UIView *view) {
             SJFLLabelAdjustBoxIfNeeded((id)view, m);
             SJFLLabelLayoutFixInnerSize((id)view, fit_width, fit_height);
         }
+        else if ( [view isKindOfClass:FL_UIButtonClass] ) {
+            SJFLButtonLayoutFixInnerSize((id)view, fit_width, fit_height);
+        }
         else {
             SJFLViewLayoutFixInnerSize(view, fit_width, fit_height);
         }
@@ -196,22 +199,22 @@ UIKIT_STATIC_INLINE void SJFLLabelAdjustBoxIfNeeded(UILabel *label, NSMutableArr
 
 UIKIT_STATIC_INLINE void SJFLLabelLayoutFixInnerSize(UILabel *label, SJFLAttributeUnit *_Nullable fit_width, SJFLAttributeUnit *_Nullable fit_height) {
     CGRect frame = label.frame;
-    CGSize container = CGSizeMake(CGFLOAT_MAX, CGFLOAT_MAX);
+    CGSize box = CGSizeMake(CGFLOAT_MAX, CGFLOAT_MAX);
     
     // 具有宽度约束
     if ( fit_width == nil ) {
-        container.width = CGRectGetWidth(frame);
-        if ( SJFLFloatCompare(0, container.width) )
+        box.width = CGRectGetWidth(frame);
+        if ( SJFLFloatCompare(0, box.width) )
             return;
     }
     // 具有高度约束
     else if ( fit_height == nil ) {
-        container.height = CGRectGetHeight(frame);
-        if ( SJFLFloatCompare(0, container.height) )
+        box.height = CGRectGetHeight(frame);
+        if ( SJFLFloatCompare(0, box.height) )
             return;
     }
     
-    CGRect rect = [label textRectForBounds:CGRectMake(0, 0, container.width, container.height) limitedToNumberOfLines:label.numberOfLines];
+    CGRect rect = [label textRectForBounds:CGRectMake(0, 0, box.width, box.height) limitedToNumberOfLines:label.numberOfLines];
     CGSize fit = CGSizeMake(ceil(rect.size.width), ceil(rect.size.height));
     
     BOOL needUpdate = NO;
@@ -230,6 +233,44 @@ UIKIT_STATIC_INLINE void SJFLLabelLayoutFixInnerSize(UILabel *label, SJFLAttribu
     }
     
     if ( needUpdate ) [label.superview layoutSubviews];
+}
+
+UIKIT_STATIC_INLINE void SJFLButtonLayoutFixInnerSize(UIButton *button, SJFLAttributeUnit *_Nullable fit_width, SJFLAttributeUnit *_Nullable fit_height) {
+    CGRect frame = button.frame;
+    CGSize box = CGSizeMake(CGFLOAT_MAX, CGFLOAT_MAX);
+    
+    // 具有宽度约束
+    if ( fit_width == nil ) {
+        box.width = CGRectGetWidth(frame);
+        if ( SJFLFloatCompare(0, box.width) )
+            return;
+    }
+    // 具有高度约束
+    else if ( fit_height == nil ) {
+        box.height = CGRectGetHeight(frame);
+        if ( SJFLFloatCompare(0, box.height) )
+            return;
+    }
+
+    CGSize result = [button sizeThatFits:box];
+    CGSize fit = CGSizeMake(ceil(result.width), ceil(result.height));
+    
+    BOOL needUpdate = NO;
+    if ( fit_width != nil ) {
+        if ( !SJFLFloatCompare(fit_width->offset.value, fit.width) ) {
+            fit_width->offset.value = fit.width;
+            needUpdate = YES;
+        }
+    }
+    
+    if ( fit_height != nil ) {
+        if ( !SJFLFloatCompare(fit_height->offset.value, fit.height) ) {
+            fit_height->offset.value = fit.height;
+            needUpdate = YES;
+        }
+    }
+    
+    if ( needUpdate ) [button.superview layoutSubviews];
 }
 
 UIKIT_STATIC_INLINE void SJFLViewLayoutFixInnerSize(UIView *view, SJFLAttributeUnit *_Nullable fit_width, SJFLAttributeUnit *_Nullable fit_height) {

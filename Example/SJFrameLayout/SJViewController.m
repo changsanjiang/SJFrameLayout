@@ -17,13 +17,14 @@
 #import <SJFrameLayout.h>
 //#import <MMPlaceHolder.h>
 #import "SJTestLabel.h"
-
+#import "SJTestButton.h"
 
 #define ViewCount (500)
 
 @interface SJViewController ()
 @property (nonatomic, strong) UIView *testView;
 @property (nonatomic, strong) SJTestLabel *testLabel;
+@property (nonatomic, strong) SJTestButton *testButton;
 @end
 
 @implementation SJViewController
@@ -34,19 +35,30 @@
     self.view.backgroundColor = [UIColor blackColor];
 //    [self.view showPlaceHolder];
     
-    _testLabel = [[SJTestLabel alloc] initWithFrame:CGRectZero];
-    _testLabel.backgroundColor = [UIColor greenColor];
-    _testLabel.numberOfLines = 0;
-//    _testLabel.textAlignment = NSTextAlignmentCenter;
-    [self.view addSubview:_testLabel];
-    [_testLabel sj_makeFrameLayout:^(SJFLMaker * _Nonnull make) {
+//    _testLabel = [[SJTestLabel alloc] initWithFrame:CGRectZero];
+//    _testLabel.backgroundColor = [UIColor greenColor];
+//    _testLabel.numberOfLines = 0;
+////    _testLabel.textAlignment = NSTextAlignmentCenter;
+//    [self.view addSubview:_testLabel];
+//    [_testLabel sj_makeFrameLayout:^(SJFLMaker * _Nonnull make) {
+//        make.left.bottom.offset(0);
+////        make.height.offset(80);
+//    }];
+    
+
+    _testButton = [[SJTestButton alloc] initWithFrame:CGRectZero];
+    _testButton.backgroundColor = [UIColor greenColor];
+    [self.view addSubview:_testButton];
+    
+    [_testButton sj_makeFrameLayout:^(SJFLMaker * _Nonnull make) {
         make.left.bottom.offset(0);
-//        make.height.offset(80);
     }];
+    
 }
 - (IBAction)testmas:(id)sender {
     NSArray *arr = @[@"SDAutoLayout/SDAutoLayout.h", @"MMPlaceHolder.h", @"make.height.offset(80);", @"#if __has_include(<SDAutoLayout/SDAutoLayout.h>)"];
-    self->_testLabel.text = [NSString stringWithFormat:@"%@", arr[arc4random()%arr.count]];
+//    self->_testLabel.text = [NSString stringWithFormat:@"%@", arr[arc4random()%arr.count]];
+    [_testButton setTitle:arr[arc4random()%arr.count] forState:UIControlStateNormal];
     return;
     
     
