@@ -9,18 +9,18 @@
 #import "SJTestLabel.h"
 
 @implementation SJTestLabel
-- (void)setText:(NSString *)text {
-#ifdef DEBUG
-    NSLog(@"%d - %s", (int)__LINE__, __func__);
-#endif
-    [super setText:text];
-}
-
-- (void)layoutSubviews {
-#ifdef DEBUG
-    NSLog(@"%d - %s", (int)__LINE__, __func__);
-#endif
-    [super layoutSubviews];
-}
+//- (void)setText:(NSString *)text {
+//#ifdef DEBUG
+//    NSLog(@"%d - %s", (int)__LINE__, __func__);
+//#endif
+//    [super setText:text];
+//}
+//
+//- (void)layoutSubviews {
+//#ifdef DEBUG
+//    NSLog(@"%d - %s", (int)__LINE__, __func__);
+//#endif
+//    [super layoutSubviews];
+//}
 
 @end

@@ -11,7 +11,7 @@
 #import "UIView+SJFLPrivate.h"
 
 NS_ASSUME_NONNULL_BEGIN
-#if 0
+#if 1
 #ifdef DEBUG
 #undef DEBUG
 #endif
