@@ -24,15 +24,15 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation SJFLLayoutSetInfo {
     struct {
-        BOOL isSetNone;
-        BOOL isSetTop;
-        BOOL isSetLeft;
-        BOOL isSetBottom;
-        BOOL isSetRight;
-        BOOL isSetWidth;
-        BOOL isSetHeight;
-        BOOL isSetCenterX;
-        BOOL isSetCenterY;
+        BOOL isSetNone :1;
+        BOOL isSetTop :1;
+        BOOL isSetLeft :1;
+        BOOL isSetBottom :1;
+        BOOL isSetRight :1;
+        BOOL isSetWidth :1;
+        BOOL isSetHeight :1;
+        BOOL isSetCenterX :1;
+        BOOL isSetCenterY :1;
     } info;
 }
 
@@ -187,7 +187,8 @@ NS_ASSUME_NONNULL_BEGIN
 
     CGFloat newValue = self.value;
     
-    if ( SJFLViewLayoutCompare(view, _tar_attr, newValue) ) {
+    SJFLLayoutSetInfo *info = [view FL_info];
+    if ( [info get:_tar_attr] && SJFLViewLayoutCompare(view, _tar_attr, newValue) ) {
         SJFLViewUpdateRelatedLayoutIfNeeded(view, _tar_attr);
         return;
     }

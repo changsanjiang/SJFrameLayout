@@ -44,15 +44,17 @@
 //        make.left.bottom.offset(0);
 ////        make.height.offset(80);
 //    }];
-    
 
     _testButton = [[SJTestButton alloc] initWithFrame:CGRectZero];
     _testButton.backgroundColor = [UIColor greenColor];
+    _testButton.titleLabel.numberOfLines = 0;
     [self.view addSubview:_testButton];
     
     [_testButton sj_makeFrameLayout:^(SJFLMaker * _Nonnull make) {
-        make.left.bottom.offset(0);
+        make.left.bottom.right.offset(0);
     }];
+    
+    NSLog(@"%p", _testButton);
     
 }
 - (IBAction)testmas:(id)sender {
