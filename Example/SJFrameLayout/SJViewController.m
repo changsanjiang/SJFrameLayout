@@ -47,12 +47,9 @@
 - (IBAction)testmas:(id)sender {
     NSArray *arr = @[@"SDAutoLayout/SDAutoLayout.h", @"MMPlaceHolder.h", @"make.height.offset(80);", @"#if __has_include(<SDAutoLayout/SDAutoLayout.h>)"];
     self->_testLabel.text = [NSString stringWithFormat:@"%@", arr[arc4random()%arr.count]];
-//    [_testLabel sizeToFit];
-//    NSLog(@"%@", _testLabel);
-    [UIView animateWithDuration:0.4 animations:^{
-        [self->_testLabel layoutIfNeeded];
-    }];
     return;
+    
+    
     UIView *subview1 = [UIView new];
     subview1.backgroundColor = [UIColor redColor];
     [self.view addSubview:subview1];
@@ -243,18 +240,18 @@
         make.size.offset(800);
     }];
 
-    for ( int i = 0 ; i < ViewCount ; ++ i ) {
-        UIView *a = [UIView new];
-        a.backgroundColor =  [UIColor colorWithRed:arc4random() % 256 / 255.0
-                                             green:arc4random() % 256 / 255.0
-                                              blue:arc4random() % 256 / 255.0
-                                             alpha:1];
-        [ss addSubview:a];
-
-        [a sj_makeFrameLayout:^(SJFLMaker * _Nonnull make) {
-            make.edges.box_equalTo(UIEdgeInsetsMake(8 + i, 8 + i, -(8 + i), -(8 + i)));
-        }];
-    }
+//    for ( int i = 0 ; i < ViewCount ; ++ i ) {
+//        UIView *a = [UIView new];
+//        a.backgroundColor =  [UIColor colorWithRed:arc4random() % 256 / 255.0
+//                                             green:arc4random() % 256 / 255.0
+//                                              blue:arc4random() % 256 / 255.0
+//                                             alpha:1];
+//        [ss addSubview:a];
+//
+//        [a sj_makeFrameLayout:^(SJFLMaker * _Nonnull make) {
+//            make.edges.box_equalTo(UIEdgeInsetsMake(8 + i, 8 + i, -(8 + i), -(8 + i)));
+//        }];
+//    }
 }
 - (IBAction)clean:(id)sender {
     

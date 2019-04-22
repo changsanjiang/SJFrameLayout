@@ -115,8 +115,6 @@ NS_ASSUME_NONNULL_BEGIN
 
     __weak UIView *_Nullable _dep_view;
     SJFLAttribute _dep_attr;
-    
-    CGFloat _before;
 }
 @property (nonatomic, readonly) CGFloat value;
 @end
@@ -152,8 +150,6 @@ NS_ASSUME_NONNULL_BEGIN
     }
     _dep_view = dependency.view;
     _dep_attr = dependency.attribute;
-    
-    _before = -1;
     return self;
 }
 
@@ -191,18 +187,10 @@ NS_ASSUME_NONNULL_BEGIN
 
     CGFloat newValue = self.value;
     
-//    if ( SJFLViewLayoutCompare(view, _tar_attr, newValue) ) {
-//        SJFLViewUpdateRelatedLayoutIfNeeded(view, _tar_attr);
-//        return;
-//    }
-
-    if ( SJFLFloatCompare(newValue, _before) ) {
+    if ( SJFLViewLayoutCompare(view, _tar_attr, newValue) ) {
         SJFLViewUpdateRelatedLayoutIfNeeded(view, _tar_attr);
         return;
     }
-    
-     // update
-    _before = newValue;
     
     switch ( _tar_attr ) {
         case SJFLAttributeNone: break; ///< Target does not need to do anything
@@ -336,17 +324,18 @@ NS_ASSUME_NONNULL_BEGIN
 // - update -
 
 UIKIT_STATIC_INLINE void SJFLViewUpdateRelatedLayoutIfNeeded(UIView *view, SJFLAttribute attr) {
+    NSArray<SJFLLayoutElement *> *m = [view FL_elements];
     switch ( attr ) {
         case SJFLAttributeNone:
             break;
         case SJFLAttributeTop: {
             // update bottom layout
-            [[view FL_elementForAttribute:SJFLAttributeBottom] installValueToTargetIfNeeded];
+            [SJFLGetElement(m, SJFLAttributeBottom, 0) installValueToTargetIfNeeded];
         }
             break;
         case SJFLAttributeLeft: {
             // update right layout
-            [[view FL_elementForAttribute:SJFLAttributeRight] installValueToTargetIfNeeded];
+            [SJFLGetElement(m, SJFLAttributeRight, 0) installValueToTargetIfNeeded];
         }
             break;
         case SJFLAttributeBottom:
@@ -354,15 +343,15 @@ UIKIT_STATIC_INLINE void SJFLViewUpdateRelatedLayoutIfNeeded(UIView *view, SJFLA
         case SJFLAttributeRight:
             break;
         case SJFLAttributeWidth: {
-            [[view FL_elementForAttribute:SJFLAttributeLeft] installValueToTargetIfNeeded];
-            [[view FL_elementForAttribute:SJFLAttributeCenterX] installValueToTargetIfNeeded];
-            [[view FL_elementForAttribute:SJFLAttributeRight] installValueToTargetIfNeeded];
+            [SJFLGetElement(m, SJFLAttributeLeft, 0) installValueToTargetIfNeeded];
+            [SJFLGetElement(m, SJFLAttributeCenterX, 0) installValueToTargetIfNeeded];
+            [SJFLGetElement(m, SJFLAttributeRight, 0) installValueToTargetIfNeeded];
         }
             break;
         case SJFLAttributeHeight: {
-            [[view FL_elementForAttribute:SJFLAttributeTop] installValueToTargetIfNeeded];
-            [[view FL_elementForAttribute:SJFLAttributeCenterY] installValueToTargetIfNeeded];
-            [[view FL_elementForAttribute:SJFLAttributeBottom] installValueToTargetIfNeeded];
+            [SJFLGetElement(m, SJFLAttributeTop, 0) installValueToTargetIfNeeded];
+            [SJFLGetElement(m, SJFLAttributeCenterY, 0) installValueToTargetIfNeeded];
+            [SJFLGetElement(m, SJFLAttributeBottom, 0) installValueToTargetIfNeeded];
         }
             break;
         case SJFLAttributeCenterX:
@@ -388,30 +377,30 @@ UIKIT_STATIC_INLINE BOOL SJFLFloatCompare(CGFloat value1, CGFloat value2) {
     return floor(value1 + 0.5) == floor(value2 + 0.5);
 }
 
-//UIKIT_STATIC_INLINE BOOL SJFLViewLayoutCompare(UIView *view, SJFLAttribute attr, CGFloat value) {
-//    CGRect frame = view.frame;
-//    switch ( attr ) {
-//        case SJFLAttributeNone:
-//            return NO;
-//        case SJFLAttributeTop:
-//            return SJFLFloatCompare(value, CGRectGetMinY(frame));
-//        case SJFLAttributeLeft:
-//            return SJFLFloatCompare(value, CGRectGetMinX(frame));
-//        case SJFLAttributeBottom:
-//            return SJFLFloatCompare(value, CGRectGetMaxY(frame));
-//        case SJFLAttributeRight:
-//            return SJFLFloatCompare(value, CGRectGetMaxX(frame));
-//        case SJFLAttributeWidth:
-//            return SJFLFloatCompare(value, CGRectGetWidth(frame));
-//        case SJFLAttributeHeight:
-//            return SJFLFloatCompare(value, CGRectGetHeight(frame));
-//        case SJFLAttributeCenterX:
-//            return SJFLFloatCompare(value, CGRectGetWidth(frame) * 0.5 + CGRectGetMinX(frame));
-//        case SJFLAttributeCenterY:
-//            return SJFLFloatCompare(value, CGRectGetHeight(frame) * 0.5 + CGRectGetMinY(frame));
-//            break;
-//    }
-//}
+UIKIT_STATIC_INLINE BOOL SJFLViewLayoutCompare(UIView *view, SJFLAttribute attr, CGFloat value) {
+    CGRect frame = view.frame;
+    switch ( attr ) {
+        case SJFLAttributeNone:
+            return NO;
+        case SJFLAttributeTop:
+            return SJFLFloatCompare(value, CGRectGetMinY(frame));
+        case SJFLAttributeLeft:
+            return SJFLFloatCompare(value, CGRectGetMinX(frame));
+        case SJFLAttributeBottom:
+            return SJFLFloatCompare(value, CGRectGetMaxY(frame));
+        case SJFLAttributeRight:
+            return SJFLFloatCompare(value, CGRectGetMaxX(frame));
+        case SJFLAttributeWidth:
+            return SJFLFloatCompare(value, CGRectGetWidth(frame));
+        case SJFLAttributeHeight:
+            return SJFLFloatCompare(value, CGRectGetHeight(frame));
+        case SJFLAttributeCenterX:
+            return SJFLFloatCompare(value, CGRectGetWidth(frame) * 0.5 + CGRectGetMinX(frame));
+        case SJFLAttributeCenterY:
+            return SJFLFloatCompare(value, CGRectGetHeight(frame) * 0.5 + CGRectGetMinY(frame));
+            break;
+    }
+}
 
 UIKIT_STATIC_INLINE BOOL SJFLViewAttributeCanSettable(UIView *view, SJFLAttribute attr) {
     switch ( attr ) {
