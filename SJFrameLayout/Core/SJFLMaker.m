@@ -65,7 +65,7 @@ RETURN_FL_MAKER_LAYOUT(centerY, SJFLAttributeCenterY);
 RETURN_FL_MAKER_LAYOUT_MASK(center, SJFLAttributeMaskCenter);
 
 - (void)install {
-    NSArray<SJFLLayoutElement *> *m = SJFLGenerateLayoutElements(_view);
+    NSArray<SJFLLayoutElement *> *m = SJFLCreateElementsForAttributeUnits(_view);
     [_view FL_addElementsFromArray:m];
     [_view FL_resetAttributeUnits];
     
@@ -79,7 +79,7 @@ RETURN_FL_MAKER_LAYOUT_MASK(center, SJFLAttributeMaskCenter);
 }
 
 - (void)update {
-    NSArray<SJFLLayoutElement *> *m = SJFLGenerateLayoutElements(_view);
+    NSArray<SJFLLayoutElement *> *m = SJFLCreateElementsForAttributeUnits(_view);
     for ( SJFLLayoutElement *ele in m ) {
         [_view FL_replaceElementForAttribute:ele.tar_attr withElement:ele];
     }
@@ -87,7 +87,7 @@ RETURN_FL_MAKER_LAYOUT_MASK(center, SJFLAttributeMaskCenter);
     [_view.superview layoutSubviews];
 }
 
-UIKIT_STATIC_INLINE NSArray<SJFLLayoutElement *> *SJFLGenerateLayoutElements(UIView *view) {
+UIKIT_STATIC_INLINE NSArray<SJFLLayoutElement *> *SJFLCreateElementsForAttributeUnits(UIView *view) {
     NSMutableArray<SJFLLayoutElement *> *m = [NSMutableArray arrayWithCapacity:8];
     SJFLAttributeUnit *_Nullable top = [view FL_attributeUnitForAttribute:SJFLAttributeTop];
     SJFLAttributeUnit *_Nullable left = [view FL_attributeUnitForAttribute:SJFLAttributeLeft];
