@@ -107,6 +107,8 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 @interface SJFLLayoutElement () {
+    @public
+    SJFLAttributeUnit *_target;
     __weak UIView *_Nullable _tar_superview;
     __weak UIView *_Nullable _tar_view;
     SJFLAttribute _tar_attr;
@@ -156,7 +158,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (NSString *)description {
-    return [NSString stringWithFormat:@"[_tar_view:%p,\t _tar_attr:%s,\t _dep_view:%p,\t _dep_attr:%s]", _tar_view, [SJFLAttributeUnit debug_attributeToString:_tar_attr].UTF8String, _dep_view, [SJFLAttributeUnit debug_attributeToString:_dep_attr].UTF8String];
+    return [NSString stringWithFormat:@"[_tar_view:%p,\t _tar_attr:%s,\t _dep_view:%p,\t _dep_attr:%s,\t _priority:%d]", _tar_view, [SJFLAttributeUnit debug_attributeToString:_tar_attr].UTF8String, _dep_view, [SJFLAttributeUnit debug_attributeToString:_dep_attr].UTF8String, _target->priority];
 }
 
 - (UIView *_Nullable)tar_superview {
@@ -275,7 +277,7 @@ NS_ASSUME_NONNULL_BEGIN
     
     CGFloat value = 0;
     if ( dep_attr == SJFLAttributeNone ) {
-        value = offset;
+        value = 0;
     }
     else {
         UIView *dep_view = _dep_view;
@@ -511,7 +513,11 @@ UIKIT_STATIC_INLINE void SJFLViewSetCenterY(UIView *view, CGFloat centerY) {
 
 // set maxY
 UIKIT_STATIC_INLINE void SJFLViewSetBottom(UIView *view, CGFloat bottom) {
-    SJFLLayoutElement *_Nullable heightElement = [view FL_elementForAttribute:SJFLAttributeHeight];
+    NSArray<SJFLLayoutElement *> *m = [view FL_elements];
+    SJFLLayoutElement *_Nullable heightElement = SJFLGetElement(m, SJFLAttributeHeight, 0);
+    if ( heightElement == nil )
+        heightElement = SJFLGetElement(m, SJFLAttributeHeight, 1);
+
     if ( !heightElement ) {
         // top + height = bottom
         // height = bottom - top
@@ -532,7 +538,11 @@ UIKIT_STATIC_INLINE void SJFLViewSetBottom(UIView *view, CGFloat bottom) {
 
 // set maxX
 UIKIT_STATIC_INLINE void SJFLViewSetRight(UIView *view, CGFloat right) {
-    SJFLLayoutElement *_Nullable widthElement = [view FL_elementForAttribute:SJFLAttributeWidth];
+    NSArray<SJFLLayoutElement *> *m = [view FL_elements];
+    SJFLLayoutElement *_Nullable widthElement = SJFLGetElement(m, SJFLAttributeWidth, 0);
+    if ( widthElement == nil )
+        widthElement = SJFLGetElement(m, SJFLAttributeWidth, 1);
+    
     if ( !widthElement ) {
         // left + width = right
         // width = right - left

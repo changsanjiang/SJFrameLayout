@@ -48,7 +48,7 @@ NS_ASSUME_NONNULL_BEGIN
     _equalToUnit = unit;
 }
 - (CGFloat)offset {
-    if ( offset_t == FL_CGFloatValue ) {
+    if ( offset_t == SJFLCGFloatValue ) {
         return offset.value;
     }
     
@@ -65,13 +65,13 @@ NS_ASSUME_NONNULL_BEGIN
             break;
         case SJFLAttributeLeft: {
             switch ( offset_t ) {
-                case FL_CGFloatValue:
-                case FL_CGPointValue:
-                case FL_CGSizeValue: {
+                case SJFLCGFloatValue:
+                case SJFLCGPointValue:
+                case SJFLCGSizeValue: {
                     value = offset.value;
                 }
                     break;
-                case FL_UIEdgeInsetsValue: {
+                case SJFLUIEdgeInsetsValue: {
                     value = offset.edges.left;
                 }
                     break;
@@ -80,13 +80,13 @@ NS_ASSUME_NONNULL_BEGIN
             break;
         case SJFLAttributeBottom: {
             switch ( offset_t ) {
-                case FL_CGFloatValue:
-                case FL_CGPointValue:
-                case FL_CGSizeValue: {
+                case SJFLCGFloatValue:
+                case SJFLCGPointValue:
+                case SJFLCGSizeValue: {
                     value = offset.value;
                 }
                     break;
-                case FL_UIEdgeInsetsValue: {
+                case SJFLUIEdgeInsetsValue: {
                     value = offset.edges.bottom;
                 }
                     break;
@@ -95,13 +95,13 @@ NS_ASSUME_NONNULL_BEGIN
             break;
         case SJFLAttributeRight: {
             switch ( offset_t ) {
-                case FL_CGFloatValue:
-                case FL_CGPointValue:
-                case FL_CGSizeValue: {
+                case SJFLCGFloatValue:
+                case SJFLCGPointValue:
+                case SJFLCGSizeValue: {
                     value = offset.value;
                 }
                     break;
-                case FL_UIEdgeInsetsValue: {
+                case SJFLUIEdgeInsetsValue: {
                     value = offset.edges.right;
                 }
                     break;
@@ -110,13 +110,13 @@ NS_ASSUME_NONNULL_BEGIN
             break;
         case SJFLAttributeWidth: {
             switch ( offset_t ) {
-                case FL_CGFloatValue:
-                case FL_CGPointValue:
-                case FL_UIEdgeInsetsValue: {
+                case SJFLCGFloatValue:
+                case SJFLCGPointValue:
+                case SJFLUIEdgeInsetsValue: {
                     value = offset.value;
                 }
                     break;
-                case FL_CGSizeValue: {
+                case SJFLCGSizeValue: {
                     value = offset.size.width;
                 }
                     break;
@@ -125,13 +125,13 @@ NS_ASSUME_NONNULL_BEGIN
             break;
         case SJFLAttributeHeight: {
             switch ( offset_t ) {
-                case FL_CGFloatValue:
-                case FL_CGPointValue:
-                case FL_UIEdgeInsetsValue: {
+                case SJFLCGFloatValue:
+                case SJFLCGPointValue:
+                case SJFLUIEdgeInsetsValue: {
                     value = offset.value;
                 }
                     break;
-                case FL_CGSizeValue: {
+                case SJFLCGSizeValue: {
                     value = offset.size.height;
                 }
                     break;
@@ -140,13 +140,13 @@ NS_ASSUME_NONNULL_BEGIN
             break;
         case SJFLAttributeCenterX: {
             switch ( offset_t ) {
-                case FL_CGFloatValue:
-                case FL_CGSizeValue:
-                case FL_UIEdgeInsetsValue: {
+                case SJFLCGFloatValue:
+                case SJFLCGSizeValue:
+                case SJFLUIEdgeInsetsValue: {
                     value = offset.value;
                 }
                     break;
-                case FL_CGPointValue: {
+                case SJFLCGPointValue: {
                     value = offset.point.x;
                 }
                     break;
@@ -155,13 +155,13 @@ NS_ASSUME_NONNULL_BEGIN
             break;
         case SJFLAttributeCenterY: {
             switch ( offset_t ) {
-                case FL_CGFloatValue:
-                case FL_CGSizeValue:
-                case FL_UIEdgeInsetsValue: {
+                case SJFLCGFloatValue:
+                case SJFLCGSizeValue:
+                case SJFLUIEdgeInsetsValue: {
                     value = offset.value;
                 }
                     break;
-                case FL_CGPointValue: {
+                case SJFLCGPointValue: {
                     value = offset.point.y;
                 }
                     break;

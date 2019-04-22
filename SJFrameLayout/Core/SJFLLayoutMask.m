@@ -124,7 +124,7 @@ NS_ASSUME_NONNULL_BEGIN
 #define SET_FL_UNIT_OFFSET(__attr__, __unit__) \
 if ( SJFLLayoutContainsAttribute(attributes, __attr__) ) { \
     __unit__->offset.value = offset; \
-    __unit__->offset_t = FL_CGFloatValue; \
+    __unit__->offset_t = SJFLCGFloatValue; \
 }
         SET_FL_UNIT_OFFSET(SJFLAttributeTop, view.FL_Top);
         SET_FL_UNIT_OFFSET(SJFLAttributeLeft, view.FL_Left);
@@ -144,9 +144,9 @@ if ( SJFLLayoutContainsAttribute(attributes, __attr__) ) { \
             CGPoint pointValue = CGPointZero;
             CGSize sizeValue = CGSizeZero;
             UIEdgeInsets insetsValue = UIEdgeInsetsZero;
-            char t = FL_CGFloatValue;
+            char t = SJFLCGFloatValue;
             if      ( [box isKindOfClass:NSNumber.class] ) {
-                t = FL_CGFloatValue;
+                t = SJFLCGFloatValue;
                 if (@available(iOS 11.0, *)) {
                     [box getValue:&floatValue size:sizeof(CGFloat)];
                 } else {
@@ -154,7 +154,7 @@ if ( SJFLLayoutContainsAttribute(attributes, __attr__) ) { \
                 }
             }
             else if (strcmp(box.objCType, @encode(CGPoint)) == 0) {
-                t = FL_CGPointValue;
+                t = SJFLCGPointValue;
                 if (@available(iOS 11.0, *)) {
                     [box getValue:&pointValue size:sizeof(CGPoint)];
                 } else {
@@ -162,7 +162,7 @@ if ( SJFLLayoutContainsAttribute(attributes, __attr__) ) { \
                 }
             }
             else if (strcmp(box.objCType, @encode(CGSize)) == 0) {
-                t = FL_CGSizeValue;
+                t = SJFLCGSizeValue;
                 if (@available(iOS 11.0, *)) {
                     [box getValue:&sizeValue size:sizeof(CGSize)];
                 } else {
@@ -170,7 +170,7 @@ if ( SJFLLayoutContainsAttribute(attributes, __attr__) ) { \
                 }
             }
             else if (strcmp(box.objCType, @encode(UIEdgeInsets)) == 0) {
-                t = FL_UIEdgeInsetsValue;
+                t = SJFLUIEdgeInsetsValue;
                 if (@available(iOS 11.0, *)) {
                     [box getValue:&insetsValue size:sizeof(UIEdgeInsets)];
                 } else {
@@ -186,16 +186,16 @@ if ( SJFLLayoutContainsAttribute(attributes, __attr__) ) { \
                 SJFLAttributeUnit *unit = __unit__; \
                 unit->offset_t = t; \
                 switch ( unit->offset_t ) {  \
-                    case FL_CGFloatValue: \
+                    case SJFLCGFloatValue: \
                         unit->offset.value = floatValue; \
                         break;  \
-                    case FL_CGPointValue: \
+                    case SJFLCGPointValue: \
                         unit->offset.point = pointValue; \
                         break; \
-                    case FL_CGSizeValue: \
+                    case SJFLCGSizeValue: \
                         unit->offset.size = sizeValue; \
                         break; \
-                    case FL_UIEdgeInsetsValue: \
+                    case SJFLUIEdgeInsetsValue: \
                         unit->offset.edges = insetsValue; \
                         break;  \
                 }   \

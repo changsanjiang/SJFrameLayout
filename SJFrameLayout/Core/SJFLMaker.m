@@ -107,6 +107,29 @@ UIKIT_STATIC_INLINE NSArray<SJFLLayoutElement *> *SJFLCreateElementsForAttribute
     if ( centerX != nil ) [m addObject:[[SJFLLayoutElement alloc] initWithTarget:centerX]];
     if ( centerY != nil ) [m addObject:[[SJFLLayoutElement alloc] initWithTarget:centerY]];
     
+    // Added FittingSize units
+    // required
+    // optional
+    if ( (width != nil) || (left != nil && right != nil) )
+    { /* nothing */ }
+    else {
+        // no - width
+        SJFLAttributeUnit *widthUnit = [[SJFLAttributeUnit alloc] initWithView:view attribute:SJFLAttributeWidth];
+        widthUnit->priority = SJFLPriorityFittingSize;
+        SJFLLayoutElement *widthElem = [[SJFLLayoutElement alloc] initWithTarget:widthUnit];
+        [m addObject:widthElem]; // 当视图本身没有width条件时, 才会添加
+    }
+    
+    // height
+    if ( height != nil || (top != nil && bottom != nil) )
+    { /* nothing */ }
+    else {
+        // no - height
+        SJFLAttributeUnit *heightUnit = [[SJFLAttributeUnit alloc] initWithView:view attribute:SJFLAttributeHeight];
+        heightUnit->priority = SJFLPriorityFittingSize;
+        SJFLLayoutElement *heightElem = [[SJFLLayoutElement alloc] initWithTarget:heightUnit];
+        [m addObject:heightElem]; // 当视图本身没有height条件时, 才会添加
+    }
     return m;
 }
 @end

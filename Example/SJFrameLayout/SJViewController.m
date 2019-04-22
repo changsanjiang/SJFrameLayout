@@ -16,12 +16,14 @@
 #import "SJTestView2.h"
 #import <SJFrameLayout.h>
 //#import <MMPlaceHolder.h>
+#import "SJTestLabel.h"
 
 
 #define ViewCount (500)
 
 @interface SJViewController ()
 @property (nonatomic, strong) UIView *testView;
+@property (nonatomic, strong) SJTestLabel *testLabel;
 @end
 
 @implementation SJViewController
@@ -31,8 +33,26 @@
 //    self.view.FL_elements = nil;
     self.view.backgroundColor = [UIColor blackColor];
 //    [self.view showPlaceHolder];
+    
+    _testLabel = [[SJTestLabel alloc] initWithFrame:CGRectZero];
+    _testLabel.backgroundColor = [UIColor greenColor];
+    _testLabel.numberOfLines = 0;
+//    _testLabel.textAlignment = NSTextAlignmentCenter;
+    [self.view addSubview:_testLabel];
+    [_testLabel sj_makeFrameLayout:^(SJFLMaker * _Nonnull make) {
+        make.left.bottom.offset(0);
+//        make.height.offset(80);
+    }];
 }
 - (IBAction)testmas:(id)sender {
+    NSArray *arr = @[@"SDAutoLayout/SDAutoLayout.h", @"MMPlaceHolder.h", @"make.height.offset(80);", @"#if __has_include(<SDAutoLayout/SDAutoLayout.h>)"];
+    self->_testLabel.text = [NSString stringWithFormat:@"%@", arr[arc4random()%arr.count]];
+//    [_testLabel sizeToFit];
+//    NSLog(@"%@", _testLabel);
+    [UIView animateWithDuration:0.4 animations:^{
+        [self->_testLabel layoutIfNeeded];
+    }];
+    return;
     UIView *subview1 = [UIView new];
     subview1.backgroundColor = [UIColor redColor];
     [self.view addSubview:subview1];
@@ -193,20 +213,20 @@
     [self.view addSubview:subview1];
     [subview1 sj_makeFrameLayout:^(SJFLMaker * _Nonnull make) {
         make.top.offset(40);
-        make.left.offset(180);
-        make.right.offset(-20);
-        make.bottom.offset(-200);
+        make.left.offset(0);
+//        make.right.offset(-20);
+//        make.bottom.offset(-200);
     }];
     
-    UIView *sub = [SJTestView new];
+    UIView *sub = [UIView new];
     sub.backgroundColor = [UIColor greenColor];
-    [self.view addSubview:sub];
+    [subview1 addSubview:sub];
     _testView = sub;
     
     [sub sj_makeFrameLayout:^(SJFLMaker * _Nonnull make) {
         make.top.left.equalTo(subview1).offset(8);
-        make.width.equalTo(subview1).multipliedBy(0.5).offset(20);
-        make.height.equalTo(subview1).multipliedBy(0.5).offset(20);
+        make.bottom.right.equalTo(subview1).offset(-8);
+        make.size.offset(20);
     }];
     
 //    UIView *subview1 = [SJTestView new];

@@ -1,5 +1,6 @@
 PODS:
   - Masonry (1.1.0)
+  - SDAutoLayout (2.2.1)
   - SJFrameLayout (0.1.0):
     - SJFrameLayout/Core (= 0.1.0)
   - SJFrameLayout/Core (0.1.0)
@@ -7,12 +8,14 @@ PODS:
 
 DEPENDENCIES:
   - Masonry
+  - SDAutoLayout
   - SJFrameLayout (from `../`)
   - SJUIKit/Queue
 
 SPEC REPOS:
   https://github.com/cocoapods/specs.git:
     - Masonry
+    - SDAutoLayout
     - SJUIKit
 
 EXTERNAL SOURCES:
@@ -21,9 +24,10 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   Masonry: 678fab65091a9290e40e2832a55e7ab731aad201
+  SDAutoLayout: 8bf6b3bbc8b01f775d4defbb4fda2ace805461be
   SJFrameLayout: 5fdd26af53edd5aca6c6a8cbca112610d5c536c8
   SJUIKit: 1554e77cb6061017157faaf853f98d771956e26a
 
-PODFILE CHECKSUM: b939a57b3d82ced64b76ea9f3bc56674b2eba86d
+PODFILE CHECKSUM: fc5514c1beb9969621b6702084c259ddaf151b55
 
 COCOAPODS: 1.7.0.beta.3

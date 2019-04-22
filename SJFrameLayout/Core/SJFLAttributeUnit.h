@@ -46,13 +46,18 @@ typedef enum : NSUInteger {
     } offset;
     
     enum :char {
-        FL_CGFloatValue,
-        FL_CGPointValue,
-        FL_CGSizeValue,
-        FL_UIEdgeInsetsValue
+        SJFLCGFloatValue,
+        SJFLCGPointValue,
+        SJFLCGSizeValue,
+        SJFLUIEdgeInsetsValue
     } offset_t;
     
     CGFloat multiplier; // default value is 1.0
+    
+    enum :char {
+        SJFLPriorityRequired,
+        SJFLPriorityFittingSize
+    } priority;
 }
 - (instancetype)initWithView:(__weak UIView *)view attribute:(SJFLAttribute)attribute;
 @property (nonatomic, readonly) SJFLAttribute attribute;
