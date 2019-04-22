@@ -11,8 +11,6 @@
 
 NS_ASSUME_NONNULL_BEGIN
 @interface UIView (SJFLPrivate)
-@property (nonatomic) BOOL FL_layout;
-
 - (SJFLLayoutElement *_Nullable)FL_elementForAttribute:(SJFLAttribute)attribute;
 - (SJFLLayoutElement *_Nullable)FL_elementForAttribute:(SJFLAttribute)attribute priority:(char)priority; // width & height
 

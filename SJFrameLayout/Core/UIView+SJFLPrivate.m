@@ -16,39 +16,32 @@ NS_ASSUME_NONNULL_BEGIN
 #undef DEBUG
 #endif
 #endif
+UIKIT_STATIC_INLINE void
+SJFLSwizzleMethod(Class cls, SEL originalSelector, SEL swizzledSelector) {
+    Method originalMethod = class_getInstanceMethod(cls, originalSelector);
+    Method swizzledMethod = class_getInstanceMethod(cls, swizzledSelector);
+    
+    BOOL added = class_addMethod(cls, originalSelector, method_getImplementation(swizzledMethod), method_getTypeEncoding(swizzledMethod));
+    if ( added )
+        class_replaceMethod(cls, swizzledSelector, method_getImplementation(originalMethod), method_getTypeEncoding(originalMethod));
+    else
+        method_exchangeImplementations(originalMethod, swizzledMethod);
+}
 
 @implementation UIView (SJFLPrivate)
 static Class FL_UILabelClass;
 static Class FL_UIButtonClass;
-static SEL FL_layout;
 
 + (void)load {
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        Class nav = [self class];
-        SEL originalSelector = @selector(layoutSubviews);
-        SEL swizzledSelector = @selector(FL_layoutSubviews);
-        Method originalMethod = class_getInstanceMethod(nav, originalSelector);
-        Method swizzledMethod = class_getInstanceMethod(nav, swizzledSelector);
-        BOOL added = class_addMethod([self class], originalSelector, method_getImplementation(swizzledMethod), method_getTypeEncoding(swizzledMethod));
-        if ( added ) {
-            class_replaceMethod([self class], swizzledSelector, method_getImplementation(originalMethod), method_getTypeEncoding(originalMethod));
-        }
-        else {
-            method_exchangeImplementations(originalMethod, swizzledMethod);
-        }
-        
         FL_UILabelClass = UILabel.class;
         FL_UIButtonClass = UIButton.class;
-        FL_layout = @selector(FL_layout);
+        SEL originalSelector = @selector(layoutSubviews);
+        SEL swizzledSelector = @selector(FL_layoutSubviews);
+        
+        SJFLSwizzleMethod(UIView.class, originalSelector, swizzledSelector);
     });
-}
-
-- (void)setFL_layout:(BOOL)layout {
-    objc_setAssociatedObject(self, FL_layout, @(layout), OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-}
-- (BOOL)FL_layout {
-    return objc_getAssociatedObject(self, _cmd);
 }
 
 - (void)FL_layoutSubviews {
@@ -208,18 +201,35 @@ UIKIT_STATIC_INLINE void SJFLLabelLayoutFixInnerSize(UILabel *label, SJFLAttribu
     // 具有宽度约束
     if ( fit_width == nil ) {
         container.width = CGRectGetWidth(frame);
+        if ( SJFLFloatCompare(0, container.width) )
+            return;
     }
     // 具有高度约束
     else if ( fit_height == nil ) {
         container.height = CGRectGetHeight(frame);
+        if ( SJFLFloatCompare(0, container.height) )
+            return;
     }
-    CGSize fit = [label textRectForBounds:CGRectMake(0, 0, container.width, container.height) limitedToNumberOfLines:label.numberOfLines].size;
     
-    if ( !CGSizeEqualToSize(fit, frame.size) ) {
-        if ( fit_width ) fit_width->offset.value = ceil(fit.width);
-        if ( fit_height ) fit_height->offset.value = ceil(fit.height);
-        [label.superview layoutSubviews];
+    CGRect rect = [label textRectForBounds:CGRectMake(0, 0, container.width, container.height) limitedToNumberOfLines:label.numberOfLines];
+    CGSize fit = CGSizeMake(ceil(rect.size.width), ceil(rect.size.height));
+    
+    BOOL needUpdate = NO;
+    if ( fit_width != nil ) {
+        if ( !SJFLFloatCompare(fit_width->offset.value, fit.width) ) {
+            fit_width->offset.value = fit.width;
+            needUpdate = YES;
+        }
     }
+    
+    if ( fit_height != nil ) {
+        if ( !SJFLFloatCompare(fit_height->offset.value, fit.height) ) {
+            fit_height->offset.value = fit.height;
+            needUpdate = YES;
+        }
+    }
+    
+    if ( needUpdate ) [label.superview layoutSubviews];
 }
 
 UIKIT_STATIC_INLINE void SJFLViewLayoutFixInnerSize(UIView *view, SJFLAttributeUnit *_Nullable fit_width, SJFLAttributeUnit *_Nullable fit_height) {
@@ -258,6 +268,22 @@ UIKIT_STATIC_INLINE void SJFLViewLayoutFixInnerSize(UIView *view, SJFLAttributeU
 
 UIKIT_STATIC_INLINE BOOL SJFLFloatCompare(CGFloat value1, CGFloat value2) {
     return floor(value1 + 0.5) == floor(value2 + 0.5);
+}
+@end
+
+@implementation UIButton (SJFLPrivate)
++ (void)load {
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        SEL originalSelector = @selector(layoutSubviews);
+        SEL swizzledSelector = @selector(FL_layoutSubviews_button);
+        SJFLSwizzleMethod(UIButton.class, originalSelector, swizzledSelector);
+    });
+}
+
+- (void)FL_layoutSubviews_button {
+    [self FL_layoutSubviews_button];
+    [self FL_refreshLayouts];
 }
 @end
 NS_ASSUME_NONNULL_END

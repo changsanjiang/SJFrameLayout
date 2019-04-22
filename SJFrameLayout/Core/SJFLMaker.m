@@ -28,6 +28,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithView:(UIView *)view {
     self = [super init];
     if ( !self ) return nil;
+    [view FL_resetAttributeUnits];
     _view = view;
     return self;
 } 

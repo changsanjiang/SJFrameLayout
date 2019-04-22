@@ -11,7 +11,7 @@
 #import "UIView+SJFLPrivate.h"
 
 NS_ASSUME_NONNULL_BEGIN
-#if 1
+#if 0
 #ifdef DEBUG
 #undef DEBUG
 #endif
@@ -116,7 +116,7 @@ NS_ASSUME_NONNULL_BEGIN
     __weak UIView *_Nullable _dep_view;
     SJFLAttribute _dep_attr;
     
-//    CGFloat _before;
+    CGFloat _before;
 }
 @property (nonatomic, readonly) CGFloat value;
 @end
@@ -153,7 +153,7 @@ NS_ASSUME_NONNULL_BEGIN
     _dep_view = dependency.view;
     _dep_attr = dependency.attribute;
     
-//    _before = -1;
+    _before = -1;
     return self;
 }
 
@@ -192,11 +192,17 @@ NS_ASSUME_NONNULL_BEGIN
     CGFloat newValue = self.value;
     
 //    if ( SJFLViewLayoutCompare(view, _tar_attr, newValue) ) {
+//        SJFLViewUpdateRelatedLayoutIfNeeded(view, _tar_attr);
 //        return;
 //    }
+
+    if ( SJFLFloatCompare(newValue, _before) ) {
+        SJFLViewUpdateRelatedLayoutIfNeeded(view, _tar_attr);
+        return;
+    }
     
-    // update
-//    _before = newValue;
+     // update
+    _before = newValue;
     
     switch ( _tar_attr ) {
         case SJFLAttributeNone: break; ///< Target does not need to do anything
@@ -235,40 +241,7 @@ NS_ASSUME_NONNULL_BEGIN
     printf("\n");
 #endif
     
-    switch ( _tar_attr ) {
-        case SJFLAttributeNone:
-            break;
-        case SJFLAttributeTop: {
-            // update bottom layout
-            [[view FL_elementForAttribute:SJFLAttributeBottom] installValueToTargetIfNeeded];
-        }
-            break;
-        case SJFLAttributeLeft: {
-            // update right layout
-            [[view FL_elementForAttribute:SJFLAttributeRight] installValueToTargetIfNeeded];
-        }
-            break;
-        case SJFLAttributeBottom:
-            break;
-        case SJFLAttributeRight:
-            break;
-        case SJFLAttributeWidth: {
-            [[view FL_elementForAttribute:SJFLAttributeLeft] installValueToTargetIfNeeded];
-            [[view FL_elementForAttribute:SJFLAttributeCenterX] installValueToTargetIfNeeded];
-            [[view FL_elementForAttribute:SJFLAttributeRight] installValueToTargetIfNeeded];
-        }
-            break;
-        case SJFLAttributeHeight: {
-            [[view FL_elementForAttribute:SJFLAttributeTop] installValueToTargetIfNeeded];
-            [[view FL_elementForAttribute:SJFLAttributeCenterY] installValueToTargetIfNeeded];
-            [[view FL_elementForAttribute:SJFLAttributeBottom] installValueToTargetIfNeeded];
-        }
-            break;
-        case SJFLAttributeCenterX:
-            break;
-        case SJFLAttributeCenterY:
-            break;
-    }
+    SJFLViewUpdateRelatedLayoutIfNeeded(view, _tar_attr);
 }
 
 - (CGFloat)value {
@@ -360,6 +333,45 @@ NS_ASSUME_NONNULL_BEGIN
     return value * _target->multiplier + offset;
 }
 
+// - update -
+
+UIKIT_STATIC_INLINE void SJFLViewUpdateRelatedLayoutIfNeeded(UIView *view, SJFLAttribute attr) {
+    switch ( attr ) {
+        case SJFLAttributeNone:
+            break;
+        case SJFLAttributeTop: {
+            // update bottom layout
+            [[view FL_elementForAttribute:SJFLAttributeBottom] installValueToTargetIfNeeded];
+        }
+            break;
+        case SJFLAttributeLeft: {
+            // update right layout
+            [[view FL_elementForAttribute:SJFLAttributeRight] installValueToTargetIfNeeded];
+        }
+            break;
+        case SJFLAttributeBottom:
+            break;
+        case SJFLAttributeRight:
+            break;
+        case SJFLAttributeWidth: {
+            [[view FL_elementForAttribute:SJFLAttributeLeft] installValueToTargetIfNeeded];
+            [[view FL_elementForAttribute:SJFLAttributeCenterX] installValueToTargetIfNeeded];
+            [[view FL_elementForAttribute:SJFLAttributeRight] installValueToTargetIfNeeded];
+        }
+            break;
+        case SJFLAttributeHeight: {
+            [[view FL_elementForAttribute:SJFLAttributeTop] installValueToTargetIfNeeded];
+            [[view FL_elementForAttribute:SJFLAttributeCenterY] installValueToTargetIfNeeded];
+            [[view FL_elementForAttribute:SJFLAttributeBottom] installValueToTargetIfNeeded];
+        }
+            break;
+        case SJFLAttributeCenterX:
+            break;
+        case SJFLAttributeCenterY:
+            break;
+    }
+}
+
 // - getter -
 
 //UIKIT_STATIC_INLINE BOOL SJFLHorizontalLayoutContains(SJFLAttribute attr) {
@@ -372,10 +384,10 @@ UIKIT_STATIC_INLINE BOOL SJFLVerticalLayoutContains(SJFLAttribute attr) {
     return (attr == SJFLAttributeTop) || (attr == SJFLAttributeBottom) || (attr == SJFLAttributeHeight) || (attr == SJFLAttributeCenterY);
 }
 
-//UIKIT_STATIC_INLINE BOOL SJFLFloatCompare(CGFloat value1, CGFloat value2) {
-//    return floor(value1 + 0.5) == floor(value2 + 0.5);
-//}
-//
+UIKIT_STATIC_INLINE BOOL SJFLFloatCompare(CGFloat value1, CGFloat value2) {
+    return floor(value1 + 0.5) == floor(value2 + 0.5);
+}
+
 //UIKIT_STATIC_INLINE BOOL SJFLViewLayoutCompare(UIView *view, SJFLAttribute attr, CGFloat value) {
 //    CGRect frame = view.frame;
 //    switch ( attr ) {
