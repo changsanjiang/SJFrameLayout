@@ -436,24 +436,24 @@ UIKIT_STATIC_INLINE BOOL SJFLViewCenterYCanSettable(UIView *view) {
 
 UIKIT_STATIC_INLINE BOOL SJFLViewBottomCanSettable(UIView *view) {
     NSArray<SJFLLayoutElement *> *m = [view FL_elements];
-    SJFLAttributeUnit *_Nullable topAttr = SJFLGetElement(m, SJFLAttributeTop, 0).target;
-    SJFLAttributeUnit *_Nullable heightAttr = SJFLGetElement(m, SJFLAttributeHeight, 0).target;
-    if ( topAttr != nil  && heightAttr != nil ) return NO;
+    SJFLLayoutElement *_Nullable top = SJFLGetElement(m, SJFLAttributeTop, 0);
+    SJFLLayoutElement *_Nullable height = SJFLGetElement(m, SJFLAttributeHeight, 0);
+    if ( top != nil  && height != nil ) return NO;
     SJFLLayoutSetInfo *info = view.FL_info;
     return [info get:SJFLAttributeTop] || [info get:SJFLAttributeHeight];
 }
 
 UIKIT_STATIC_INLINE BOOL SJFLViewRightCanSettable(UIView *view) {
     NSArray<SJFLLayoutElement *> *m = [view FL_elements];
-    SJFLAttributeUnit *_Nullable leftAttr = SJFLGetElement(m, SJFLAttributeLeft, 0).target;
-    SJFLAttributeUnit *_Nullable widthAttr = SJFLGetElement(m, SJFLAttributeWidth, 0).target;
-    if ( leftAttr != nil  && widthAttr != nil ) return NO;
+    SJFLLayoutElement *_Nullable left = SJFLGetElement(m, SJFLAttributeLeft, 0);
+    SJFLLayoutElement *_Nullable width = SJFLGetElement(m, SJFLAttributeWidth, 0);
+    if ( left != nil  && width != nil ) return NO;
     SJFLLayoutSetInfo *info = view.FL_info;
     return [info get:SJFLAttributeLeft] || [info get:SJFLAttributeWidth];
 }
 
 UIKIT_STATIC_INLINE BOOL SJFLViewTopCanSettable(UIView *view) {
-    SJFLAttributeUnit *_Nullable height = [view FL_elementForAttribute:SJFLAttributeHeight].target;
+    SJFLLayoutElement *_Nullable height = [view FL_elementForAttribute:SJFLAttributeHeight];
     if ( height ) {
         SJFLLayoutSetInfo *info = view.FL_info;
         return [info get:SJFLAttributeHeight];
@@ -462,7 +462,7 @@ UIKIT_STATIC_INLINE BOOL SJFLViewTopCanSettable(UIView *view) {
 }
 
 UIKIT_STATIC_INLINE BOOL SJFLViewLeftCanSettable(UIView *view) {
-    SJFLAttributeUnit *_Nullable width = [view FL_elementForAttribute:SJFLAttributeWidth].target;
+    SJFLLayoutElement *_Nullable width = [view FL_elementForAttribute:SJFLAttributeWidth];
     if ( width ) {
         SJFLLayoutSetInfo *info = view.FL_info;
         return [info get:SJFLAttributeWidth];

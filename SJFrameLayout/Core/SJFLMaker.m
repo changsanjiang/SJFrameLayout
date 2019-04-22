@@ -66,7 +66,8 @@ RETURN_FL_MAKER_LAYOUT(centerY, SJFLAttributeCenterY);
 RETURN_FL_MAKER_LAYOUT_MASK(center, SJFLAttributeMaskCenter);
 
 - (void)install {
-    NSArray<SJFLLayoutElement *> *m = SJFLCreateElementsForAttributeUnits(_view);
+    NSMutableArray<SJFLLayoutElement *> *m = SJFLCreateElementsForAttributeUnits(_view);
+    SJFLAddOrRemoveFittingSizeUnitsIfNeeded(_view, m);
     [_view FL_addElementsFromArray:m];
     [_view FL_resetAttributeUnits];
     
@@ -80,7 +81,8 @@ RETURN_FL_MAKER_LAYOUT_MASK(center, SJFLAttributeMaskCenter);
 }
 
 - (void)update {
-    NSArray<SJFLLayoutElement *> *m = SJFLCreateElementsForAttributeUnits(_view);
+    NSMutableArray<SJFLLayoutElement *> *m = SJFLCreateElementsForAttributeUnits(_view);
+    SJFLAddOrRemoveFittingSizeUnitsIfNeeded(_view, m);
     for ( SJFLLayoutElement *ele in m ) {
         [_view FL_replaceElementForAttribute:ele.tar_attr withElement:ele];
     }
@@ -88,7 +90,7 @@ RETURN_FL_MAKER_LAYOUT_MASK(center, SJFLAttributeMaskCenter);
     [_view.superview layoutSubviews];
 }
 
-UIKIT_STATIC_INLINE NSArray<SJFLLayoutElement *> *SJFLCreateElementsForAttributeUnits(UIView *view) {
+UIKIT_STATIC_INLINE NSMutableArray<SJFLLayoutElement *> *SJFLCreateElementsForAttributeUnits(UIView *view) {
     NSMutableArray<SJFLLayoutElement *> *m = [NSMutableArray arrayWithCapacity:8];
     SJFLAttributeUnit *_Nullable top = [view FL_attributeUnitForAttribute:SJFLAttributeTop];
     SJFLAttributeUnit *_Nullable left = [view FL_attributeUnitForAttribute:SJFLAttributeLeft];
@@ -107,12 +109,25 @@ UIKIT_STATIC_INLINE NSArray<SJFLLayoutElement *> *SJFLCreateElementsForAttribute
     if ( height != nil ) [m addObject:[[SJFLLayoutElement alloc] initWithTarget:height]];
     if ( centerX != nil ) [m addObject:[[SJFLLayoutElement alloc] initWithTarget:centerX]];
     if ( centerY != nil ) [m addObject:[[SJFLLayoutElement alloc] initWithTarget:centerY]];
+    return m;
+}
+
+UIKIT_STATIC_INLINE NSArray<SJFLLayoutElement *> *SJFLAddOrRemoveFittingSizeUnitsIfNeeded(UIView *view, NSMutableArray<SJFLLayoutElement *> *m) {
+    SJFLLayoutElement *_Nullable top = SJFLGetElement(m, SJFLAttributeTop, 0);
+    SJFLLayoutElement *_Nullable bottom = SJFLGetElement(m, SJFLAttributeBottom, 0);
+    SJFLLayoutElement *_Nullable height = SJFLGetElement(m, SJFLAttributeHeight, 0);
+
+    SJFLLayoutElement *_Nullable left = SJFLGetElement(m, SJFLAttributeLeft, 0);
+    SJFLLayoutElement *_Nullable right = SJFLGetElement(m, SJFLAttributeRight, 0);
+    SJFLLayoutElement *_Nullable width = SJFLGetElement(m, SJFLAttributeWidth, 0);
     
     // Added FittingSize units
     // required
     // optional
-    if ( (width != nil) || (left != nil && right != nil) )
-    { /* nothing */ }
+    if ( (width != nil) || (left != nil && right != nil) ) {
+        NSInteger index = SJFLGetIndex(m, SJFLAttributeWidth, 1);
+        if ( index != NSNotFound ) [m removeObjectAtIndex:index];
+    }
     else {
         // no - width
         SJFLAttributeUnit *widthUnit = [[SJFLAttributeUnit alloc] initWithView:view attribute:SJFLAttributeWidth];
@@ -120,10 +135,12 @@ UIKIT_STATIC_INLINE NSArray<SJFLLayoutElement *> *SJFLCreateElementsForAttribute
         SJFLLayoutElement *widthElem = [[SJFLLayoutElement alloc] initWithTarget:widthUnit];
         [m addObject:widthElem]; // 当视图本身没有width条件时, 才会添加
     }
-    
+
     // height
-    if ( height != nil || (top != nil && bottom != nil) )
-    { /* nothing */ }
+    if ( height != nil || (top != nil && bottom != nil) ) {
+        NSInteger index = SJFLGetIndex(m, SJFLAttributeHeight, 1);
+        if ( index != NSNotFound ) [m removeObjectAtIndex:index];
+    }
     else {
         // no - height
         SJFLAttributeUnit *heightUnit = [[SJFLAttributeUnit alloc] initWithView:view attribute:SJFLAttributeHeight];
@@ -131,6 +148,7 @@ UIKIT_STATIC_INLINE NSArray<SJFLLayoutElement *> *SJFLCreateElementsForAttribute
         SJFLLayoutElement *heightElem = [[SJFLLayoutElement alloc] initWithTarget:heightUnit];
         [m addObject:heightElem]; // 当视图本身没有height条件时, 才会添加
     }
+    
     return m;
 }
 @end
