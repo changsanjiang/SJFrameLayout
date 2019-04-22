@@ -184,25 +184,37 @@
     [self.view addSubview:subview1];
     
     subview1.sd_layout
-    .heightIs(300)
-    .leftSpaceToView(self.view, 20)
-    .rightSpaceToView(self.view, 20)
-    .bottomSpaceToView(self.view, 49);
+    .centerXEqualToView(self.view)
+    .centerYEqualToView(self.view);
     
+    UIView *ss = [UIView new];
+    ss.backgroundColor = [UIColor colorWithRed:arc4random() % 256 / 255.0
+                                         green:arc4random() % 256 / 255.0
+                                          blue:arc4random() % 256 / 255.0
+                                         alpha:1];
+    [subview1 addSubview:ss];
+    
+    ss.sd_layout
+    .topSpaceToView(subview1, 8)
+    .leftSpaceToView(subview1, 8)
+    .bottomSpaceToView(subview1, 8)
+    .rightSpaceToView(subview1, 8)
+    .widthIs(800)
+    .heightIs(800);
     
     for ( int i = 0 ; i < ViewCount ; ++ i ) {
-        UIView *s = [UIView new];
-        s.backgroundColor = [UIColor colorWithRed:arc4random() % 256 / 255.0
-                                            green:arc4random() % 256 / 255.0
-                                             blue:arc4random() % 256 / 255.0
-                                            alpha:1];
-        [self.view.subviews.lastObject addSubview:s];
+        UIView *a = [UIView new];
+        a.backgroundColor =  [UIColor colorWithRed:arc4random() % 256 / 255.0
+                                             green:arc4random() % 256 / 255.0
+                                              blue:arc4random() % 256 / 255.0
+                                             alpha:1];
+        [ss addSubview:a];
 
-        s.sd_layout
-        .topSpaceToView(subview1, 8 + i)
-        .leftSpaceToView(subview1,8 + i)
-        .rightSpaceToView(subview1, 8 + i)
-        .bottomSpaceToView(subview1, 8 + i);
+        a.sd_layout
+        .topSpaceToView(ss, 8 + i)
+        .leftSpaceToView(ss, 8 + i)
+        .bottomSpaceToView(ss, 8 + i)
+        .rightSpaceToView(ss, 8 + i);
     }
 #endif
 }
@@ -212,59 +224,37 @@
     subview1.backgroundColor = [UIColor redColor];
     [self.view addSubview:subview1];
     [subview1 sj_makeFrameLayout:^(SJFLMaker * _Nonnull make) {
-        make.top.offset(40);
-        make.left.offset(0);
+//        make.top.offset(40);
+//        make.left.offset(0);
+        make.center.offset(0);
 //        make.right.offset(-20);
 //        make.bottom.offset(-200);
     }];
     
-    UIView *sub = [UIView new];
-    sub.backgroundColor = [UIColor greenColor];
-    [subview1 addSubview:sub];
-    _testView = sub;
-    
-    [sub sj_makeFrameLayout:^(SJFLMaker * _Nonnull make) {
-        make.top.left.equalTo(subview1).offset(8);
-        make.bottom.right.equalTo(subview1).offset(-8);
-        make.size.offset(20);
+    UIView *ss = [UIView new];
+    ss.backgroundColor = [UIColor colorWithRed:arc4random() % 256 / 255.0
+                                         green:arc4random() % 256 / 255.0
+                                          blue:arc4random() % 256 / 255.0
+                                         alpha:1];
+    [subview1 addSubview:ss];
+
+    [ss sj_makeFrameLayout:^(SJFLMaker * _Nonnull make) {
+        make.edges.box_equalTo(UIEdgeInsetsMake(8, 8, -8, -8));
+        make.size.offset(800);
     }];
-    
-//    UIView *subview1 = [SJTestView new];
-//    subview1.backgroundColor = [UIColor redColor];
-//    [self.view addSubview:subview1];
-//
-//    [subview1 sj_makeFrameLayout:^(SJFLMaker * _Nonnull make) {
-//        make.bottom.offset(-20);
-//        make.centerX.offset(0);
-////        make.left.offset(20);
-////        make.right.offset(-20);
-////        make.height.offset(300);
-//    }];
-    
-//    UIView *ss = [UIView new];
-//    ss.backgroundColor = [UIColor colorWithRed:arc4random() % 256 / 255.0
-//                                         green:arc4random() % 256 / 255.0
-//                                          blue:arc4random() % 256 / 255.0
-//                                         alpha:1];
-//    [subview1 addSubview:ss];
-//
-//    [ss sj_makeFrameLayout:^(SJFLMaker * _Nonnull make) {
-//        make.edges.box_equalTo(UIEdgeInsetsMake(8, 8, -8, -8));
-//        make.size.offset(800);
-//    }];
-//
-//    for ( int i = 0 ; i < ViewCount ; ++ i ) {
-//        UIView *a = [UIView new];
-//        a.backgroundColor =  [UIColor colorWithRed:arc4random() % 256 / 255.0
-//                                             green:arc4random() % 256 / 255.0
-//                                              blue:arc4random() % 256 / 255.0
-//                                             alpha:1];
-//        [ss addSubview:a];
-//
-//        [a sj_makeFrameLayout:^(SJFLMaker * _Nonnull make) {
-//            make.edges.box_equalTo(UIEdgeInsetsMake(8 + i, 8 + i, -(8 + i), -(8 + i)));
-//        }];
-//    }
+
+    for ( int i = 0 ; i < ViewCount ; ++ i ) {
+        UIView *a = [UIView new];
+        a.backgroundColor =  [UIColor colorWithRed:arc4random() % 256 / 255.0
+                                             green:arc4random() % 256 / 255.0
+                                              blue:arc4random() % 256 / 255.0
+                                             alpha:1];
+        [ss addSubview:a];
+
+        [a sj_makeFrameLayout:^(SJFLMaker * _Nonnull make) {
+            make.edges.box_equalTo(UIEdgeInsetsMake(8 + i, 8 + i, -(8 + i), -(8 + i)));
+        }];
+    }
 }
 - (IBAction)clean:(id)sender {
     

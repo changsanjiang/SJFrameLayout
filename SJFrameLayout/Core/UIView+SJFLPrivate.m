@@ -174,7 +174,7 @@ UIKIT_STATIC_INLINE void SJFLViewLayoutFixInnerSizeIfNeeded(UIView *view) {
     SJFLAttributeUnit *_Nullable fit_height = SJFLGetElement(m, SJFLAttributeHeight, SJFLPriorityFittingSize).target;
     if ( fit_width != nil || fit_height != nil ) {
         if ( [view isKindOfClass:FL_UILabelClass] ) {
-            SJFLLabelAdjustWidthLayoutIfNeeded((id)view, m);
+            SJFLLabelAdjustBoxIfNeeded((id)view, m);
             SJFLLabelLayoutFixInnerSize((id)view, fit_width, fit_height);
         }
         else {
@@ -183,7 +183,7 @@ UIKIT_STATIC_INLINE void SJFLViewLayoutFixInnerSizeIfNeeded(UIView *view) {
     }
 }
 
-UIKIT_STATIC_INLINE void SJFLLabelAdjustWidthLayoutIfNeeded(UILabel *label, NSMutableArray<SJFLLayoutElement *> *m) {
+UIKIT_STATIC_INLINE void SJFLLabelAdjustBoxIfNeeded(UILabel *label, NSMutableArray<SJFLLayoutElement *> *m) {
     CGFloat preferredMaxLayoutWidth = label.preferredMaxLayoutWidth;
     if ( !SJFLFloatCompare(0, preferredMaxLayoutWidth) ) {
         SJFLAttributeUnit *_Nullable widthUnit = SJFLGetElement(m, SJFLAttributeWidth, SJFLPriorityRequired).target;
