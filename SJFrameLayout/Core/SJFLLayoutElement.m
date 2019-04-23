@@ -233,29 +233,17 @@ NS_ASSUME_NONNULL_BEGIN
     SJFLViewUpdateRelatedLayoutIfNeeded(view, _tar_attr);
 }
 
+// value = dependency_value * multiplier + offset
 - (CGFloat)value {
-    SJFLAttribute dep_attr = _dep_attr;
     CGFloat offset = _target.offset;
-    
     CGFloat value = 0;
+    SJFLAttribute dep_attr = _dep_attr;
     if ( dep_attr != SJFLAttributeNone ) {
+        SJFLAttribute tar_attr = _tar_attr;
         UIView *dep_view = _dep_view;
         UIView *tar_view = _tar_view;
         CGRect dep_frame = dep_view.frame;
-        if ( _tar_attr == SJFLAttributeWidth ) {
-            switch ( dep_attr ) {
-                default: break;
-                case SJFLAttributeWidth: {
-                    value = CGRectGetWidth(dep_frame);
-                }
-                    break;
-                case SJFLAttributeHeight: {
-                    value = CGRectGetHeight(dep_frame);
-                }
-                    break;
-            }
-        }
-        else if ( _tar_attr == SJFLAttributeHeight ) {
+        if ( tar_attr == SJFLAttributeWidth || tar_attr == SJFLAttributeHeight ) {
             switch ( dep_attr ) {
                 default: break;
                 case SJFLAttributeWidth: {
@@ -283,7 +271,7 @@ NS_ASSUME_NONNULL_BEGIN
              */
             
             CGPoint point = CGPointZero;
-            if ( SJFLVerticalLayoutContains(_tar_attr) ) {
+            if ( SJFLVerticalLayoutContains(tar_attr) ) {
                 switch ( dep_attr ) {
                     case SJFLAttributeTop:
                         point = CGPointZero;
