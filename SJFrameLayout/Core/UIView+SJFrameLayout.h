@@ -6,11 +6,11 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "SJFLMaker.h"
+#import "SJFLLayoutMaker.h"
 
 NS_ASSUME_NONNULL_BEGIN
 @interface UIView (SJFrameLayout)
-- (void)sj_makeFrameLayout:(void(^)(SJFLMaker *make))block;
-- (void)sj_updateFrameLayout:(void(^)(SJFLMaker *make))block;
+- (void)sj_makeFrameLayout:(void(^)(SJFLLayoutMaker *make))block;
+- (void)sj_updateFrameLayout:(void(^)(SJFLLayoutMaker *make))block;
 @end
 NS_ASSUME_NONNULL_END

@@ -1,14 +1,14 @@
 //
-//  SJFLAttributeUnit.m
+//  SJFLLayoutAttributeUnit.m
 //  Pods
 //
 //  Created by 畅三江 on 2019/4/18.
 //
 
-#import "SJFLAttributeUnit.h"
+#import "SJFLLayoutAttributeUnit.h"
 
 NS_ASSUME_NONNULL_BEGIN
-@implementation SJFLAttributeUnit
+@implementation SJFLLayoutAttributeUnit
 + (NSString *)debug_attributeToString:(SJFLAttribute)attribute {
     switch ( attribute ) {
         case SJFLAttributeNone:
@@ -40,19 +40,15 @@ NS_ASSUME_NONNULL_BEGIN
     self->multiplier = 1.0;
     return self;
 }
-
-- (void)equalTo:(__weak UIView *)view attribute:(SJFLAttribute)attribute {
-    _equalToUnit = [[SJFLAttributeUnit alloc] initWithView:view attribute:attribute];
-}
-- (void)equalTo:(SJFLAttributeUnit *)unit {
-    _equalToUnit = unit;
+- (void)equalTo:(SJFLViewFrameAttribute *)viewAttribute {
+    _equalToViewAttribute = viewAttribute;
 }
 - (CGFloat)offset {
     if ( offset_t == SJFLCGFloatValue ) {
         return offset.value;
     }
     
-    SJFLAttribute attr = _equalToUnit.attribute;
+    SJFLAttribute attr = _equalToViewAttribute.attribute;
     CGFloat value = 0;
     switch ( attr ) {
         case SJFLAttributeNone: {

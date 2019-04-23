@@ -6,6 +6,7 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "SJFLAttributes.h"
 #import "SJFLLayoutMaskDefines.h"
 
 NS_ASSUME_NONNULL_BEGIN

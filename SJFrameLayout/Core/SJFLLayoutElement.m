@@ -7,8 +7,9 @@
 
 #import "SJFLLayoutElement.h"
 #import <objc/message.h>
-#import "UIView+SJFLAttributeUnits.h"
-#import "UIView+SJFLPrivate.h"
+#import "UIView+SJFLLayoutAttributeUnits.h"
+#import "UIView+SJFLViewFrameAttributes.h"
+#import "UIView+SJFLLayoutElements.h"
 
 NS_ASSUME_NONNULL_BEGIN
 #if 1
@@ -108,7 +109,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface SJFLLayoutElement () {
     @public
-    SJFLAttributeUnit *_target;
+    SJFLLayoutAttributeUnit *_target;
     __weak UIView *_Nullable _tar_superview;
     __weak UIView *_Nullable _tar_view;
     SJFLAttribute _tar_attr;
@@ -120,7 +121,7 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 @implementation SJFLLayoutElement
-- (instancetype)initWithTarget:(SJFLAttributeUnit *)target {
+- (instancetype)initWithTarget:(SJFLLayoutAttributeUnit *)target {
     self = [super init];
     if ( !self ) return nil;
     _target = target;
@@ -128,13 +129,13 @@ NS_ASSUME_NONNULL_BEGIN
     _tar_superview = _tar_view.superview;
     _tar_attr = target.attribute;
     
-    SJFLAttributeUnit *_Nullable dependency = target.equalToUnit;
+    SJFLViewFrameAttribute *_Nullable dependency = target.equalToViewAttribute;
     if ( !dependency ) {
         switch ( target.attribute ) {
             case SJFLAttributeNone:
             case SJFLAttributeWidth:
             case SJFLAttributeHeight:
-                dependency = [[SJFLAttributeUnit alloc] initWithView:_tar_view.superview attribute:SJFLAttributeNone];
+                dependency = [[SJFLViewFrameAttribute alloc] initWithView:_tar_superview attribute:SJFLAttributeNone];
                 break;
             case SJFLAttributeTop:
             case SJFLAttributeLeft:
@@ -142,7 +143,7 @@ NS_ASSUME_NONNULL_BEGIN
             case SJFLAttributeRight:
             case SJFLAttributeCenterX:
             case SJFLAttributeCenterY: {
-                dependency = [[SJFLAttributeUnit alloc] initWithView:_tar_view.superview attribute:_tar_attr];
+                dependency = [_tar_superview viewLayoutForAttribute:_tar_attr];
             }
                 break;
         }
@@ -154,7 +155,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (NSString *)description {
-    return [NSString stringWithFormat:@"[_tar_view:%p,\t _tar_attr:%s,\t _dep_view:%p,\t _dep_attr:%s,\t _priority:%d]", _tar_view, [SJFLAttributeUnit debug_attributeToString:_tar_attr].UTF8String, _dep_view, [SJFLAttributeUnit debug_attributeToString:_dep_attr].UTF8String, _target->priority];
+    return [NSString stringWithFormat:@"[_tar_view:%p,\t _tar_attr:%s,\t _dep_view:%p,\t _dep_attr:%s,\t _priority:%d]", _tar_view, [SJFLLayoutAttributeUnit debug_attributeToString:_tar_attr].UTF8String, _dep_view, [SJFLLayoutAttributeUnit debug_attributeToString:_dep_attr].UTF8String, _target->priority];
 }
 
 - (UIView *_Nullable)tar_superview {
@@ -223,9 +224,9 @@ NS_ASSUME_NONNULL_BEGIN
     
 #ifdef DEBUG
     printf("\n_tar_view:[%s]", _tar_view.description.UTF8String);
-    printf("\n_tar_attr:[%s]", [SJFLAttributeUnit debug_attributeToString:_tar_attr].UTF8String);
+    printf("\n_tar_attr:[%s]", [SJFLLayoutAttributeUnit debug_attributeToString:_tar_attr].UTF8String);
     printf("\n_dep_view:[%s]", _dep_view.description.UTF8String);
-    printf("\n_dep_attr:[%s]", [SJFLAttributeUnit debug_attributeToString:_dep_attr].UTF8String);
+    printf("\n_dep_attr:[%s]", [SJFLLayoutAttributeUnit debug_attributeToString:_dep_attr].UTF8String);
     printf("\n");
     printf("\n");
 #endif

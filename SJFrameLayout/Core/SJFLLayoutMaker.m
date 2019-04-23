@@ -1,16 +1,16 @@
 //
-//  SJFLMaker.m
+//  SJFLLayoutMaker.m
 //  Pods
 //
 //  Created by 畅三江 on 2019/4/18.
 //
 
-#import "SJFLMaker.h"
+#import "SJFLLayoutMaker.h"
 #import <objc/message.h>
-#import "UIView+SJFLAttributeUnits.h"
-#import "UIView+SJFLPrivate.h"
+#import "UIView+SJFLLayoutAttributeUnits.h"
+#import "UIView+SJFLLayoutElements.h"
 #import "SJFLLayoutElement.h"
-#import "SJFLAttributeUnit.h"
+#import "SJFLLayoutAttributeUnit.h"
 
 NS_ASSUME_NONNULL_BEGIN
 #if 1
@@ -19,16 +19,15 @@ NS_ASSUME_NONNULL_BEGIN
 #endif
 #endif
 
-@interface SJFLMaker () {
+@interface SJFLLayoutMaker () {
     __weak UIView *_Nullable _view;
 }
 @end
 
-@implementation SJFLMaker
+@implementation SJFLLayoutMaker
 - (instancetype)initWithView:(UIView *)view {
     self = [super init];
     if ( !self ) return nil;
-    [view FL_resetAttributeUnits];
     _view = view;
     return self;
 } 
@@ -95,14 +94,14 @@ RETURN_FL_MAKER_LAYOUT_MASK(center, SJFLAttributeMaskCenter);
 
 UIKIT_STATIC_INLINE NSMutableArray<SJFLLayoutElement *> *SJFLCreateElementsForAttributeUnits(UIView *view) {
     NSMutableArray<SJFLLayoutElement *> *m = [NSMutableArray arrayWithCapacity:8];
-    SJFLAttributeUnit *_Nullable top = [view FL_attributeUnitForAttribute:SJFLAttributeTop];
-    SJFLAttributeUnit *_Nullable left = [view FL_attributeUnitForAttribute:SJFLAttributeLeft];
-    SJFLAttributeUnit *_Nullable bottom = [view FL_attributeUnitForAttribute:SJFLAttributeBottom];
-    SJFLAttributeUnit *_Nullable right = [view FL_attributeUnitForAttribute:SJFLAttributeRight];
-    SJFLAttributeUnit *_Nullable width = [view FL_attributeUnitForAttribute:SJFLAttributeWidth];
-    SJFLAttributeUnit *_Nullable height = [view FL_attributeUnitForAttribute:SJFLAttributeHeight];
-    SJFLAttributeUnit *_Nullable centerX = [view FL_attributeUnitForAttribute:SJFLAttributeCenterX];
-    SJFLAttributeUnit *_Nullable centerY = [view FL_attributeUnitForAttribute:SJFLAttributeCenterY];
+    SJFLLayoutAttributeUnit *_Nullable top = [view FL_attributeUnitForAttribute:SJFLAttributeTop];
+    SJFLLayoutAttributeUnit *_Nullable left = [view FL_attributeUnitForAttribute:SJFLAttributeLeft];
+    SJFLLayoutAttributeUnit *_Nullable bottom = [view FL_attributeUnitForAttribute:SJFLAttributeBottom];
+    SJFLLayoutAttributeUnit *_Nullable right = [view FL_attributeUnitForAttribute:SJFLAttributeRight];
+    SJFLLayoutAttributeUnit *_Nullable width = [view FL_attributeUnitForAttribute:SJFLAttributeWidth];
+    SJFLLayoutAttributeUnit *_Nullable height = [view FL_attributeUnitForAttribute:SJFLAttributeHeight];
+    SJFLLayoutAttributeUnit *_Nullable centerX = [view FL_attributeUnitForAttribute:SJFLAttributeCenterX];
+    SJFLLayoutAttributeUnit *_Nullable centerY = [view FL_attributeUnitForAttribute:SJFLAttributeCenterY];
     
     if ( top != nil ) [m addObject:[[SJFLLayoutElement alloc] initWithTarget:top]];
     if ( left != nil ) [m addObject:[[SJFLLayoutElement alloc] initWithTarget:left]];
@@ -134,7 +133,7 @@ UIKIT_STATIC_INLINE NSArray<SJFLLayoutElement *> *SJFLAddOrRemoveFittingSizeUnit
     else {
         if ( fit_width_index == NSNotFound ) {
             // no - width
-            SJFLAttributeUnit *widthUnit = [[SJFLAttributeUnit alloc] initWithView:view attribute:SJFLAttributeWidth];
+            SJFLLayoutAttributeUnit *widthUnit = [[SJFLLayoutAttributeUnit alloc] initWithView:view attribute:SJFLAttributeWidth];
             widthUnit->priority = SJFLPriorityFittingSize;
             SJFLLayoutElement *widthElem = [[SJFLLayoutElement alloc] initWithTarget:widthUnit];
             [m addObject:widthElem]; // 当视图本身没有width条件时, 才会添加
@@ -149,7 +148,7 @@ UIKIT_STATIC_INLINE NSArray<SJFLLayoutElement *> *SJFLAddOrRemoveFittingSizeUnit
     else {
         if ( fit_height_index == NSNotFound ) {
             // no - height
-            SJFLAttributeUnit *heightUnit = [[SJFLAttributeUnit alloc] initWithView:view attribute:SJFLAttributeHeight];
+            SJFLLayoutAttributeUnit *heightUnit = [[SJFLLayoutAttributeUnit alloc] initWithView:view attribute:SJFLAttributeHeight];
             heightUnit->priority = SJFLPriorityFittingSize;
             SJFLLayoutElement *heightElem = [[SJFLLayoutElement alloc] initWithTarget:heightUnit];
             [m addObject:heightElem]; // 当视图本身没有height条件时, 才会添加

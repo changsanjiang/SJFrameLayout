@@ -24,6 +24,7 @@
 		773CA0A02268921400EA87C6 /* SJTestView.m in Sources */ = {isa = PBXBuildFile; fileRef = 773CA09F2268921400EA87C6 /* SJTestView.m */; };
 		773CA0A32268938D00EA87C6 /* SJTestSubView.m in Sources */ = {isa = PBXBuildFile; fileRef = 773CA0A22268938D00EA87C6 /* SJTestSubView.m */; };
 		7752FE75226D873600683EBD /* SJTestLabel.m in Sources */ = {isa = PBXBuildFile; fileRef = 7752FE74226D873600683EBD /* SJTestLabel.m */; };
+		7771BAB4226EB8C700C4475E /* SJTestImageView.m in Sources */ = {isa = PBXBuildFile; fileRef = 7771BAB3226EB8C700C4475E /* SJTestImageView.m */; };
 		873B8AEB1B1F5CCA007FD442 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 873B8AEA1B1F5CCA007FD442 /* Main.storyboard */; };
 		9508F28BE2D1BFCA0D1177F1 /* libPods-SJFrameLayout_Tests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 660FE82373DE52E9E85B8DD1 /* libPods-SJFrameLayout_Tests.a */; };
 		A4AB083099B9E39F60D9FFFE /* libPods-SJFrameLayout_Example.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5BD6B1C309EF6019CEEBB679 /* libPods-SJFrameLayout_Example.a */; };
@@ -71,6 +72,8 @@
 		773CA0A22268938D00EA87C6 /* SJTestSubView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SJTestSubView.m; sourceTree = "<group>"; };
 		7752FE73226D873600683EBD /* SJTestLabel.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SJTestLabel.h; sourceTree = "<group>"; };
 		7752FE74226D873600683EBD /* SJTestLabel.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SJTestLabel.m; sourceTree = "<group>"; };
+		7771BAB2226EB8C700C4475E /* SJTestImageView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SJTestImageView.h; sourceTree = "<group>"; };
+		7771BAB3226EB8C700C4475E /* SJTestImageView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SJTestImageView.m; sourceTree = "<group>"; };
 		873B8AEA1B1F5CCA007FD442 /* Main.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = Main.storyboard; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		8BE31FA8813B87261BB9C534 /* Pods-SJFrameLayout_Example.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SJFrameLayout_Example.release.xcconfig"; path = "Target Support Files/Pods-SJFrameLayout_Example/Pods-SJFrameLayout_Example.release.xcconfig"; sourceTree = "<group>"; };
 		A0DC781011015BDC96F9B8E2 /* README.md */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = net.daringfireball.markdown; name = README.md; path = ../README.md; sourceTree = "<group>"; };
@@ -162,6 +165,8 @@
 				7752FE74226D873600683EBD /* SJTestLabel.m */,
 				A6D0D2F5226E065100BB35D1 /* SJTestButton.h */,
 				A6D0D2F6226E065100BB35D1 /* SJTestButton.m */,
+				7771BAB2226EB8C700C4475E /* SJTestImageView.h */,
+				7771BAB3226EB8C700C4475E /* SJTestImageView.m */,
 				71719F9D1E33DC2100824A3D /* LaunchScreen.storyboard */,
 				6003F5A8195388D20070C39A /* Images.xcassets */,
 				6003F594195388D20070C39A /* Supporting Files */,
@@ -374,6 +379,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				7771BAB4226EB8C700C4475E /* SJTestImageView.m in Sources */,
 				6003F59E195388D20070C39A /* SJAppDelegate.m in Sources */,
 				773CA0A32268938D00EA87C6 /* SJTestSubView.m in Sources */,
 				A6D0D2F7226E065100BB35D1 /* SJTestButton.m in Sources */,

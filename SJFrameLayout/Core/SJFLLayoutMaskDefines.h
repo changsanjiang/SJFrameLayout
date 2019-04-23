@@ -7,7 +7,6 @@
 
 #ifndef SJFLLayoutMaskDefines_h
 #define SJFLLayoutMaskDefines_h
-#import "SJFLAttributeUnit.h"
 #import "SJFLBoxValue.h"
 @class SJFLLayoutMask;
 

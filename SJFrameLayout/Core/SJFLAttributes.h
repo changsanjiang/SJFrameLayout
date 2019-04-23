@@ -1,13 +1,13 @@
 //
-//  SJFLAttributeUnit.h
+//  SJFLAttributes.h
 //  Pods
 //
-//  Created by 畅三江 on 2019/4/18.
+//  Created by 畅三江 on 2019/4/23.
 //
 
-#import <UIKit/UIKit.h>
+#ifndef SJFLAttributes_h
+#define SJFLAttributes_h
 
-NS_ASSUME_NONNULL_BEGIN
 typedef enum : NSUInteger {
     SJFLAttributeNone,
     SJFLAttributeTop,
@@ -36,38 +36,4 @@ typedef enum : NSUInteger {
     SJFLAttributeMaskAll = SJFLAttributeMaskNone | SJFLAttributeMaskEdges | SJFLAttributeMaskSize | SJFLAttributeMaskCenter
 } SJFLAttributeMask;
 
-@interface SJFLAttributeUnit : NSObject {
-    @public
-    union {
-        CGFloat value;
-        CGPoint point;
-        CGSize size;
-        UIEdgeInsets edges;
-    } offset;
-    
-    enum :char {
-        SJFLCGFloatValue,
-        SJFLCGPointValue,
-        SJFLCGSizeValue,
-        SJFLUIEdgeInsetsValue
-    } offset_t;
-    
-    CGFloat multiplier; // default value is 1.0
-    
-    enum :char {
-        SJFLPriorityRequired,
-        SJFLPriorityFittingSize
-    } priority;
-}
-- (instancetype)initWithView:(__weak UIView *)view attribute:(SJFLAttribute)attribute;
-@property (nonatomic, readonly) SJFLAttribute attribute;
-@property (nonatomic, weak, readonly, nullable) UIView *view;
-@property (nonatomic, strong, readonly, nullable) SJFLAttributeUnit *equalToUnit;
-- (void)equalTo:(__weak UIView *)view attribute:(SJFLAttribute)attribute;
-- (void)equalTo:(SJFLAttributeUnit *)unit;
-- (CGFloat)offset;
-- (instancetype)init NS_UNAVAILABLE;
-+ (instancetype)new NS_UNAVAILABLE;
-+ (NSString *)debug_attributeToString:(SJFLAttribute)attribute;
-@end
-NS_ASSUME_NONNULL_END
+#endif /* SJFLAttributes_h */

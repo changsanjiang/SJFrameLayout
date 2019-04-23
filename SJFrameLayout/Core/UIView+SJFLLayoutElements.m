@@ -1,13 +1,13 @@
 //
-//  UIView+SJFLPrivate.m
+//  UIView+SJFLLayoutElements.m
 //  Pods
 //
 //  Created by 畅三江 on 2019/4/18.
 //
 
-#import "UIView+SJFLPrivate.h"
+#import "UIView+SJFLLayoutElements.h"
 #import "SJFLLayoutElement.h"
-#import "UIView+SJFLAttributeUnits.h"
+#import "UIView+SJFLLayoutAttributeUnits.h"
 #import <objc/message.h>
 
 NS_ASSUME_NONNULL_BEGIN
@@ -28,7 +28,7 @@ SJFLSwizzleMethod(Class cls, SEL originalSelector, SEL swizzledSelector) {
         method_exchangeImplementations(originalMethod, swizzledMethod);
 }
 
-@implementation UIView (SJFLPrivate)
+@implementation UIView (SJFLLayoutElements)
 static Class FL_UILabelClass;
 static Class FL_UIButtonClass;
 
@@ -135,7 +135,7 @@ SJFLLayoutElement *_Nullable SJFLGetElement(NSArray<SJFLLayoutElement *> *eles, 
 NSInteger SJFLGetIndex(NSArray<SJFLLayoutElement *> *m, SJFLAttribute attribute, char priority) {
     for ( int i = 0 ; i < m.count ; ++ i ) {
         SJFLLayoutElement *ele = m[i];
-        SJFLAttributeUnit *unit = ele.target;
+        SJFLLayoutAttributeUnit *unit = ele.target;
         if ( unit.attribute == attribute && unit->priority == priority  )
             return i;
     }
@@ -163,8 +163,8 @@ UIKIT_STATIC_INLINE void SJFLViewLayoutFixInnerSizeIfNeeded(UIView *view) {
     if ( m.count < 1 )
         return;
     // - fitting size -
-    SJFLAttributeUnit *_Nullable fit_width = SJFLGetElement(m, SJFLAttributeWidth, SJFLPriorityFittingSize).target;
-    SJFLAttributeUnit *_Nullable fit_height = SJFLGetElement(m, SJFLAttributeHeight, SJFLPriorityFittingSize).target;
+    SJFLLayoutAttributeUnit *_Nullable fit_width = SJFLGetElement(m, SJFLAttributeWidth, SJFLPriorityFittingSize).target;
+    SJFLLayoutAttributeUnit *_Nullable fit_height = SJFLGetElement(m, SJFLAttributeHeight, SJFLPriorityFittingSize).target;
     if ( fit_width != nil || fit_height != nil ) {
         if ( [view isKindOfClass:FL_UILabelClass] ) {
             SJFLLabelAdjustBoxIfNeeded((id)view, m);
@@ -182,9 +182,9 @@ UIKIT_STATIC_INLINE void SJFLViewLayoutFixInnerSizeIfNeeded(UIView *view) {
 UIKIT_STATIC_INLINE void SJFLLabelAdjustBoxIfNeeded(UILabel *label, NSMutableArray<SJFLLayoutElement *> *m) {
     CGFloat preferredMaxLayoutWidth = label.preferredMaxLayoutWidth;
     if ( !SJFLFloatCompare(0, preferredMaxLayoutWidth) ) {
-        SJFLAttributeUnit *_Nullable widthUnit = SJFLGetElement(m, SJFLAttributeWidth, SJFLPriorityRequired).target;
+        SJFLLayoutAttributeUnit *_Nullable widthUnit = SJFLGetElement(m, SJFLAttributeWidth, SJFLPriorityRequired).target;
         if ( !widthUnit ) {
-            widthUnit = [[SJFLAttributeUnit alloc] initWithView:label attribute:SJFLAttributeWidth];
+            widthUnit = [[SJFLLayoutAttributeUnit alloc] initWithView:label attribute:SJFLAttributeWidth];
             [label FL_addElement:[[SJFLLayoutElement alloc] initWithTarget:widthUnit]];
             // remove fitting element
             NSInteger index = SJFLGetIndex(m, SJFLAttributeWidth, SJFLPriorityFittingSize);
@@ -197,7 +197,7 @@ UIKIT_STATIC_INLINE void SJFLLabelAdjustBoxIfNeeded(UILabel *label, NSMutableArr
     }
 }
 
-UIKIT_STATIC_INLINE void SJFLLabelLayoutFixInnerSize(UILabel *label, SJFLAttributeUnit *_Nullable fit_width, SJFLAttributeUnit *_Nullable fit_height) {
+UIKIT_STATIC_INLINE void SJFLLabelLayoutFixInnerSize(UILabel *label, SJFLLayoutAttributeUnit *_Nullable fit_width, SJFLLayoutAttributeUnit *_Nullable fit_height) {
     CGRect frame = label.frame;
     CGSize box = CGSizeMake(CGFLOAT_MAX, CGFLOAT_MAX);
     
@@ -237,7 +237,7 @@ UIKIT_STATIC_INLINE void SJFLLabelLayoutFixInnerSize(UILabel *label, SJFLAttribu
     }
 }
 
-UIKIT_STATIC_INLINE void SJFLButtonLayoutFixInnerSize(UIButton *button, SJFLAttributeUnit *_Nullable fit_width, SJFLAttributeUnit *_Nullable fit_height) {
+UIKIT_STATIC_INLINE void SJFLButtonLayoutFixInnerSize(UIButton *button, SJFLLayoutAttributeUnit *_Nullable fit_width, SJFLLayoutAttributeUnit *_Nullable fit_height) {
     CGRect frame = button.frame;
     CGSize box = CGSizeMake(CGFLOAT_MAX, CGFLOAT_MAX);
     
@@ -253,9 +253,13 @@ UIKIT_STATIC_INLINE void SJFLButtonLayoutFixInnerSize(UIButton *button, SJFLAttr
         if ( SJFLFloatCompare(0, box.height) )
             return;
     }
-
+    
     CGSize result = [button sizeThatFits:box];
     CGSize fit = CGSizeMake(ceil(result.width), ceil(result.height));
+    
+#ifdef DEBUG
+    NSLog(@"%@", NSStringFromCGSize(result));
+#endif
     
     BOOL needUpdate = NO;
     if ( fit_width != nil ) {
@@ -277,18 +281,18 @@ UIKIT_STATIC_INLINE void SJFLButtonLayoutFixInnerSize(UIButton *button, SJFLAttr
     }
 }
 
-UIKIT_STATIC_INLINE void SJFLViewLayoutFixInnerSize(UIView *view, SJFLAttributeUnit *_Nullable fit_width, SJFLAttributeUnit *_Nullable fit_height) {
+UIKIT_STATIC_INLINE void SJFLViewLayoutFixInnerSize(UIView *view, SJFLLayoutAttributeUnit *_Nullable fit_width, SJFLLayoutAttributeUnit *_Nullable fit_height) {
     
     CGFloat maxX = 0;
     for ( UIView *sub in view.subviews ) {
-        SJFLAttributeUnit *_Nullable right = [sub FL_elementForAttribute:SJFLAttributeRight].target;;
+        SJFLLayoutAttributeUnit *_Nullable right = [sub FL_elementForAttribute:SJFLAttributeRight].target;;
         CGFloat subMaxX = CGRectGetMaxX(sub.frame) - right.offset;
         if ( subMaxX > maxX ) maxX = subMaxX;
     }
 
     CGFloat maxY = 0;
     for ( UIView *sub in view.subviews ) {
-        SJFLAttributeUnit *_Nullable bottom = [sub FL_elementForAttribute:SJFLAttributeBottom].target;
+        SJFLLayoutAttributeUnit *_Nullable bottom = [sub FL_elementForAttribute:SJFLAttributeBottom].target;
         CGFloat subMaxY = CGRectGetMaxY(sub.frame) - bottom.offset;
         if ( subMaxY > maxY ) maxY = subMaxY;
     }
@@ -330,7 +334,7 @@ void SJFLRefreshLayoutsForRelatedView(UIView *view) {
 }
 @end
 
-@implementation UIButton (SJFLPrivate)
+@implementation UIButton (SJFLLayoutElements)
 + (void)load {
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{

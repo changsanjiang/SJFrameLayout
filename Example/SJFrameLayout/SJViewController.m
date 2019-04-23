@@ -18,6 +18,7 @@
 //#import <MMPlaceHolder.h>
 #import "SJTestLabel.h"
 #import "SJTestButton.h"
+#import "SJTestImageView.h"
 
 #define ViewCount (500)
 
@@ -40,21 +41,23 @@
 //    _testLabel.numberOfLines = 0;
 ////    _testLabel.textAlignment = NSTextAlignmentCenter;
 //    [self.view addSubview:_testLabel];
-//    [_testLabel sj_makeFrameLayout:^(SJFLMaker * _Nonnull make) {
+//    [_testLabel sj_makeFrameLayout:^(SJFLLayoutMaker * _Nonnull make) {
 //        make.left.bottom.offset(0);
 ////        make.height.offset(80);
 //    }];
 
     _testButton = [[SJTestButton alloc] initWithFrame:CGRectZero];
     _testButton.backgroundColor = [UIColor greenColor];
-    _testButton.titleLabel.numberOfLines = 0;
+//    _testButton.titleLabel.numberOfLines = 0;
     [self.view addSubview:_testButton];
     
-    [_testButton sj_makeFrameLayout:^(SJFLMaker * _Nonnull make) {
-        make.left.bottom.right.offset(0);
+    [_testButton sj_makeFrameLayout:^(SJFLLayoutMaker * _Nonnull make) {
+        make.left.offset(20);
+        make.right.offset(-20);
+        make.bottom.offset(-40);
     }];
     
-    NSLog(@"%p", _testButton);
+//    NSLog(@"%p", _testButton);
     
 }
 - (IBAction)testmas:(id)sender {
@@ -234,10 +237,10 @@
     UIView *subview1 = [SJTestView new];
     subview1.backgroundColor = [UIColor redColor];
     [self.view addSubview:subview1];
-    [subview1 sj_makeFrameLayout:^(SJFLMaker * _Nonnull make) {
+    [subview1 sj_makeFrameLayout:^(SJFLLayoutMaker * _Nonnull make) {
 //        make.top.offset(40);
 //        make.left.offset(0);
-        make.center.offset(0);
+        make.center.equalTo(self.view);
 //        make.right.offset(-20);
 //        make.bottom.offset(-200);
     }];
@@ -249,7 +252,7 @@
                                          alpha:1];
     [subview1 addSubview:ss];
 
-    [ss sj_makeFrameLayout:^(SJFLMaker * _Nonnull make) {
+    [ss sj_makeFrameLayout:^(SJFLLayoutMaker * _Nonnull make) {
         make.edges.box_equalTo(UIEdgeInsetsMake(8, 8, -8, -8));
         make.size.offset(800);
     }];
@@ -262,7 +265,7 @@
                                              alpha:1];
         [ss addSubview:a];
 
-        [a sj_makeFrameLayout:^(SJFLMaker * _Nonnull make) {
+        [a sj_makeFrameLayout:^(SJFLLayoutMaker * _Nonnull make) {
             make.edges.box_equalTo(UIEdgeInsetsMake(8 + i, 8 + i, -(8 + i), -(8 + i)));
         }];
     }

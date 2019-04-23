@@ -9,6 +9,6 @@
 #define SJFrameLayout_h
 
 #import "UIView+SJFrameLayout.h"
-#import "UIView+SJFLAttributeUnits.h"
+#import "UIView+SJFLViewFrameAttributes.h"
 
 #endif /* SJFrameLayout_h */

@@ -6,7 +6,8 @@
 //
 
 #import "SJFLLayoutMask.h"
-#import "UIView+SJFLAttributeUnits.h"
+#import "UIView+SJFLLayoutAttributeUnits.h"
+#import "UIView+SJFLViewFrameAttributes.h"
 
 NS_ASSUME_NONNULL_BEGIN
 @implementation SJFLLayoutMask {
@@ -84,27 +85,27 @@ NS_ASSUME_NONNULL_BEGIN
     return ^SJFLLayoutMask *(id box) {
         SJFLAttributeMask attributes = self->_attrs;
         UIView *view = self->_view;
-        if      ( [box isKindOfClass:SJFLAttributeUnit.class] ) {
-            SJFLAttributeUnit *unit = box;
-            if ( SJFLLayoutContainsAttribute(attributes, SJFLAttributeTop) ) [view.FL_Top equalTo:unit];
-            if ( SJFLLayoutContainsAttribute(attributes, SJFLAttributeLeft) ) [view.FL_Left equalTo:unit];
-            if ( SJFLLayoutContainsAttribute(attributes, SJFLAttributeBottom) ) [view.FL_Bottom equalTo:unit];
-            if ( SJFLLayoutContainsAttribute(attributes, SJFLAttributeRight) ) [view.FL_Right equalTo:unit];
-            if ( SJFLLayoutContainsAttribute(attributes, SJFLAttributeWidth) ) [view.FL_Width equalTo:unit];
-            if ( SJFLLayoutContainsAttribute(attributes, SJFLAttributeHeight) ) [view.FL_Height equalTo:unit];
-            if ( SJFLLayoutContainsAttribute(attributes, SJFLAttributeCenterX) ) [view.FL_CenterX equalTo:unit];
-            if ( SJFLLayoutContainsAttribute(attributes, SJFLAttributeCenterY) ) [view.FL_CenterY equalTo:unit];
+        if      ( [box isKindOfClass:SJFLViewFrameAttribute.class] ) {
+            SJFLViewFrameAttribute *attribute = box;
+            if ( SJFLLayoutContainsAttribute(attributes, SJFLAttributeTop) ) [view.FL_topUnit equalTo:attribute];
+            if ( SJFLLayoutContainsAttribute(attributes, SJFLAttributeLeft) ) [view.FL_leftUnit equalTo:attribute];
+            if ( SJFLLayoutContainsAttribute(attributes, SJFLAttributeBottom) ) [view.FL_bottomUnit equalTo:attribute];
+            if ( SJFLLayoutContainsAttribute(attributes, SJFLAttributeRight) ) [view.FL_rightUnit equalTo:attribute];
+            if ( SJFLLayoutContainsAttribute(attributes, SJFLAttributeWidth) ) [view.FL_widthUnit equalTo:attribute];
+            if ( SJFLLayoutContainsAttribute(attributes, SJFLAttributeHeight) ) [view.FL_heightUnit equalTo:attribute];
+            if ( SJFLLayoutContainsAttribute(attributes, SJFLAttributeCenterX) ) [view.FL_centerXUnit equalTo:attribute];
+            if ( SJFLLayoutContainsAttribute(attributes, SJFLAttributeCenterY) ) [view.FL_centerYUnit equalTo:attribute];
         }
         else if ( [box isKindOfClass:UIView.class] ) {
             UIView *dep_view = box;
-            if ( SJFLLayoutContainsAttribute(attributes, SJFLAttributeTop) ) [view.FL_Top equalTo:dep_view.FL_Top];
-            if ( SJFLLayoutContainsAttribute(attributes, SJFLAttributeLeft) ) [view.FL_Left equalTo:dep_view.FL_Left];
-            if ( SJFLLayoutContainsAttribute(attributes, SJFLAttributeBottom) ) [view.FL_Bottom equalTo:dep_view.FL_Bottom];
-            if ( SJFLLayoutContainsAttribute(attributes, SJFLAttributeRight) ) [view.FL_Right equalTo:dep_view.FL_Right];
-            if ( SJFLLayoutContainsAttribute(attributes, SJFLAttributeWidth) ) [view.FL_Width equalTo:dep_view.FL_Width];
-            if ( SJFLLayoutContainsAttribute(attributes, SJFLAttributeHeight) ) [view.FL_Height equalTo:dep_view.FL_Height];
-            if ( SJFLLayoutContainsAttribute(attributes, SJFLAttributeCenterX) ) [view.FL_CenterX equalTo:dep_view.FL_CenterX];
-            if ( SJFLLayoutContainsAttribute(attributes, SJFLAttributeCenterY) ) [view.FL_CenterY equalTo:dep_view.FL_CenterY];
+            if ( SJFLLayoutContainsAttribute(attributes, SJFLAttributeTop) ) [view.FL_topUnit equalTo:dep_view.FL_top];
+            if ( SJFLLayoutContainsAttribute(attributes, SJFLAttributeLeft) ) [view.FL_leftUnit equalTo:dep_view.FL_left];
+            if ( SJFLLayoutContainsAttribute(attributes, SJFLAttributeBottom) ) [view.FL_bottomUnit equalTo:dep_view.FL_bottom];
+            if ( SJFLLayoutContainsAttribute(attributes, SJFLAttributeRight) ) [view.FL_rightUnit equalTo:dep_view.FL_right];
+            if ( SJFLLayoutContainsAttribute(attributes, SJFLAttributeWidth) ) [view.FL_widthUnit equalTo:dep_view.FL_width];
+            if ( SJFLLayoutContainsAttribute(attributes, SJFLAttributeHeight) ) [view.FL_heightUnit equalTo:dep_view.FL_height];
+            if ( SJFLLayoutContainsAttribute(attributes, SJFLAttributeCenterX) ) [view.FL_centerXUnit equalTo:dep_view.FL_centerX];
+            if ( SJFLLayoutContainsAttribute(attributes, SJFLAttributeCenterY) ) [view.FL_centerYUnit equalTo:dep_view.FL_centerY];
         }
         else {
             self.box_offset(box);
@@ -126,14 +127,14 @@ if ( SJFLLayoutContainsAttribute(attributes, __attr__) ) { \
     __unit__->offset.value = offset; \
     __unit__->offset_t = SJFLCGFloatValue; \
 }
-        SET_FL_UNIT_OFFSET(SJFLAttributeTop, view.FL_Top);
-        SET_FL_UNIT_OFFSET(SJFLAttributeLeft, view.FL_Left);
-        SET_FL_UNIT_OFFSET(SJFLAttributeBottom, view.FL_Bottom);
-        SET_FL_UNIT_OFFSET(SJFLAttributeRight, view.FL_Right);
-        SET_FL_UNIT_OFFSET(SJFLAttributeWidth, view.FL_Width);
-        SET_FL_UNIT_OFFSET(SJFLAttributeHeight, view.FL_Height);
-        SET_FL_UNIT_OFFSET(SJFLAttributeCenterX, view.FL_CenterX);
-        SET_FL_UNIT_OFFSET(SJFLAttributeCenterY, view.FL_CenterY);
+        SET_FL_UNIT_OFFSET(SJFLAttributeTop, view.FL_topUnit);
+        SET_FL_UNIT_OFFSET(SJFLAttributeLeft, view.FL_leftUnit);
+        SET_FL_UNIT_OFFSET(SJFLAttributeBottom, view.FL_bottomUnit);
+        SET_FL_UNIT_OFFSET(SJFLAttributeRight, view.FL_rightUnit);
+        SET_FL_UNIT_OFFSET(SJFLAttributeWidth, view.FL_widthUnit);
+        SET_FL_UNIT_OFFSET(SJFLAttributeHeight, view.FL_heightUnit);
+        SET_FL_UNIT_OFFSET(SJFLAttributeCenterX, view.FL_centerXUnit);
+        SET_FL_UNIT_OFFSET(SJFLAttributeCenterY, view.FL_centerYUnit);
     };
 }
 
@@ -183,7 +184,7 @@ if ( SJFLLayoutContainsAttribute(attributes, __attr__) ) { \
 
 #define SET_FL_UNIT_BOX_OFFSET(__attr__, __unit__) \
             if ( SJFLLayoutContainsAttribute(attributes, __attr__) ) { \
-                SJFLAttributeUnit *unit = __unit__; \
+                SJFLLayoutAttributeUnit *unit = __unit__; \
                 unit->offset_t = t; \
                 switch ( unit->offset_t ) {  \
                     case SJFLCGFloatValue: \
@@ -201,14 +202,14 @@ if ( SJFLLayoutContainsAttribute(attributes, __attr__) ) { \
                 }   \
             }
             
-            SET_FL_UNIT_BOX_OFFSET(SJFLAttributeTop, view.FL_Top);
-            SET_FL_UNIT_BOX_OFFSET(SJFLAttributeLeft, view.FL_Left);
-            SET_FL_UNIT_BOX_OFFSET(SJFLAttributeBottom, view.FL_Bottom);
-            SET_FL_UNIT_BOX_OFFSET(SJFLAttributeRight, view.FL_Right);
-            SET_FL_UNIT_BOX_OFFSET(SJFLAttributeWidth, view.FL_Width);
-            SET_FL_UNIT_BOX_OFFSET(SJFLAttributeHeight, view.FL_Height);
-            SET_FL_UNIT_BOX_OFFSET(SJFLAttributeCenterX, view.FL_CenterX);
-            SET_FL_UNIT_BOX_OFFSET(SJFLAttributeCenterY, view.FL_CenterY);
+            SET_FL_UNIT_BOX_OFFSET(SJFLAttributeTop, view.FL_topUnit);
+            SET_FL_UNIT_BOX_OFFSET(SJFLAttributeLeft, view.FL_leftUnit);
+            SET_FL_UNIT_BOX_OFFSET(SJFLAttributeBottom, view.FL_bottomUnit);
+            SET_FL_UNIT_BOX_OFFSET(SJFLAttributeRight, view.FL_rightUnit);
+            SET_FL_UNIT_BOX_OFFSET(SJFLAttributeWidth, view.FL_widthUnit);
+            SET_FL_UNIT_BOX_OFFSET(SJFLAttributeHeight, view.FL_heightUnit);
+            SET_FL_UNIT_BOX_OFFSET(SJFLAttributeCenterX, view.FL_centerXUnit);
+            SET_FL_UNIT_BOX_OFFSET(SJFLAttributeCenterY, view.FL_centerYUnit);
         }
     };
 }
@@ -221,14 +222,14 @@ if ( SJFLLayoutContainsAttribute(attributes, __attr__) ) { \
 if ( SJFLLayoutContainsAttribute(attributes, __attr__) ) { \
     __unit__->multiplier = multiplier; \
 }
-        SET_FL_UNIT_MULTIPLIER(SJFLAttributeTop, view.FL_Top);
-        SET_FL_UNIT_MULTIPLIER(SJFLAttributeLeft, view.FL_Left);
-        SET_FL_UNIT_MULTIPLIER(SJFLAttributeBottom, view.FL_Bottom);
-        SET_FL_UNIT_MULTIPLIER(SJFLAttributeRight, view.FL_Right);
-        SET_FL_UNIT_MULTIPLIER(SJFLAttributeWidth, view.FL_Width);
-        SET_FL_UNIT_MULTIPLIER(SJFLAttributeHeight, view.FL_Height);
-        SET_FL_UNIT_MULTIPLIER(SJFLAttributeCenterX, view.FL_CenterX);
-        SET_FL_UNIT_MULTIPLIER(SJFLAttributeCenterY, view.FL_CenterY);
+        SET_FL_UNIT_MULTIPLIER(SJFLAttributeTop, view.FL_topUnit);
+        SET_FL_UNIT_MULTIPLIER(SJFLAttributeLeft, view.FL_leftUnit);
+        SET_FL_UNIT_MULTIPLIER(SJFLAttributeBottom, view.FL_bottomUnit);
+        SET_FL_UNIT_MULTIPLIER(SJFLAttributeRight, view.FL_rightUnit);
+        SET_FL_UNIT_MULTIPLIER(SJFLAttributeWidth, view.FL_widthUnit);
+        SET_FL_UNIT_MULTIPLIER(SJFLAttributeHeight, view.FL_heightUnit);
+        SET_FL_UNIT_MULTIPLIER(SJFLAttributeCenterX, view.FL_centerXUnit);
+        SET_FL_UNIT_MULTIPLIER(SJFLAttributeCenterY, view.FL_centerYUnit);
         
         return self;
     };

@@ -1,16 +1,16 @@
 //
-//  UIView+SJFLPrivate.h
+//  UIView+SJFLLayoutElements.h
 //  Pods
 //
 //  Created by 畅三江 on 2019/4/18.
 //
 
 #import <UIKit/UIKit.h>
-#import "SJFLAttributeUnit.h"
+#import "SJFLLayoutAttributeUnit.h"
 @class SJFLLayoutElement;
 
 NS_ASSUME_NONNULL_BEGIN
-@interface UIView (SJFLPrivate)
+@interface UIView (SJFLLayoutElements)
 - (SJFLLayoutElement *_Nullable)FL_elementForAttribute:(SJFLAttribute)attribute;
 - (SJFLLayoutElement *_Nullable)FL_elementForAttribute:(SJFLAttribute)attribute priority:(char)priority; // width & height
 
