@@ -507,7 +507,7 @@ UIKIT_STATIC_INLINE void SJFLViewSetBottom(UIView *view, CGFloat bottom) {
     NSArray<SJFLLayoutElement *> *m = [view FL_elements];
     SJFLLayoutElement *_Nullable heightElement = SJFLGetElement(m, SJFLAttributeHeight, 0);
     if ( heightElement == nil )
-        heightElement = SJFLGetElement(m, SJFLAttributeHeight, 1);
+        heightElement = SJFLGetElement(m, SJFLAttributeHeight, 1); ///< Fitting size
 
     if ( !heightElement ) {
         // top + height = bottom
@@ -532,7 +532,7 @@ UIKIT_STATIC_INLINE void SJFLViewSetRight(UIView *view, CGFloat right) {
     NSArray<SJFLLayoutElement *> *m = [view FL_elements];
     SJFLLayoutElement *_Nullable widthElement = SJFLGetElement(m, SJFLAttributeWidth, 0);
     if ( widthElement == nil )
-        widthElement = SJFLGetElement(m, SJFLAttributeWidth, 1);
+        widthElement = SJFLGetElement(m, SJFLAttributeWidth, 1); ///< Fitting size
     
     if ( !widthElement ) {
         // left + width = right

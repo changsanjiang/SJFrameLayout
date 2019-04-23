@@ -127,29 +127,33 @@ UIKIT_STATIC_INLINE NSArray<SJFLLayoutElement *> *SJFLAddOrRemoveFittingSizeUnit
     // Added FittingSize units
     // required
     // optional
+    NSInteger fit_width_index = SJFLGetIndex(m, SJFLAttributeWidth, 1);
     if ( (width != nil) || (left != nil && right != nil) ) {
-        NSInteger index = SJFLGetIndex(m, SJFLAttributeWidth, 1);
-        if ( index != NSNotFound ) [m removeObjectAtIndex:index];
+        if ( fit_width_index != NSNotFound ) [m removeObjectAtIndex:fit_width_index];
     }
     else {
-        // no - width
-        SJFLAttributeUnit *widthUnit = [[SJFLAttributeUnit alloc] initWithView:view attribute:SJFLAttributeWidth];
-        widthUnit->priority = SJFLPriorityFittingSize;
-        SJFLLayoutElement *widthElem = [[SJFLLayoutElement alloc] initWithTarget:widthUnit];
-        [m addObject:widthElem]; // 当视图本身没有width条件时, 才会添加
+        if ( fit_width_index == NSNotFound ) {
+            // no - width
+            SJFLAttributeUnit *widthUnit = [[SJFLAttributeUnit alloc] initWithView:view attribute:SJFLAttributeWidth];
+            widthUnit->priority = SJFLPriorityFittingSize;
+            SJFLLayoutElement *widthElem = [[SJFLLayoutElement alloc] initWithTarget:widthUnit];
+            [m addObject:widthElem]; // 当视图本身没有width条件时, 才会添加
+        }
     }
 
     // height
+    NSInteger fit_height_index = SJFLGetIndex(m, SJFLAttributeHeight, 1);
     if ( height != nil || (top != nil && bottom != nil) ) {
-        NSInteger index = SJFLGetIndex(m, SJFLAttributeHeight, 1);
-        if ( index != NSNotFound ) [m removeObjectAtIndex:index];
+        if ( fit_height_index != NSNotFound ) [m removeObjectAtIndex:fit_height_index];
     }
     else {
-        // no - height
-        SJFLAttributeUnit *heightUnit = [[SJFLAttributeUnit alloc] initWithView:view attribute:SJFLAttributeHeight];
-        heightUnit->priority = SJFLPriorityFittingSize;
-        SJFLLayoutElement *heightElem = [[SJFLLayoutElement alloc] initWithTarget:heightUnit];
-        [m addObject:heightElem]; // 当视图本身没有height条件时, 才会添加
+        if ( fit_height_index == NSNotFound ) {
+            // no - height
+            SJFLAttributeUnit *heightUnit = [[SJFLAttributeUnit alloc] initWithView:view attribute:SJFLAttributeHeight];
+            heightUnit->priority = SJFLPriorityFittingSize;
+            SJFLLayoutElement *heightElem = [[SJFLLayoutElement alloc] initWithTarget:heightUnit];
+            [m addObject:heightElem]; // 当视图本身没有height条件时, 才会添加
+        }
     }
     
     return m;
