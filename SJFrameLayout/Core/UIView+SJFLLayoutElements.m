@@ -25,6 +25,7 @@ NS_ASSUME_NONNULL_BEGIN
     }
     
     SJFLViewLayoutFixInnerSizeIfNeeded(self);
+    SJFLViewLayoutFixInnerSizeIfNeeded(self.superview);
 }
 
 - (SJFLLayoutElement *_Nullable)FL_elementForAttribute:(SJFLAttribute)attribute {
