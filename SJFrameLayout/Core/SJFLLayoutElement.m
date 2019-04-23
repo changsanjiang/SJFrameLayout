@@ -238,10 +238,7 @@ NS_ASSUME_NONNULL_BEGIN
     CGFloat offset = _target.offset;
     
     CGFloat value = 0;
-    if ( dep_attr == SJFLAttributeNone ) {
-        value = 0;
-    }
-    else {
+    if ( dep_attr != SJFLAttributeNone ) {
         UIView *dep_view = _dep_view;
         UIView *tar_view = _tar_view;
         CGRect dep_frame = dep_view.frame;
@@ -319,6 +316,8 @@ NS_ASSUME_NONNULL_BEGIN
             }
         }
     }
+    // else {  /* none, do nothing */ }
+    
     return value * _target->multiplier + offset;
 }
 
