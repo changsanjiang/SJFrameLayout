@@ -308,7 +308,7 @@ NS_ASSUME_NONNULL_BEGIN
     }
     // else {  /* none, do nothing */ }
     
-    return value * _target->multiplier + offset;
+    return ceil(value * _target->multiplier + offset);
 }
 
 // - update -

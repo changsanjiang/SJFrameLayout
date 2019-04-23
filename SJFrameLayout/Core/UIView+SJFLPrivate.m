@@ -23,7 +23,7 @@ SJFLSwizzleMethod(Class cls, SEL originalSelector, SEL swizzledSelector) {
 
 @interface SJFLDependencyObserveTarget : NSObject {
     @public
-    __weak id<SJFLDependencyViewDidLayoutSubviewsProtocol> _Nullable observer;
+    __weak id<SJFLDependencyViewDidLayoutSubviewsProtocol> _Nullable _observer;
 }
 - (instancetype)initWithTarget:(id<SJFLDependencyViewDidLayoutSubviewsProtocol>)observer;
 @end
@@ -32,10 +32,15 @@ SJFLSwizzleMethod(Class cls, SEL originalSelector, SEL swizzledSelector) {
 - (instancetype)initWithTarget:(id<SJFLDependencyViewDidLayoutSubviewsProtocol>)obs {
     self = [super init];
     if ( self ) {
-        observer = obs;
+        _observer = obs;
     }
     return self;
 }
+#ifdef DEBUG
+- (NSString *)description {
+    return [NSString stringWithFormat:@"[observer: %@]", self->_observer];
+}
+#endif
 @end
 
 @implementation UIView (SJFLPrivate)
@@ -51,7 +56,7 @@ SJFLSwizzleMethod(Class cls, SEL originalSelector, SEL swizzledSelector) {
 - (void)FL_layoutSubviews {
     [self FL_layoutSubviews];
     for ( SJFLDependencyObserveTarget *target in SJFLGetObserversContainerIfExists(self).allValues ) {
-        [target->observer FL_dependencyViewDidLayoutSubviews:self];
+        [target->_observer FL_dependencyViewDidLayoutSubviews:self];
     }
 }
 
@@ -98,7 +103,7 @@ SJFLObserversContainer(UIView *view) {
 - (void)FL_layoutSubviews_button {
     [self FL_layoutSubviews_button];
     for ( SJFLDependencyObserveTarget *target in SJFLGetObserversContainerIfExists(self).allValues ) {
-        [target->observer FL_dependencyViewDidLayoutSubviews:self];
+        [target->_observer FL_dependencyViewDidLayoutSubviews:self];
     }
 }
 @end

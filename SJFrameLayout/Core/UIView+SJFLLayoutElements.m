@@ -18,11 +18,13 @@ NS_ASSUME_NONNULL_BEGIN
 #endif
 @implementation UIView (SJFLLayoutElements)
 - (void)FL_dependencyViewDidLayoutSubviews:(UIView *)view {
-    for ( SJFLLayoutElement *ele in SJFLGetElementsContainerIfExists(self) ) {
-        [ele refreshLayoutIfNeeded];
+    if ( view != self ) {
+        for ( SJFLLayoutElement *ele in SJFLGetElementsContainerIfExists(self) ) {
+            [ele refreshLayoutIfNeeded];
+        }
     }
     
-    SJFLViewLayoutFixInnerSizeIfNeeded(view);
+    SJFLViewLayoutFixInnerSizeIfNeeded(self);
 }
 
 - (SJFLLayoutElement *_Nullable)FL_elementForAttribute:(SJFLAttribute)attribute {
@@ -124,16 +126,33 @@ UIKIT_STATIC_INLINE void SJFLViewLayoutFixInnerSizeIfNeeded(UIView *view) {
     NSMutableArray<SJFLLayoutElement *> *m = SJFLGetElementsContainer(view);
     if ( m.count < 1 )
         return;
+    
+//    NSLog(@"%@", view);
+    
     // - fitting size -
     SJFLLayoutAttributeUnit *_Nullable fit_width = SJFLGetElement(m, SJFLAttributeWidth, SJFLPriorityFittingSize).target;
     SJFLLayoutAttributeUnit *_Nullable fit_height = SJFLGetElement(m, SJFLAttributeHeight, SJFLPriorityFittingSize).target;
+    
+    static Class FL_UILabelClass;
+    static Class FL_UIButtonClass;
+    static Class FL_UIImageViewClass;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        FL_UILabelClass = [UILabel class];
+        FL_UIButtonClass = [UIButton class];
+        FL_UIImageViewClass = [UIImageView class];
+    });
+    
     if ( fit_width != nil || fit_height != nil ) {
-        if ( [view isKindOfClass:UILabel.class] ) {
+        if ( [view isKindOfClass:FL_UILabelClass] ) {
             SJFLLabelAdjustBoxIfNeeded((id)view, m);
             SJFLLabelLayoutFixInnerSize((id)view, fit_width, fit_height);
         }
-        else if ( [view isKindOfClass:UIButton.class] ) {
+        else if ( [view isKindOfClass:FL_UIButtonClass] ) {
             SJFLButtonLayoutFixInnerSize((id)view, fit_width, fit_height);
+        }
+        else if ( [view isKindOfClass:FL_UIImageViewClass] ) {
+            SJFLImageViewLayoutFixInnerSize((id)view, fit_width, fit_height);
         }
         else {
             SJFLViewLayoutFixInnerSize(view, fit_width, fit_height);
@@ -159,8 +178,8 @@ UIKIT_STATIC_INLINE void SJFLLabelAdjustBoxIfNeeded(UILabel *label, NSMutableArr
     }
 }
 
-UIKIT_STATIC_INLINE void SJFLLabelLayoutFixInnerSize(UILabel *label, SJFLLayoutAttributeUnit *_Nullable fit_width, SJFLLayoutAttributeUnit *_Nullable fit_height) {
-    CGRect frame = label.frame;
+UIKIT_STATIC_INLINE void SJFLLabelLayoutFixInnerSize(UILabel *view, SJFLLayoutAttributeUnit *_Nullable fit_width, SJFLLayoutAttributeUnit *_Nullable fit_height) {
+    CGRect frame = view.frame;
     CGSize box = CGSizeMake(CGFLOAT_MAX, CGFLOAT_MAX);
     
     // 具有宽度约束
@@ -176,7 +195,7 @@ UIKIT_STATIC_INLINE void SJFLLabelLayoutFixInnerSize(UILabel *label, SJFLLayoutA
             return;
     }
     
-    CGRect rect = [label textRectForBounds:CGRectMake(0, 0, box.width, box.height) limitedToNumberOfLines:label.numberOfLines];
+    CGRect rect = [view textRectForBounds:CGRectMake(0, 0, box.width, box.height) limitedToNumberOfLines:view.numberOfLines];
     CGSize fit = CGSizeMake(ceil(rect.size.width), ceil(rect.size.height));
     
     BOOL needUpdate = NO;
@@ -195,12 +214,12 @@ UIKIT_STATIC_INLINE void SJFLLabelLayoutFixInnerSize(UILabel *label, SJFLLayoutA
     }
     
     if ( needUpdate ) {
-        SJFLRefreshLayoutsForRelatedView(label);
+        SJFLRefreshLayoutsForRelatedView(view);
     }
 }
 
-UIKIT_STATIC_INLINE void SJFLButtonLayoutFixInnerSize(UIButton *button, SJFLLayoutAttributeUnit *_Nullable fit_width, SJFLLayoutAttributeUnit *_Nullable fit_height) {
-    CGRect frame = button.frame;
+UIKIT_STATIC_INLINE void SJFLButtonLayoutFixInnerSize(UIButton *view, SJFLLayoutAttributeUnit *_Nullable fit_width, SJFLLayoutAttributeUnit *_Nullable fit_height) {
+    CGRect frame = view.frame;
     CGSize box = CGSizeMake(CGFLOAT_MAX, CGFLOAT_MAX);
     
     // 具有宽度约束
@@ -216,7 +235,7 @@ UIKIT_STATIC_INLINE void SJFLButtonLayoutFixInnerSize(UIButton *button, SJFLLayo
             return;
     }
     
-    CGSize result = [button sizeThatFits:box];
+    CGSize result = [view sizeThatFits:box];
     CGSize fit = CGSizeMake(ceil(result.width), ceil(result.height));
     
 #ifdef DEBUG
@@ -239,8 +258,53 @@ UIKIT_STATIC_INLINE void SJFLButtonLayoutFixInnerSize(UIButton *button, SJFLLayo
     }
     
     if ( needUpdate ) {
-        SJFLRefreshLayoutsForRelatedView(button);
+        SJFLRefreshLayoutsForRelatedView(view);
     }
+}
+
+UIKIT_STATIC_INLINE void SJFLImageViewLayoutFixInnerSize(UIImageView *view, SJFLLayoutAttributeUnit *_Nullable fit_width, SJFLLayoutAttributeUnit *_Nullable fit_height) {
+    CGRect frame = view.frame;
+    CGSize box = CGSizeMake(CGFLOAT_MAX, CGFLOAT_MAX);
+    
+    // 具有宽度约束
+    if ( fit_width == nil ) {
+        box.width = CGRectGetWidth(frame);
+        if ( SJFLFloatCompare(0, box.width) )
+            return;
+    }
+    // 具有高度约束
+    else if ( fit_height == nil ) {
+        box.height = CGRectGetHeight(frame);
+        if ( SJFLFloatCompare(0, box.height) )
+            return;
+    }
+    
+    CGSize result = [view sizeThatFits:box];
+    CGSize fit = CGSizeMake(ceil(result.width), ceil(result.height));
+    
+#ifdef DEBUG
+    NSLog(@"%@", NSStringFromCGSize(result));
+#endif
+    
+    BOOL needUpdate = NO;
+    if ( fit_width != nil ) {
+        if ( !SJFLFloatCompare(fit_width->offset.value, fit.width) ) {
+            fit_width->offset.value = fit.width;
+            needUpdate = YES;
+        }
+    }
+    
+    if ( fit_height != nil ) {
+        if ( !SJFLFloatCompare(fit_height->offset.value, fit.height) ) {
+            fit_height->offset.value = fit.height;
+            needUpdate = YES;
+        }
+    }
+    
+    if ( needUpdate ) {
+        SJFLRefreshLayoutsForRelatedView(view);
+    }
+
 }
 
 UIKIT_STATIC_INLINE void SJFLViewLayoutFixInnerSize(UIView *view, SJFLLayoutAttributeUnit *_Nullable fit_width, SJFLLayoutAttributeUnit *_Nullable fit_height) {
