@@ -6,6 +6,7 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "SJFLAttributesDefines.h"
 #import "SJFLLayoutAttributeUnit.h"
 #import "UIView+SJFLPrivate.h"
 @class SJFLLayoutElement;

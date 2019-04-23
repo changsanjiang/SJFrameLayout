@@ -36,16 +36,5 @@ typedef enum : NSUInteger {
     SJFLLayoutAttributeMaskCenter = SJFLLayoutAttributeMaskCenterX | SJFLLayoutAttributeMaskCenterY,
     SJFLLayoutAttributeMaskSize = SJFLLayoutAttributeMaskWidth | SJFLLayoutAttributeMaskHeight,
 } SJFLLayoutAttributeMask;
-
-typedef NSString *SJFLLayoutAttributeKey;
-static SJFLLayoutAttributeKey const SJFLLayoutAttributeKeyNone = @"N";
-static SJFLLayoutAttributeKey const SJFLLayoutAttributeKeyTop = @"T";
-static SJFLLayoutAttributeKey const SJFLLayoutAttributeKeyLeft = @"L";
-static SJFLLayoutAttributeKey const SJFLLayoutAttributeKeyBottom = @"B";
-static SJFLLayoutAttributeKey const SJFLLayoutAttributeKeyRight = @"R";
-static SJFLLayoutAttributeKey const SJFLLayoutAttributeKeyWidth = @"W";
-static SJFLLayoutAttributeKey const SJFLLayoutAttributeKeyHeight = @"H";
-static SJFLLayoutAttributeKey const SJFLLayoutAttributeKeyCenterX = @"CX";
-static SJFLLayoutAttributeKey const SJFLLayoutAttributeKeyCenterY = @"CY";
 NS_ASSUME_NONNULL_END
 #endif /* SJFLLayoutAttributesDefines_h */
