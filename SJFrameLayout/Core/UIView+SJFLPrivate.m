@@ -68,8 +68,7 @@ SJFLSwizzleMethod(Class cls, SEL originalSelector, SEL swizzledSelector) {
 }
 
 - (void)FL_removeObserver:(id<SJFLDependencyViewDidLayoutSubviewsProtocol>)observer {
-    NSNumber *num = @([observer hash]);
-    [SJFLGetObserversContainerIfExists(self) removeObjectForKey:num];
+    [SJFLGetObserversContainerIfExists(self) removeObjectForKey:@([observer hash])];
 }
 
 static void *FL_kContainer = &FL_kContainer;

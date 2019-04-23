@@ -127,7 +127,7 @@ NS_ASSUME_NONNULL_BEGIN
     _target = target;
     _tar_view = target.view;
     _tar_superview = _tar_view.superview;
-    _tar_attr = target.attribute; 
+    _tar_attr = target.attribute;
     
     SJFLViewFrameAttribute *_Nullable dependency = target.equalToViewAttribute;
     if ( !dependency ) {
@@ -177,19 +177,21 @@ NS_ASSUME_NONNULL_BEGIN
         return;
     }
     
-    if ( !SJFLViewAttributeCanSettable(view, _tar_attr) ) {
+    SJFLAttribute tar_attr = _tar_attr;
+    
+    if ( !SJFLViewAttributeCanSettable(view, tar_attr) ) {
         return;
     }
     
     CGFloat newValue = self.value;
     
     SJFLLayoutSetInfo *info = [view FL_info];
-    if ( [info get:_tar_attr] && SJFLViewLayoutCompare(view, _tar_attr, newValue) ) {
-        SJFLViewUpdateRelatedLayoutIfNeeded(view, _tar_attr);
+    if ( [info get:tar_attr] && SJFLViewLayoutCompare(view, tar_attr, newValue) ) {
+//        SJFLViewUpdateRelatedLayoutIfNeeded(view, tar_attr);
         return;
     }
     
-    switch ( _tar_attr ) {
+    switch ( tar_attr ) {
         case SJFLAttributeNone: break; ///< Target does not need to do anything
         case SJFLAttributeTop:
             SJFLViewSetY(view, newValue);
@@ -219,14 +221,14 @@ NS_ASSUME_NONNULL_BEGIN
     
 #ifdef DEBUG
     printf("\n_tar_view:[%s]", _tar_view.description.UTF8String);
-    printf("\n_tar_attr:[%s]", [SJFLLayoutAttributeUnit debug_attributeToString:_tar_attr].UTF8String);
+    printf("\n_tar_attr:[%s]", [SJFLLayoutAttributeUnit debug_attributeToString:tar_attr].UTF8String);
     printf("\n_dep_view:[%s]", _dep_view.description.UTF8String);
     printf("\n_dep_attr:[%s]", [SJFLLayoutAttributeUnit debug_attributeToString:_dep_attr].UTF8String);
     printf("\n");
     printf("\n");
 #endif
     
-    SJFLViewUpdateRelatedLayoutIfNeeded(view, _tar_attr);
+    SJFLViewUpdateRelatedLayoutIfNeeded(view, tar_attr);
 }
 
 // value = dependency_value * multiplier + offset
@@ -312,6 +314,22 @@ UIKIT_STATIC_INLINE void SJFLViewUpdateRelatedLayoutIfNeeded(UIView *view, SJFLA
     switch ( attr ) {
         case SJFLAttributeNone:
             break;
+        case SJFLAttributeWidth: {
+            if ( !SJFLFloatCompare(0, CGRectGetWidth(view.frame)) ) {
+                [m[SJFLAttributeKeyLeft] refreshLayoutIfNeeded];
+                [m[SJFLAttributeKeyCenterX] refreshLayoutIfNeeded];
+                [m[SJFLAttributeKeyRight] refreshLayoutIfNeeded];
+            }
+        }
+            break;
+        case SJFLAttributeHeight: {
+            if ( !SJFLFloatCompare(0, CGRectGetHeight(view.frame)) ) {
+                [m[SJFLAttributeKeyTop] refreshLayoutIfNeeded];
+                [m[SJFLAttributeKeyCenterY] refreshLayoutIfNeeded];
+                [m[SJFLAttributeKeyBottom] refreshLayoutIfNeeded];
+            }
+        }
+            break;
         case SJFLAttributeTop: {
             // update bottom layout
             [m[SJFLAttributeKeyBottom] refreshLayoutIfNeeded];
@@ -322,20 +340,12 @@ UIKIT_STATIC_INLINE void SJFLViewUpdateRelatedLayoutIfNeeded(UIView *view, SJFLA
             [m[SJFLAttributeKeyRight] refreshLayoutIfNeeded];
         }
             break;
-        case SJFLAttributeBottom:
-            break;
-        case SJFLAttributeRight:
-            break;
-        case SJFLAttributeWidth: {
-            [m[SJFLAttributeKeyLeft] refreshLayoutIfNeeded];
-            [m[SJFLAttributeKeyCenterX] refreshLayoutIfNeeded];
-            [m[SJFLAttributeKeyRight] refreshLayoutIfNeeded];
+        case SJFLAttributeBottom: {
+            [m[SJFLAttributeKeyWidth] refreshLayoutIfNeeded];
         }
             break;
-        case SJFLAttributeHeight: {
-            [m[SJFLAttributeKeyTop] refreshLayoutIfNeeded];
-            [m[SJFLAttributeKeyCenterY] refreshLayoutIfNeeded];
-            [m[SJFLAttributeKeyBottom] refreshLayoutIfNeeded];
+        case SJFLAttributeRight: {
+            [m[SJFLAttributeKeyHeight] refreshLayoutIfNeeded];
         }
             break;
         case SJFLAttributeCenterX:
