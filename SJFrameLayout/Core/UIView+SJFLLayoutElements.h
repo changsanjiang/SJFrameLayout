@@ -12,24 +12,8 @@
 
 NS_ASSUME_NONNULL_BEGIN
 @interface UIView (SJFLLayoutElements)<SJFLDependencyViewDidLayoutSubviewsProtocol>
-- (SJFLLayoutElement *_Nullable)FL_elementForAttribute:(SJFLAttribute)attribute;
-- (SJFLLayoutElement *_Nullable)FL_elementForAttribute:(SJFLAttribute)attribute priority:(char)priority; // width & height
-
-- (void)FL_addElement:(SJFLLayoutElement *)element;
-- (void)FL_addElementsFromArray:(NSArray<SJFLLayoutElement *> *)elements;
-- (void)FL_replaceElementForAttribute:(SJFLAttribute)attribute withElement:(SJFLLayoutElement *)element;
-
-- (void)FL_removeElementForAttribute:(SJFLAttribute)attribute;
-- (void)FL_removeElement:(SJFLLayoutElement *)element;
-- (void)FL_removeAllElements;
-
-- (NSArray<SJFLLayoutElement *> *_Nullable)FL_elements;
-
-UIKIT_EXTERN
-SJFLLayoutElement *_Nullable SJFLGetElement(NSArray<SJFLLayoutElement *> *eles, SJFLAttribute attribute, char priority);
-
-UIKIT_EXTERN
-NSInteger SJFLGetIndex(NSArray<SJFLLayoutElement *> *m, SJFLAttribute attribute, char priority);
+@property (nonatomic, strong, nullable) NSDictionary<SJFLAttributeKey, SJFLLayoutElement *> *FL_elements;
+- (SJFLLayoutElement *_Nullable)FL_elementForAttributeKey:(SJFLAttributeKey)attributeKey;
 
 UIKIT_EXTERN
 NSMutableSet<UIView *> *SJFLGetElementsRelatedViews(NSArray<SJFLLayoutElement *> *eles);

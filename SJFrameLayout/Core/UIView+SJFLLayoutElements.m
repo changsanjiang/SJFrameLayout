@@ -17,9 +17,23 @@ NS_ASSUME_NONNULL_BEGIN
 #endif
 #endif
 @implementation UIView (SJFLLayoutElements)
+static void *kFL_Container = &kFL_Container;
+- (void)setFL_elements:(NSDictionary<SJFLAttributeKey, SJFLLayoutElement *> * _Nullable)FL_elements {
+    objc_setAssociatedObject(self, kFL_Container, [FL_elements mutableCopy], OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+}
+- (NSDictionary<SJFLAttributeKey, SJFLLayoutElement *> *_Nullable)FL_elements {
+    return objc_getAssociatedObject(self, kFL_Container);
+}
+
+- (SJFLLayoutElement *_Nullable)FL_elementForAttributeKey:(SJFLAttributeKey)attributeKey {
+    return [objc_getAssociatedObject(self, kFL_Container) valueForKey:attributeKey];
+}
+
+// -
+
 - (void)FL_dependencyViewDidLayoutSubviews:(UIView *)view {
     if ( view != self ) {
-        for ( SJFLLayoutElement *ele in SJFLGetElementsContainerIfExists(self) ) {
+        for ( SJFLLayoutElement *ele in [objc_getAssociatedObject(self, kFL_Container) allValues] ) {
             [ele refreshLayoutIfNeeded];
         }
     }
@@ -28,111 +42,21 @@ NS_ASSUME_NONNULL_BEGIN
     SJFLViewLayoutFixInnerSizeIfNeeded(self.superview);
 }
 
-- (SJFLLayoutElement *_Nullable)FL_elementForAttribute:(SJFLAttribute)attribute {
-    return [self FL_elementForAttribute:attribute priority:SJFLPriorityRequired];
-}
-
-- (SJFLLayoutElement *_Nullable)FL_elementForAttribute:(SJFLAttribute)attribute priority:(char)priority {
-    NSArray<SJFLLayoutElement *> *eles = SJFLGetElementsContainerIfExists(self);
-    return SJFLGetElement(eles, attribute, priority);
-}
-
-- (void)FL_addElement:(SJFLLayoutElement *)element {
-    if ( element )
-        [SJFLGetElementsContainer(self) addObject:element];
-}
-
-- (void)FL_addElementsFromArray:(NSArray<SJFLLayoutElement *> *)elements {
-    if ( elements.count != 0 )
-        [SJFLGetElementsContainer(self) addObjectsFromArray:elements];
-}
-
-- (void)FL_replaceElementForAttribute:(SJFLAttribute)attribute withElement:(SJFLLayoutElement *)element {
-    [self _FL_replaceElementForAttribute:attribute priority:SJFLPriorityRequired withElement:element];
-}
-
-- (void)FL_removeElementForAttribute:(SJFLAttribute)attribute {
-    NSMutableArray<SJFLLayoutElement *> *m = SJFLGetElementsContainerIfExists(self);
-    NSInteger index = SJFLGetIndex(m, attribute, SJFLPriorityRequired);
-    if ( index != NSNotFound ) [m removeObjectAtIndex:index];
-}
-
-- (void)FL_removeElement:(SJFLLayoutElement *)element {
-    if ( element )
-        [SJFLGetElementsContainerIfExists(self) removeObject:element];
-}
-
-- (void)FL_removeAllElements {
-    [SJFLGetElementsContainerIfExists(self) removeAllObjects];
-}
-
-
-- (NSArray<SJFLLayoutElement *> *_Nullable)FL_elements {
-    return SJFLGetElementsContainerIfExists(self);
-}
-
-// private methods
-
-- (void)_FL_replaceElementForAttribute:(SJFLAttribute)attribute priority:(char)priority withElement:(SJFLLayoutElement *)element {
-    if ( element ) {
-        NSMutableArray<SJFLLayoutElement *> *m = SJFLGetElementsContainer(self);
-        BOOL needAdd = YES;
-        NSInteger index = SJFLGetIndex(m, attribute, priority);
-        if ( index != NSNotFound ) {
-            needAdd = NO;
-            [m replaceObjectAtIndex:index withObject:element];
-        }
-
-        if ( !needAdd )
-            [m addObject:element];
-    }
-}
-
-//
-
-SJFLLayoutElement *_Nullable SJFLGetElement(NSArray<SJFLLayoutElement *> *eles, SJFLAttribute attribute, char priority) {
-    NSInteger index = SJFLGetIndex(eles, attribute, priority);
-    if ( index != NSNotFound )
-        return eles[index];
-    return nil;
-}
-
-NSInteger SJFLGetIndex(NSArray<SJFLLayoutElement *> *m, SJFLAttribute attribute, char priority) {
-    for ( int i = 0 ; i < m.count ; ++ i ) {
-        SJFLLayoutElement *ele = m[i];
-        SJFLLayoutAttributeUnit *unit = ele.target;
-        if ( unit.attribute == attribute && unit->priority == priority  )
-            return i;
-    }
-    return NSNotFound;
-}
-
-UIKIT_STATIC_INLINE NSMutableArray<SJFLLayoutElement *> *SJFLGetElementsContainer(UIView *view) {
-    NSMutableArray <SJFLLayoutElement *> *m = objc_getAssociatedObject(view, (__bridge void *)view);
-    if ( !m ) {
-        m = [NSMutableArray array];
-        objc_setAssociatedObject(view, (__bridge void *)view, m, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-    }
-    return m;
-}
-
-UIKIT_STATIC_INLINE NSMutableArray<SJFLLayoutElement *> *_Nullable SJFLGetElementsContainerIfExists(UIView *view) {
-    return objc_getAssociatedObject(view, (__bridge void *)view);
-}
-
-
 // fix inner size
 
 UIKIT_STATIC_INLINE void SJFLViewLayoutFixInnerSizeIfNeeded(UIView *view) {
-    NSMutableArray<SJFLLayoutElement *> *m = SJFLGetElementsContainer(view);
-    if ( m.count < 1 )
+    NSMutableDictionary<SJFLAttributeKey, SJFLLayoutElement *> *_Nullable m = objc_getAssociatedObject(view, kFL_Container);
+    if ( !m )
         return;
     
-//    NSLog(@"%@", view);
-    
     // - fitting size -
-    SJFLLayoutAttributeUnit *_Nullable fit_width = SJFLGetElement(m, SJFLAttributeWidth, SJFLPriorityFittingSize).target;
-    SJFLLayoutAttributeUnit *_Nullable fit_height = SJFLGetElement(m, SJFLAttributeHeight, SJFLPriorityFittingSize).target;
+    SJFLLayoutAttributeUnit *_Nullable fit_width = nil;
+    SJFLLayoutAttributeUnit *_Nullable fit_height = nil;
+    
+    SJFLLayoutAttributeUnit *_Nullable widthElement = m[SJFLAttributeKeyWidth].target;
+    if ( widthElement && widthElement->priority == 1 ) fit_width = widthElement;
+    SJFLLayoutAttributeUnit *_Nullable heightElement = m[SJFLAttributeKeyHeight].target;
+    if ( heightElement && heightElement->priority == 1 ) fit_height = heightElement;
     
     static Class FL_UILabelClass;
     static Class FL_UIButtonClass;
@@ -161,18 +85,13 @@ UIKIT_STATIC_INLINE void SJFLViewLayoutFixInnerSizeIfNeeded(UIView *view) {
     }
 }
 
-UIKIT_STATIC_INLINE void SJFLLabelAdjustBoxIfNeeded(UILabel *label, NSMutableArray<SJFLLayoutElement *> *m) {
+UIKIT_STATIC_INLINE void SJFLLabelAdjustBoxIfNeeded(UILabel *label, NSMutableDictionary<SJFLAttributeKey, SJFLLayoutElement *> *m ) {
     CGFloat preferredMaxLayoutWidth = label.preferredMaxLayoutWidth;
     if ( !SJFLFloatCompare(0, preferredMaxLayoutWidth) ) {
-        SJFLLayoutAttributeUnit *_Nullable widthUnit = SJFLGetElement(m, SJFLAttributeWidth, SJFLPriorityRequired).target;
-        if ( !widthUnit ) {
+        SJFLLayoutAttributeUnit *_Nullable widthUnit = m[SJFLAttributeKeyWidth].target;
+        if ( (widthUnit && widthUnit->priority == 1) || !widthUnit ) {
             widthUnit = [[SJFLLayoutAttributeUnit alloc] initWithView:label attribute:SJFLAttributeWidth];
-            [label FL_addElement:[[SJFLLayoutElement alloc] initWithTarget:widthUnit]];
-            // remove fitting element
-            NSInteger index = SJFLGetIndex(m, SJFLAttributeWidth, SJFLPriorityFittingSize);
-            if ( index != NSNotFound ) {
-                [m removeObjectAtIndex:index];
-            }
+            m[SJFLAttributeKeyWidth] = [[SJFLLayoutElement alloc] initWithTarget:widthUnit];
         }
         widthUnit->offset_t = SJFLCGFloatValue;
         widthUnit->offset.value = preferredMaxLayoutWidth;
@@ -312,14 +231,14 @@ UIKIT_STATIC_INLINE void SJFLViewLayoutFixInnerSize(UIView *view, SJFLLayoutAttr
     
     CGFloat maxX = 0;
     for ( UIView *sub in view.subviews ) {
-        SJFLLayoutAttributeUnit *_Nullable right = [sub FL_elementForAttribute:SJFLAttributeRight].target;;
+        SJFLLayoutAttributeUnit *_Nullable right = [sub FL_elementForAttributeKey:SJFLAttributeKeyRight].target;;
         CGFloat subMaxX = CGRectGetMaxX(sub.frame) - right.offset;
         if ( subMaxX > maxX ) maxX = subMaxX;
     }
 
     CGFloat maxY = 0;
     for ( UIView *sub in view.subviews ) {
-        SJFLLayoutAttributeUnit *_Nullable bottom = [sub FL_elementForAttribute:SJFLAttributeBottom].target;
+        SJFLLayoutAttributeUnit *_Nullable bottom = [sub FL_elementForAttributeKey:SJFLAttributeKeyBottom].target;
         CGFloat subMaxY = CGRectGetMaxY(sub.frame) - bottom.offset;
         if ( subMaxY > maxY ) maxY = subMaxY;
     }
@@ -356,7 +275,7 @@ NSMutableSet<UIView *> *SJFLGetElementsRelatedViews(NSArray<SJFLLayoutElement *>
 }
 
 void SJFLRefreshLayoutsForRelatedView(UIView *view) {
-    NSMutableSet *set = SJFLGetElementsRelatedViews(view.FL_elements);
+    NSMutableSet *set = SJFLGetElementsRelatedViews(view.FL_elements.allValues);
     if ( view.superview ) [set addObject:view.superview];
 
     for ( UIView *view in set ) {

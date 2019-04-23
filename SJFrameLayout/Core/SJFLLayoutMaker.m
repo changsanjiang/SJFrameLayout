@@ -66,9 +66,9 @@ RETURN_FL_MAKER_LAYOUT(centerY, SJFLAttributeCenterY);
 RETURN_FL_MAKER_LAYOUT_MASK(center, SJFLAttributeMaskCenter);
 
 - (void)install {
-    NSMutableArray<SJFLLayoutElement *> *m = SJFLCreateElementsForAttributeUnits(_view);
+    NSMutableDictionary<SJFLAttributeKey, SJFLLayoutElement *> *m = SJFLCreateElementsForAttributeUnits(_view);
     SJFLAddOrRemoveFittingSizeUnitsIfNeeded(_view, m);
-    [_view FL_addElementsFromArray:m];
+    _view.FL_elements = m;
     [_view FL_resetAttributeUnits];
     SJFLAddObserverToRelatedViews(_view);
     
@@ -81,8 +81,9 @@ RETURN_FL_MAKER_LAYOUT_MASK(center, SJFLAttributeMaskCenter);
 #endif
 }
 
-UIKIT_STATIC_INLINE NSMutableArray<SJFLLayoutElement *> *SJFLCreateElementsForAttributeUnits(UIView *view) {
-    NSMutableArray<SJFLLayoutElement *> *m = [NSMutableArray arrayWithCapacity:8];
+UIKIT_STATIC_INLINE
+NSMutableDictionary<SJFLAttributeKey, SJFLLayoutElement *> *SJFLCreateElementsForAttributeUnits(UIView *view) {
+    NSMutableDictionary<SJFLAttributeKey, SJFLLayoutElement *> *m = [NSMutableDictionary dictionary];
     SJFLLayoutAttributeUnit *_Nullable top = [view FL_attributeUnitForAttribute:SJFLAttributeTop];
     SJFLLayoutAttributeUnit *_Nullable left = [view FL_attributeUnitForAttribute:SJFLAttributeLeft];
     SJFLLayoutAttributeUnit *_Nullable bottom = [view FL_attributeUnitForAttribute:SJFLAttributeBottom];
@@ -92,72 +93,62 @@ UIKIT_STATIC_INLINE NSMutableArray<SJFLLayoutElement *> *SJFLCreateElementsForAt
     SJFLLayoutAttributeUnit *_Nullable centerX = [view FL_attributeUnitForAttribute:SJFLAttributeCenterX];
     SJFLLayoutAttributeUnit *_Nullable centerY = [view FL_attributeUnitForAttribute:SJFLAttributeCenterY];
     
-    if ( top != nil ) [m addObject:[[SJFLLayoutElement alloc] initWithTarget:top]];
-    if ( left != nil ) [m addObject:[[SJFLLayoutElement alloc] initWithTarget:left]];
-    if ( bottom != nil ) [m addObject:[[SJFLLayoutElement alloc] initWithTarget:bottom]];
-    if ( right != nil ) [m addObject:[[SJFLLayoutElement alloc] initWithTarget:right]];
-    if ( width != nil ) [m addObject:[[SJFLLayoutElement alloc] initWithTarget:width]];
-    if ( height != nil ) [m addObject:[[SJFLLayoutElement alloc] initWithTarget:height]];
-    if ( centerX != nil ) [m addObject:[[SJFLLayoutElement alloc] initWithTarget:centerX]];
-    if ( centerY != nil ) [m addObject:[[SJFLLayoutElement alloc] initWithTarget:centerY]];
+    if ( top ) m[SJFLAttributeKeyForAttribute(SJFLAttributeTop)] = [[SJFLLayoutElement alloc] initWithTarget:top];
+    if ( left ) m[SJFLAttributeKeyForAttribute(SJFLAttributeLeft)] = [[SJFLLayoutElement alloc] initWithTarget:left];
+    if ( bottom ) m[SJFLAttributeKeyForAttribute(SJFLAttributeBottom)] = [[SJFLLayoutElement alloc] initWithTarget:bottom];
+    if ( right ) m[SJFLAttributeKeyForAttribute(SJFLAttributeRight)] = [[SJFLLayoutElement alloc] initWithTarget:right];
+    if ( width ) m[SJFLAttributeKeyForAttribute(SJFLAttributeWidth)] = [[SJFLLayoutElement alloc] initWithTarget:width];
+    if ( height ) m[SJFLAttributeKeyForAttribute(SJFLAttributeHeight)] = [[SJFLLayoutElement alloc] initWithTarget:height];
+    if ( centerX ) m[SJFLAttributeKeyForAttribute(SJFLAttributeCenterX)] = [[SJFLLayoutElement alloc] initWithTarget:centerX];
+    if ( centerY ) m[SJFLAttributeKeyForAttribute(SJFLAttributeCenterY)] = [[SJFLLayoutElement alloc] initWithTarget:centerY];
     return m;
 }
 
-UIKIT_STATIC_INLINE NSArray<SJFLLayoutElement *> *SJFLAddOrRemoveFittingSizeUnitsIfNeeded(UIView *view, NSMutableArray<SJFLLayoutElement *> *m) {
-    SJFLLayoutElement *_Nullable top = SJFLGetElement(m, SJFLAttributeTop, 0);
-    SJFLLayoutElement *_Nullable bottom = SJFLGetElement(m, SJFLAttributeBottom, 0);
-    SJFLLayoutElement *_Nullable height = SJFLGetElement(m, SJFLAttributeHeight, 0);
 
-    SJFLLayoutElement *_Nullable left = SJFLGetElement(m, SJFLAttributeLeft, 0);
-    SJFLLayoutElement *_Nullable right = SJFLGetElement(m, SJFLAttributeRight, 0);
-    SJFLLayoutElement *_Nullable width = SJFLGetElement(m, SJFLAttributeWidth, 0);
+UIKIT_STATIC_INLINE NSMutableDictionary<SJFLAttributeKey, SJFLLayoutElement *> *
+SJFLAddOrRemoveFittingSizeUnitsIfNeeded(UIView *view, NSMutableDictionary<SJFLAttributeKey, SJFLLayoutElement *> *m) {
+    SJFLLayoutElement *_Nullable top = m[SJFLAttributeKeyTop];
+    SJFLLayoutElement *_Nullable bottom = m[SJFLAttributeKeyBottom];
+    SJFLLayoutElement *_Nullable height = m[SJFLAttributeKeyHeight];
+
+    SJFLLayoutElement *_Nullable left = m[SJFLAttributeKeyLeft];
+    SJFLLayoutElement *_Nullable right = m[SJFLAttributeKeyRight];
+    SJFLLayoutElement *_Nullable width = m[SJFLAttributeKeyWidth];
     
-    // Added FittingSize units
-    // required
-    // optional
-    NSInteger fit_width_index = SJFLGetIndex(m, SJFLAttributeWidth, 1);
-    if ( (width != nil) || (left != nil && right != nil) ) {
-        if ( fit_width_index != NSNotFound ) [m removeObjectAtIndex:fit_width_index];
-    }
+    // - FittingSize units
+    
+    if ( width != nil || (left != nil && right != nil) )
+    { /* nothing */ }
     else {
-        if ( fit_width_index == NSNotFound ) {
-            // no - width
-            SJFLLayoutAttributeUnit *widthUnit = [[SJFLLayoutAttributeUnit alloc] initWithView:view attribute:SJFLAttributeWidth];
-            widthUnit->priority = SJFLPriorityFittingSize;
-            SJFLLayoutElement *widthElem = [[SJFLLayoutElement alloc] initWithTarget:widthUnit];
-            [m addObject:widthElem]; // 当视图本身没有width条件时, 才会添加
-        }
+        // no - width
+        SJFLLayoutAttributeUnit *widthUnit = [[SJFLLayoutAttributeUnit alloc] initWithView:view attribute:SJFLAttributeWidth];
+        widthUnit->priority = SJFLPriorityFittingSize;
+        // Will be added when the view itself has no width condition
+        m[SJFLAttributeKeyWidth] = [[SJFLLayoutElement alloc] initWithTarget:widthUnit];
     }
 
-    // height
-    NSInteger fit_height_index = SJFLGetIndex(m, SJFLAttributeHeight, 1);
-    if ( height != nil || (top != nil && bottom != nil) ) {
-        if ( fit_height_index != NSNotFound ) [m removeObjectAtIndex:fit_height_index];
-    }
+    if ( height != nil || (top != nil && bottom != nil) )
+    { /* nothing */ }
     else {
-        if ( fit_height_index == NSNotFound ) {
-            // no - height
-            SJFLLayoutAttributeUnit *heightUnit = [[SJFLLayoutAttributeUnit alloc] initWithView:view attribute:SJFLAttributeHeight];
-            heightUnit->priority = SJFLPriorityFittingSize;
-            SJFLLayoutElement *heightElem = [[SJFLLayoutElement alloc] initWithTarget:heightUnit];
-            [m addObject:heightElem]; // 当视图本身没有height条件时, 才会添加
-        }
+        // no - width
+        SJFLLayoutAttributeUnit *heightUnit = [[SJFLLayoutAttributeUnit alloc] initWithView:view attribute:SJFLAttributeHeight];
+        heightUnit->priority = SJFLPriorityFittingSize;
+        
+        // Will be added when the view itself has no height condition
+        m[SJFLAttributeKeyHeight] = [[SJFLLayoutElement alloc] initWithTarget:heightUnit];
     }
-    
     return m;
 }
 
 // - update
 
 - (void)update {
-    NSMutableArray<SJFLLayoutElement *> *m = SJFLCreateElementsForAttributeUnits(_view);
-    for ( SJFLLayoutElement *ele in m ) {
-        [_view FL_replaceElementForAttribute:ele.tar_attr withElement:ele];
-    }
-    NSMutableArray<SJFLLayoutElement *> *now = [[_view FL_elements]/* 上面的replace会创建此数组, 所以必定有值 */ mutableCopy];
-    SJFLAddOrRemoveFittingSizeUnitsIfNeeded(_view, now);
-    [_view FL_removeAllElements];
-    [_view FL_addElementsFromArray:now];
+    NSMutableDictionary<SJFLAttributeKey, SJFLLayoutElement *> *m = _view.FL_elements?:@{}.mutableCopy;
+    NSMutableDictionary<SJFLAttributeKey, SJFLLayoutElement *> *update = SJFLCreateElementsForAttributeUnits(_view);
+    [m setDictionary:update];
+    
+    SJFLAddOrRemoveFittingSizeUnitsIfNeeded(_view, m);
+    _view.FL_elements = m;
     [_view FL_resetAttributeUnits];
     SJFLAddObserverToRelatedViews(_view);
     SJFLRefreshLayoutsForRelatedView(_view);
@@ -166,14 +157,14 @@ UIKIT_STATIC_INLINE NSArray<SJFLLayoutElement *> *SJFLAddOrRemoveFittingSizeUnit
 UIKIT_STATIC_INLINE
 void SJFLRemoveObserverFromRelatedViews(UIView *view) {
     [view.superview FL_removeObserver:view];
-    for ( UIView *dependecy in SJFLGetElementsRelatedViews([view FL_elements]) ) {
+    for ( UIView *dependecy in SJFLGetElementsRelatedViews([view FL_elements].allValues) ) {
         [dependecy FL_removeObserver:view];
     }
 }
 
 void SJFLAddObserverToRelatedViews(UIView *view) {
     [view.superview FL_addObserver:view];
-    for ( UIView *dependency in SJFLGetElementsRelatedViews([view FL_elements]) ) {
+    for ( UIView *dependency in SJFLGetElementsRelatedViews([view FL_elements].allValues) ) {
         [dependency FL_addObserver:view];
     }
 }

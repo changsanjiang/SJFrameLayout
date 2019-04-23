@@ -72,7 +72,7 @@ SJFLSwizzleMethod(Class cls, SEL originalSelector, SEL swizzledSelector) {
     [SJFLGetObserversContainerIfExists(self) removeObjectForKey:num];
 }
 
-static void *FL_kContainer;
+static void *FL_kContainer = &FL_kContainer;
 UIKIT_STATIC_INLINE NSMutableDictionary<NSNumber *, SJFLDependencyObserveTarget *> *_Nullable
 SJFLGetObserversContainerIfExists(UIView *view) {
     return objc_getAssociatedObject(view, FL_kContainer);
