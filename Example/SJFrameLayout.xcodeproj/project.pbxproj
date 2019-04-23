@@ -33,6 +33,7 @@
 		A6D0D300226F598900BB35D1 /* SJHomeTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = A6D0D2FF226F598900BB35D1 /* SJHomeTableViewCell.m */; };
 		A6D0D303226F5A9600BB35D1 /* SJDemo1ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = A6D0D302226F5A9600BB35D1 /* SJDemo1ViewController.m */; };
 		A6D0D306226F5B2300BB35D1 /* SJDemoItem.m in Sources */ = {isa = PBXBuildFile; fileRef = A6D0D305226F5B2300BB35D1 /* SJDemoItem.m */; };
+		A6D0D30B226F737500BB35D1 /* SJDemo1ViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = A6D0D30A226F737500BB35D1 /* SJDemo1ViewController.xib */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -90,6 +91,7 @@
 		A6D0D302226F5A9600BB35D1 /* SJDemo1ViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SJDemo1ViewController.m; sourceTree = "<group>"; };
 		A6D0D304226F5B2300BB35D1 /* SJDemoItem.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SJDemoItem.h; sourceTree = "<group>"; };
 		A6D0D305226F5B2300BB35D1 /* SJDemoItem.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SJDemoItem.m; sourceTree = "<group>"; };
+		A6D0D30A226F737500BB35D1 /* SJDemo1ViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = SJDemo1ViewController.xib; sourceTree = "<group>"; };
 		B090299FFF75AF3F6AA5C5DA /* SJFrameLayout.podspec */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = SJFrameLayout.podspec; path = ../SJFrameLayout.podspec; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.ruby; };
 		B4ABB5678BCD3374B1DD972B /* Pods-SJFrameLayout_Example.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SJFrameLayout_Example.debug.xcconfig"; path = "Target Support Files/Pods-SJFrameLayout_Example/Pods-SJFrameLayout_Example.debug.xcconfig"; sourceTree = "<group>"; };
 		C5412B85AD894E7947A0460E /* LICENSE */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = LICENSE; path = ../LICENSE; sourceTree = "<group>"; };
@@ -256,6 +258,7 @@
 			children = (
 				A6D0D301226F5A9600BB35D1 /* SJDemo1ViewController.h */,
 				A6D0D302226F5A9600BB35D1 /* SJDemo1ViewController.m */,
+				A6D0D30A226F737500BB35D1 /* SJDemo1ViewController.xib */,
 			);
 			path = Test1;
 			sourceTree = "<group>";
@@ -358,6 +361,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				873B8AEB1B1F5CCA007FD442 /* Main.storyboard in Resources */,
+				A6D0D30B226F737500BB35D1 /* SJDemo1ViewController.xib in Resources */,
 				71719F9F1E33DC2100824A3D /* LaunchScreen.storyboard in Resources */,
 				6003F5A9195388D20070C39A /* Images.xcassets in Resources */,
 				6003F598195388D20070C39A /* InfoPlist.strings in Resources */,

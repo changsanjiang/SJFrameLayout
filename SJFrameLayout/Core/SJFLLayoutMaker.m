@@ -67,7 +67,7 @@ RETURN_FL_MAKER_LAYOUT_MASK(center, SJFLLayoutAttributeMaskCenter);
 
 - (void)install {
     NSMutableDictionary<SJFLLayoutAttributeKey, SJFLLayoutElement *> *m = SJFLCreateElementsForAttributeUnits(_view);
-    SJFLAddOrRemoveFittingSizeUnitsIfNeeded(_view, m);
+    SJFLAddFittingSizeUnitsIfNeeded(_view, m);
     _view.FL_elements = m;
     SJFLAddObserverToRelatedViews(_view);
     [_view FL_resetAttributeUnits];
@@ -106,7 +106,7 @@ NSMutableDictionary<SJFLLayoutAttributeKey, SJFLLayoutElement *> *SJFLCreateElem
 
 
 UIKIT_STATIC_INLINE NSMutableDictionary<SJFLLayoutAttributeKey, SJFLLayoutElement *> *
-SJFLAddOrRemoveFittingSizeUnitsIfNeeded(UIView *view, NSMutableDictionary<SJFLLayoutAttributeKey, SJFLLayoutElement *> *m) {
+SJFLAddFittingSizeUnitsIfNeeded(UIView *view, NSMutableDictionary<SJFLLayoutAttributeKey, SJFLLayoutElement *> *m) {
     SJFLLayoutElement *_Nullable top = m[SJFLLayoutAttributeKeyTop];
     SJFLLayoutElement *_Nullable bottom = m[SJFLLayoutAttributeKeyBottom];
     SJFLLayoutElement *_Nullable height = m[SJFLLayoutAttributeKeyHeight];
@@ -130,7 +130,7 @@ SJFLAddOrRemoveFittingSizeUnitsIfNeeded(UIView *view, NSMutableDictionary<SJFLLa
     if ( height != nil || (top != nil && bottom != nil) )
     { /* nothing */ }
     else {
-        // no - width
+        // no - height
         SJFLLayoutAttributeUnit *heightUnit = [[SJFLLayoutAttributeUnit alloc] initWithView:view attribute:SJFLLayoutAttributeHeight];
         heightUnit->priority = SJFLPriorityFittingSize;
         
@@ -147,7 +147,7 @@ SJFLAddOrRemoveFittingSizeUnitsIfNeeded(UIView *view, NSMutableDictionary<SJFLLa
     NSMutableDictionary<SJFLLayoutAttributeKey, SJFLLayoutElement *> *update = SJFLCreateElementsForAttributeUnits(_view);
     [m setDictionary:update];
     
-    SJFLAddOrRemoveFittingSizeUnitsIfNeeded(_view, m);
+    SJFLAddFittingSizeUnitsIfNeeded(_view, m);
     _view.FL_elements = m;
     SJFLAddObserverToRelatedViews(_view);
     SJFLRefreshLayoutsForRelatedView(_view);
@@ -156,6 +156,7 @@ SJFLAddOrRemoveFittingSizeUnitsIfNeeded(UIView *view, NSMutableDictionary<SJFLLa
 
 UIKIT_STATIC_INLINE
 void SJFLRemoveObserverFromRelatedViews(UIView *view) {
+    [view FL_removeObserver:view];
     [view.superview FL_removeObserver:view];
     for ( UIView *dependecy in SJFLGetElementsRelatedViews([view FL_elements].allValues) ) {
         [dependecy FL_removeObserver:view];
@@ -163,6 +164,7 @@ void SJFLRemoveObserverFromRelatedViews(UIView *view) {
 }
 
 void SJFLAddObserverToRelatedViews(UIView *view) {
+    [view FL_addObserver:view];
     [view.superview FL_addObserver:view];
     for ( UIView *dependency in SJFLGetElementsRelatedViews([view FL_elements].allValues) ) {
         [dependency FL_addObserver:view];
