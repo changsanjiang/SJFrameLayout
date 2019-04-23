@@ -29,5 +29,8 @@ SJFLLayoutElement *_Nullable SJFLGetElement(NSArray<SJFLLayoutElement *> *eles, 
 
 UIKIT_EXTERN
 NSInteger SJFLGetIndex(NSArray<SJFLLayoutElement *> *m, SJFLAttribute attribute, char priority);
+
+UIKIT_EXTERN
+void SJFLRefreshLayoutsForRelatedView(UIView *view);
 @end
 NS_ASSUME_NONNULL_END

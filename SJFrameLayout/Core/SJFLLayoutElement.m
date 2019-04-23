@@ -169,7 +169,7 @@ NS_ASSUME_NONNULL_BEGIN
     return _dep_view;
 }
 
-- (void)needRefreshLayout {
+- (void)refreshLayoutIfNeeded {
     if ( !_dep_view || !_tar_view )
         return;
     [self installValueToTargetIfNeeded];

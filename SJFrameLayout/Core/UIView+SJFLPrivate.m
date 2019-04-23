@@ -56,7 +56,7 @@ static Class FL_UIButtonClass;
     for ( UIView *subview in self.subviews ) {
         for ( SJFLLayoutElement *ele in SJFLGetElementsContainerIfExists(subview) ) {
             if ( ele.tar_superview == self || ele.dep_view == self )
-                [ele needRefreshLayout];
+                [ele refreshLayoutIfNeeded];
         }
     }
     
@@ -232,7 +232,9 @@ UIKIT_STATIC_INLINE void SJFLLabelLayoutFixInnerSize(UILabel *label, SJFLAttribu
         }
     }
     
-    if ( needUpdate ) [label.superview layoutSubviews];
+    if ( needUpdate ) {
+        SJFLRefreshLayoutsForRelatedView(label);
+    }
 }
 
 UIKIT_STATIC_INLINE void SJFLButtonLayoutFixInnerSize(UIButton *button, SJFLAttributeUnit *_Nullable fit_width, SJFLAttributeUnit *_Nullable fit_height) {
@@ -270,7 +272,9 @@ UIKIT_STATIC_INLINE void SJFLButtonLayoutFixInnerSize(UIButton *button, SJFLAttr
         }
     }
     
-    if ( needUpdate ) [button.superview layoutSubviews];
+    if ( needUpdate ) {
+        SJFLRefreshLayoutsForRelatedView(button);
+    }
 }
 
 UIKIT_STATIC_INLINE void SJFLViewLayoutFixInnerSize(UIView *view, SJFLAttributeUnit *_Nullable fit_width, SJFLAttributeUnit *_Nullable fit_height) {
@@ -301,7 +305,7 @@ UIKIT_STATIC_INLINE void SJFLViewLayoutFixInnerSize(UIView *view, SJFLAttributeU
     }
     
     if ( needRefresh ) {
-        [view.superview layoutSubviews];
+        SJFLRefreshLayoutsForRelatedView(view);
     }
     
 //    NSLog(@"maxX: %lf, maxY: %lf", maxX, maxY);
@@ -309,6 +313,20 @@ UIKIT_STATIC_INLINE void SJFLViewLayoutFixInnerSize(UIView *view, SJFLAttributeU
 
 UIKIT_STATIC_INLINE BOOL SJFLFloatCompare(CGFloat value1, CGFloat value2) {
     return floor(value1 + 0.5) == floor(value2 + 0.5);
+}
+
+void SJFLRefreshLayoutsForRelatedView(UIView *view) {
+    NSMutableSet *set = [NSMutableSet new];
+    if ( view.superview ) [set addObject:view.superview];
+    NSArray<SJFLLayoutElement *> *m = [view FL_elements];
+    for ( SJFLLayoutElement *ele in m ) {
+        UIView *dep_view = ele.dep_view;
+        if ( dep_view ) [set addObject:ele.dep_view];
+    }
+    
+    for ( UIView *view in set ) {
+        [view layoutSubviews];
+    }
 }
 @end
 

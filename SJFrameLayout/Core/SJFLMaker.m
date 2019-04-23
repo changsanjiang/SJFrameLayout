@@ -82,12 +82,15 @@ RETURN_FL_MAKER_LAYOUT_MASK(center, SJFLAttributeMaskCenter);
 
 - (void)update {
     NSMutableArray<SJFLLayoutElement *> *m = SJFLCreateElementsForAttributeUnits(_view);
-    SJFLAddOrRemoveFittingSizeUnitsIfNeeded(_view, m);
     for ( SJFLLayoutElement *ele in m ) {
         [_view FL_replaceElementForAttribute:ele.tar_attr withElement:ele];
     }
+    NSMutableArray<SJFLLayoutElement *> *now = [[_view FL_elements]/* 上面的replace会创建此数组, 所以必定有值 */ mutableCopy];
+    SJFLAddOrRemoveFittingSizeUnitsIfNeeded(_view, now);
+    [_view FL_removeAllElements];
+    [_view FL_addElementsFromArray:now];
     [_view FL_resetAttributeUnits];
-    [_view.superview layoutSubviews];
+    SJFLRefreshLayoutsForRelatedView(_view);
 }
 
 UIKIT_STATIC_INLINE NSMutableArray<SJFLLayoutElement *> *SJFLCreateElementsForAttributeUnits(UIView *view) {
