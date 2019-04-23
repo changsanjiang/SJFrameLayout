@@ -171,7 +171,7 @@ NS_ASSUME_NONNULL_BEGIN
     return _dep_view;
 }
 
-- (void)refreshLayoutIfNeeded { 
+- (void)refreshLayoutIfNeeded {
     UIView *_Nullable view = _tar_view;
     if ( !view ) {
         return;
