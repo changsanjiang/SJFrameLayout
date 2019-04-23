@@ -113,7 +113,6 @@ NS_ASSUME_NONNULL_BEGIN
     __weak UIView *_Nullable _tar_superview;
     __weak UIView *_Nullable _tar_view;
     SJFLAttribute _tar_attr;
-    SJFLAttributeKey _key_tar_attr;
 
     __weak UIView *_Nullable _dep_view;
     SJFLAttribute _dep_attr;
@@ -128,8 +127,7 @@ NS_ASSUME_NONNULL_BEGIN
     _target = target;
     _tar_view = target.view;
     _tar_superview = _tar_view.superview;
-    _tar_attr = target.attribute;
-    _key_tar_attr = SJFLAttributeKeyForAttribute(_tar_attr);
+    _tar_attr = target.attribute; 
     
     SJFLViewFrameAttribute *_Nullable dependency = target.equalToViewAttribute;
     if ( !dependency ) {
@@ -173,13 +171,7 @@ NS_ASSUME_NONNULL_BEGIN
     return _dep_view;
 }
 
-- (void)refreshLayoutIfNeeded {
-    if ( !_dep_view || !_tar_view )
-        return;
-    [self installValueToTargetIfNeeded];
-}
-
-- (void)installValueToTargetIfNeeded {
+- (void)refreshLayoutIfNeeded { 
     UIView *_Nullable view = _tar_view;
     if ( !view ) {
         return;
@@ -188,7 +180,7 @@ NS_ASSUME_NONNULL_BEGIN
     if ( !SJFLViewAttributeCanSettable(view, _tar_attr) ) {
         return;
     }
-
+    
     CGFloat newValue = self.value;
     
     SJFLLayoutSetInfo *info = [view FL_info];

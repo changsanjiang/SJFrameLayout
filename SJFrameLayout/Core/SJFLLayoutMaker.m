@@ -93,14 +93,14 @@ NSMutableDictionary<SJFLAttributeKey, SJFLLayoutElement *> *SJFLCreateElementsFo
     SJFLLayoutAttributeUnit *_Nullable centerX = [view FL_attributeUnitForAttribute:SJFLAttributeCenterX];
     SJFLLayoutAttributeUnit *_Nullable centerY = [view FL_attributeUnitForAttribute:SJFLAttributeCenterY];
     
-    if ( top ) m[SJFLAttributeKeyForAttribute(SJFLAttributeTop)] = [[SJFLLayoutElement alloc] initWithTarget:top];
-    if ( left ) m[SJFLAttributeKeyForAttribute(SJFLAttributeLeft)] = [[SJFLLayoutElement alloc] initWithTarget:left];
-    if ( bottom ) m[SJFLAttributeKeyForAttribute(SJFLAttributeBottom)] = [[SJFLLayoutElement alloc] initWithTarget:bottom];
-    if ( right ) m[SJFLAttributeKeyForAttribute(SJFLAttributeRight)] = [[SJFLLayoutElement alloc] initWithTarget:right];
-    if ( width ) m[SJFLAttributeKeyForAttribute(SJFLAttributeWidth)] = [[SJFLLayoutElement alloc] initWithTarget:width];
-    if ( height ) m[SJFLAttributeKeyForAttribute(SJFLAttributeHeight)] = [[SJFLLayoutElement alloc] initWithTarget:height];
-    if ( centerX ) m[SJFLAttributeKeyForAttribute(SJFLAttributeCenterX)] = [[SJFLLayoutElement alloc] initWithTarget:centerX];
-    if ( centerY ) m[SJFLAttributeKeyForAttribute(SJFLAttributeCenterY)] = [[SJFLLayoutElement alloc] initWithTarget:centerY];
+    if ( top ) m[SJFLAttributeKeyTop] = [[SJFLLayoutElement alloc] initWithTarget:top];
+    if ( left ) m[SJFLAttributeKeyLeft] = [[SJFLLayoutElement alloc] initWithTarget:left];
+    if ( bottom ) m[SJFLAttributeKeyBottom] = [[SJFLLayoutElement alloc] initWithTarget:bottom];
+    if ( right ) m[SJFLAttributeKeyRight] = [[SJFLLayoutElement alloc] initWithTarget:right];
+    if ( width ) m[SJFLAttributeKeyWidth] = [[SJFLLayoutElement alloc] initWithTarget:width];
+    if ( height ) m[SJFLAttributeKeyHeight] = [[SJFLLayoutElement alloc] initWithTarget:height];
+    if ( centerX ) m[SJFLAttributeKeyCenterX] = [[SJFLLayoutElement alloc] initWithTarget:centerX];
+    if ( centerY ) m[SJFLAttributeKeyCenterY] = [[SJFLLayoutElement alloc] initWithTarget:centerY];
     return m;
 }
 
