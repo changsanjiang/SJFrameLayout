@@ -6,7 +6,7 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "SJFLAttributesDefines.h"
+#import "SJFLFrameAttributesDefines.h"
 
 NS_ASSUME_NONNULL_BEGIN
 @interface SJFLFrameAttributeUnit : NSObject

@@ -7,6 +7,7 @@
 
 #import <UIKit/UIKit.h>
 #import "SJFLFrameAttributeUnit.h"
+#import "SJFLLayoutAttributesDefines.h"
 
 NS_ASSUME_NONNULL_BEGIN
 @interface SJFLLayoutAttributeUnit : NSObject {

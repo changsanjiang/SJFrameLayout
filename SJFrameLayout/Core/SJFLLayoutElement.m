@@ -239,7 +239,6 @@ NS_ASSUME_NONNULL_BEGIN
     if ( dep_attr != SJFLFrameAttributeNone ) {
         SJFLLayoutAttribute tar_attr = _tar_attr;
         UIView *dep_view = _dep_view;
-        UIView *tar_view = _tar_view;
         CGRect dep_frame = dep_view.frame;
         if ( tar_attr == SJFLLayoutAttributeWidth || tar_attr == SJFLLayoutAttributeHeight ) {
             switch ( dep_attr ) {
@@ -270,8 +269,9 @@ NS_ASSUME_NONNULL_BEGIN
             
             UIEdgeInsets safeAreaInsets = UIEdgeInsetsZero;
             if (@available(iOS 11.0, *)) {
-                safeAreaInsets = _dep_view.safeAreaInsets;
+                safeAreaInsets = dep_view.safeAreaInsets;
             }
+            UIView *tar_superview = _tar_superview;
             CGPoint point = CGPointZero;
             if ( SJFLVerticalLayoutContains(tar_attr) ) {
                 switch ( dep_attr ) {
@@ -293,7 +293,7 @@ NS_ASSUME_NONNULL_BEGIN
                     default:break;
                 }
                 
-                value = [dep_view convertPoint:point toView:tar_view.superview].y;
+                value = [dep_view convertPoint:point toView:tar_superview].y;
             }
             else {
                 switch ( dep_attr ) {
@@ -314,7 +314,7 @@ NS_ASSUME_NONNULL_BEGIN
                         break;
                     default:break;
                 }
-                value = [dep_view convertPoint:point toView:tar_view.superview].x;
+                value = [dep_view convertPoint:point toView:tar_superview].x;
             }
         }
     }
@@ -325,7 +325,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 // - update -
 
-UIKIT_STATIC_INLINE void SJFLViewUpdateRelatedLayoutIfNeeded(UIView *view, SJFLLayoutAttribute attr) {
+UIKIT_STATIC_INLINE void
+SJFLViewUpdateRelatedLayoutIfNeeded(UIView *view, SJFLLayoutAttribute attr) {
     NSDictionary<SJFLLayoutAttributeKey, SJFLLayoutElement *> *m = [view FL_elements];
     switch ( attr ) {
         case SJFLLayoutAttributeNone:
