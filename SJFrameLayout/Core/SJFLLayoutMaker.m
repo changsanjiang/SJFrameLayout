@@ -29,6 +29,7 @@ NS_ASSUME_NONNULL_BEGIN
     self = [super init];
     if ( !self ) return nil;
     _view = view;
+    SJFLRemoveObserverFromRelatedViews(view);
     return self;
 } 
 
@@ -69,6 +70,7 @@ RETURN_FL_MAKER_LAYOUT_MASK(center, SJFLAttributeMaskCenter);
     SJFLAddOrRemoveFittingSizeUnitsIfNeeded(_view, m);
     [_view FL_addElementsFromArray:m];
     [_view FL_resetAttributeUnits];
+    SJFLAddObserverToRelatedViews(_view);
     
 #ifdef DEBUG
     for ( SJFLLayoutElement *ele in m ) {
@@ -77,19 +79,6 @@ RETURN_FL_MAKER_LAYOUT_MASK(center, SJFLAttributeMaskCenter);
     printf("\n");
     printf("\n");
 #endif
-}
-
-- (void)update {
-    NSMutableArray<SJFLLayoutElement *> *m = SJFLCreateElementsForAttributeUnits(_view);
-    for ( SJFLLayoutElement *ele in m ) {
-        [_view FL_replaceElementForAttribute:ele.tar_attr withElement:ele];
-    }
-    NSMutableArray<SJFLLayoutElement *> *now = [[_view FL_elements]/* 上面的replace会创建此数组, 所以必定有值 */ mutableCopy];
-    SJFLAddOrRemoveFittingSizeUnitsIfNeeded(_view, now);
-    [_view FL_removeAllElements];
-    [_view FL_addElementsFromArray:now];
-    [_view FL_resetAttributeUnits];
-    SJFLRefreshLayoutsForRelatedView(_view);
 }
 
 UIKIT_STATIC_INLINE NSMutableArray<SJFLLayoutElement *> *SJFLCreateElementsForAttributeUnits(UIView *view) {
@@ -156,6 +145,37 @@ UIKIT_STATIC_INLINE NSArray<SJFLLayoutElement *> *SJFLAddOrRemoveFittingSizeUnit
     }
     
     return m;
+}
+
+// - update
+
+- (void)update {
+    NSMutableArray<SJFLLayoutElement *> *m = SJFLCreateElementsForAttributeUnits(_view);
+    for ( SJFLLayoutElement *ele in m ) {
+        [_view FL_replaceElementForAttribute:ele.tar_attr withElement:ele];
+    }
+    NSMutableArray<SJFLLayoutElement *> *now = [[_view FL_elements]/* 上面的replace会创建此数组, 所以必定有值 */ mutableCopy];
+    SJFLAddOrRemoveFittingSizeUnitsIfNeeded(_view, now);
+    [_view FL_removeAllElements];
+    [_view FL_addElementsFromArray:now];
+    [_view FL_resetAttributeUnits];
+    SJFLAddObserverToRelatedViews(_view);
+    SJFLRefreshLayoutsForRelatedView(_view);
+}
+
+UIKIT_STATIC_INLINE
+void SJFLRemoveObserverFromRelatedViews(UIView *view) {
+    [view.superview FL_removeObserver:view];
+    for ( UIView *dependecy in SJFLGetElementsRelatedViews([view FL_elements]) ) {
+        [dependecy FL_removeObserver:view];
+    }
+}
+
+void SJFLAddObserverToRelatedViews(UIView *view) {
+    [view.superview FL_addObserver:view];
+    for ( UIView *dependency in SJFLGetElementsRelatedViews([view FL_elements]) ) {
+        [dependency FL_addObserver:view];
+    }
 }
 @end
 NS_ASSUME_NONNULL_END

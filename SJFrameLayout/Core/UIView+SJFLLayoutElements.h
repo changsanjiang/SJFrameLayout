@@ -7,10 +7,11 @@
 
 #import <UIKit/UIKit.h>
 #import "SJFLLayoutAttributeUnit.h"
+#import "UIView+SJFLPrivate.h"
 @class SJFLLayoutElement;
 
 NS_ASSUME_NONNULL_BEGIN
-@interface UIView (SJFLLayoutElements)
+@interface UIView (SJFLLayoutElements)<SJFLDependencyViewDidLayoutSubviewsProtocol>
 - (SJFLLayoutElement *_Nullable)FL_elementForAttribute:(SJFLAttribute)attribute;
 - (SJFLLayoutElement *_Nullable)FL_elementForAttribute:(SJFLAttribute)attribute priority:(char)priority; // width & height
 
@@ -29,6 +30,9 @@ SJFLLayoutElement *_Nullable SJFLGetElement(NSArray<SJFLLayoutElement *> *eles, 
 
 UIKIT_EXTERN
 NSInteger SJFLGetIndex(NSArray<SJFLLayoutElement *> *m, SJFLAttribute attribute, char priority);
+
+UIKIT_EXTERN
+NSMutableSet<UIView *> *SJFLGetElementsRelatedViews(NSArray<SJFLLayoutElement *> *eles);
 
 UIKIT_EXTERN
 void SJFLRefreshLayoutsForRelatedView(UIView *view);

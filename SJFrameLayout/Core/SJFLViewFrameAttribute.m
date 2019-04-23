@@ -9,7 +9,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 @implementation SJFLViewFrameAttribute
-- (instancetype)initWithView:(__weak UIView *)view attribute:(SJFLAttribute)attribute {
+- (instancetype)initWithView:(UIView *)view attribute:(SJFLAttribute)attribute {
     self = [super init];
     if ( self ) {
         _view = view;

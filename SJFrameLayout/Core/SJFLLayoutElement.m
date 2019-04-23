@@ -153,10 +153,11 @@ NS_ASSUME_NONNULL_BEGIN
     _dep_attr = dependency.attribute;
     return self;
 }
-
+#ifdef DEBUG
 - (NSString *)description {
     return [NSString stringWithFormat:@"[_tar_view:%p,\t _tar_attr:%s,\t _dep_view:%p,\t _dep_attr:%s,\t _priority:%d]", _tar_view, [SJFLLayoutAttributeUnit debug_attributeToString:_tar_attr].UTF8String, _dep_view, [SJFLLayoutAttributeUnit debug_attributeToString:_dep_attr].UTF8String, _target->priority];
 }
+#endif
 
 - (UIView *_Nullable)tar_superview {
     return _tar_superview;

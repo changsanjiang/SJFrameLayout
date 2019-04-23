@@ -10,7 +10,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 @interface SJFLViewFrameAttribute : NSObject
-- (instancetype)initWithView:(__weak UIView *)view attribute:(SJFLAttribute)attribute;
+- (instancetype)initWithView:(UIView *)view attribute:(SJFLAttribute)attribute;
 @property (nonatomic, weak, readonly, nullable) UIView *view;
 @property (nonatomic, readonly) SJFLAttribute attribute;
 - (instancetype)init NS_UNAVAILABLE;

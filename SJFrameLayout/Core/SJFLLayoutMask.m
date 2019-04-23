@@ -15,14 +15,14 @@ NS_ASSUME_NONNULL_BEGIN
     __weak UIView *_view;
 }
 
-- (instancetype)initWithView:(__weak UIView *)view attributes:(SJFLAttributeMask)attrs {
+- (instancetype)initWithView:(UIView *)view attributes:(SJFLAttributeMask)attrs {
     self = [super init];
     if ( !self ) return nil;
     _view = view;
     _attrs = attrs;
     return self;
 }
-- (instancetype)initWithView:(__weak UIView *)view attribute:(SJFLAttribute)attr {
+- (instancetype)initWithView:(UIView *)view attribute:(SJFLAttribute)attr {
     return [self initWithView:view attributes:1 << attr];
 }
 

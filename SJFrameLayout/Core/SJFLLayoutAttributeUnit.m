@@ -32,7 +32,7 @@ NS_ASSUME_NONNULL_BEGIN
     }
 }
 
-- (instancetype)initWithView:(__weak UIView *)view attribute:(SJFLAttribute)attribute {
+- (instancetype)initWithView:(UIView *)view attribute:(SJFLAttribute)attribute {
     self = [super init];
     if ( !self ) return nil;
     _attribute = attribute;
@@ -83,7 +83,7 @@ NS_ASSUME_NONNULL_BEGIN
                 }
                     break;
                 case SJFLUIEdgeInsetsValue: {
-                    value = offset.edges.bottom;
+                    value = -offset.edges.bottom;
                 }
                     break;
             }
@@ -98,7 +98,7 @@ NS_ASSUME_NONNULL_BEGIN
                 }
                     break;
                 case SJFLUIEdgeInsetsValue: {
-                    value = offset.edges.right;
+                    value = -offset.edges.right;
                 }
                     break;
             }

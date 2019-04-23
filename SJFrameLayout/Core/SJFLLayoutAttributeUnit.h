@@ -32,7 +32,7 @@ NS_ASSUME_NONNULL_BEGIN
         SJFLPriorityFittingSize
     } priority;
 }
-- (instancetype)initWithView:(__weak UIView *)view attribute:(SJFLAttribute)attribute;
+- (instancetype)initWithView:(UIView *)view attribute:(SJFLAttribute)attribute;
 @property (nonatomic, readonly) SJFLAttribute attribute;
 @property (nonatomic, weak, readonly, nullable) UIView *view;
 @property (nonatomic, strong, readonly, nullable) SJFLViewFrameAttribute *equalToViewAttribute;

@@ -16,51 +16,13 @@ NS_ASSUME_NONNULL_BEGIN
 #undef DEBUG
 #endif
 #endif
-UIKIT_STATIC_INLINE void
-SJFLSwizzleMethod(Class cls, SEL originalSelector, SEL swizzledSelector) {
-    Method originalMethod = class_getInstanceMethod(cls, originalSelector);
-    Method swizzledMethod = class_getInstanceMethod(cls, swizzledSelector);
-    
-    BOOL added = class_addMethod(cls, originalSelector, method_getImplementation(swizzledMethod), method_getTypeEncoding(swizzledMethod));
-    if ( added )
-        class_replaceMethod(cls, swizzledSelector, method_getImplementation(originalMethod), method_getTypeEncoding(originalMethod));
-    else
-        method_exchangeImplementations(originalMethod, swizzledMethod);
-}
-
 @implementation UIView (SJFLLayoutElements)
-static Class FL_UILabelClass;
-static Class FL_UIButtonClass;
-
-+ (void)load {
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        FL_UILabelClass = UILabel.class;
-        FL_UIButtonClass = UIButton.class;
-        SEL originalSelector = @selector(layoutSubviews);
-        SEL swizzledSelector = @selector(FL_layoutSubviews);
-        
-        SJFLSwizzleMethod(UIView.class, originalSelector, swizzledSelector);
-    });
-}
-
-- (void)FL_layoutSubviews {
-    [self FL_layoutSubviews];
-    [self FL_refreshLayouts];
-}
-
-- (void)FL_refreshLayouts {
-    if ( self.superview == nil )
-        return;
-    
-    for ( UIView *subview in self.subviews ) {
-        for ( SJFLLayoutElement *ele in SJFLGetElementsContainerIfExists(subview) ) {
-            if ( ele.tar_superview == self || ele.dep_view == self )
-                [ele refreshLayoutIfNeeded];
-        }
+- (void)FL_dependencyViewDidLayoutSubviews:(UIView *)view {
+    for ( SJFLLayoutElement *ele in SJFLGetElementsContainerIfExists(self) ) {
+        [ele refreshLayoutIfNeeded];
     }
     
-    SJFLViewLayoutFixInnerSizeIfNeeded(self);
+    SJFLViewLayoutFixInnerSizeIfNeeded(view);
 }
 
 - (SJFLLayoutElement *_Nullable)FL_elementForAttribute:(SJFLAttribute)attribute {
@@ -166,11 +128,11 @@ UIKIT_STATIC_INLINE void SJFLViewLayoutFixInnerSizeIfNeeded(UIView *view) {
     SJFLLayoutAttributeUnit *_Nullable fit_width = SJFLGetElement(m, SJFLAttributeWidth, SJFLPriorityFittingSize).target;
     SJFLLayoutAttributeUnit *_Nullable fit_height = SJFLGetElement(m, SJFLAttributeHeight, SJFLPriorityFittingSize).target;
     if ( fit_width != nil || fit_height != nil ) {
-        if ( [view isKindOfClass:FL_UILabelClass] ) {
+        if ( [view isKindOfClass:UILabel.class] ) {
             SJFLLabelAdjustBoxIfNeeded((id)view, m);
             SJFLLabelLayoutFixInnerSize((id)view, fit_width, fit_height);
         }
-        else if ( [view isKindOfClass:FL_UIButtonClass] ) {
+        else if ( [view isKindOfClass:UIButton.class] ) {
             SJFLButtonLayoutFixInnerSize((id)view, fit_width, fit_height);
         }
         else {
@@ -319,34 +281,22 @@ UIKIT_STATIC_INLINE BOOL SJFLFloatCompare(CGFloat value1, CGFloat value2) {
     return floor(value1 + 0.5) == floor(value2 + 0.5);
 }
 
-void SJFLRefreshLayoutsForRelatedView(UIView *view) {
+NSMutableSet<UIView *> *SJFLGetElementsRelatedViews(NSArray<SJFLLayoutElement *> *m) {
     NSMutableSet *set = [NSMutableSet new];
-    if ( view.superview ) [set addObject:view.superview];
-    NSArray<SJFLLayoutElement *> *m = [view FL_elements];
     for ( SJFLLayoutElement *ele in m ) {
         UIView *dep_view = ele.dep_view;
         if ( dep_view ) [set addObject:ele.dep_view];
     }
-    
+    return set;
+}
+
+void SJFLRefreshLayoutsForRelatedView(UIView *view) {
+    NSMutableSet *set = SJFLGetElementsRelatedViews(view.FL_elements);
+    if ( view.superview ) [set addObject:view.superview];
+
     for ( UIView *view in set ) {
         [view layoutSubviews];
     }
-}
-@end
-
-@implementation UIButton (SJFLLayoutElements)
-+ (void)load {
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        SEL originalSelector = @selector(layoutSubviews);
-        SEL swizzledSelector = @selector(FL_layoutSubviews_button);
-        SJFLSwizzleMethod(UIButton.class, originalSelector, swizzledSelector);
-    });
-}
-
-- (void)FL_layoutSubviews_button {
-    [self FL_layoutSubviews_button];
-    [self FL_refreshLayouts];
 }
 @end
 NS_ASSUME_NONNULL_END
