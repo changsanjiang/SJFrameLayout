@@ -12,8 +12,8 @@
 
 NS_ASSUME_NONNULL_BEGIN
 @interface UIView (SJFLLayoutElements)<SJFLDependencyViewDidLayoutSubviewsProtocol>
-@property (nonatomic, strong, nullable) NSDictionary<SJFLAttributeKey, SJFLLayoutElement *> *FL_elements;
-- (SJFLLayoutElement *_Nullable)FL_elementForAttributeKey:(SJFLAttributeKey)attributeKey;
+@property (nonatomic, strong, nullable) NSDictionary<SJFLLayoutAttributeKey, SJFLLayoutElement *> *FL_elements;
+- (SJFLLayoutElement *_Nullable)FL_elementForAttributeKey:(SJFLLayoutAttributeKey)attributeKey;
 
 UIKIT_EXTERN
 NSMutableSet<UIView *> *SJFLGetElementsRelatedViews(NSArray<SJFLLayoutElement *> *eles);

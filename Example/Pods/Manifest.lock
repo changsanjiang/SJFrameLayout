@@ -3,14 +3,19 @@ PODS:
   - SJFrameLayout (0.1.0):
     - SJFrameLayout/Core (= 0.1.0)
   - SJFrameLayout/Core (0.1.0)
+  - SJRouter (0.0.11):
+    - SJRouter/Core (= 0.0.11)
+  - SJRouter/Core (0.0.11)
 
 DEPENDENCIES:
   - Masonry
   - SJFrameLayout (from `../`)
+  - SJRouter
 
 SPEC REPOS:
   https://github.com/cocoapods/specs.git:
     - Masonry
+    - SJRouter
 
 EXTERNAL SOURCES:
   SJFrameLayout:
@@ -19,7 +24,8 @@ EXTERNAL SOURCES:
 SPEC CHECKSUMS:
   Masonry: 678fab65091a9290e40e2832a55e7ab731aad201
   SJFrameLayout: 5fdd26af53edd5aca6c6a8cbca112610d5c536c8
+  SJRouter: 62dd20b18a199ca9d251817449b901f9228daad1
 
-PODFILE CHECKSUM: 1acfb86919c387102a56ab71ef81f6e1ac88d049
+PODFILE CHECKSUM: 4804cabc1cad6a0638952ae32357945cfa6240c6
 
 COCOAPODS: 1.7.0.beta.3

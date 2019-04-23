@@ -5,11 +5,11 @@
 //  Created by 畅三江 on 2019/4/23.
 //
 
-#import "SJFLViewFrameAttribute.h"
+#import "SJFLFrameAttributeUnit.h"
 
 NS_ASSUME_NONNULL_BEGIN
-@implementation SJFLViewFrameAttribute
-- (instancetype)initWithView:(UIView *)view attribute:(SJFLAttribute)attribute {
+@implementation SJFLFrameAttributeUnit
+- (instancetype)initWithView:(UIView *)view attribute:(SJFLFrameAttribute)attribute {
     self = [super init];
     if ( self ) {
         _view = view;

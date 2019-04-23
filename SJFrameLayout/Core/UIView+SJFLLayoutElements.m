@@ -18,14 +18,14 @@ NS_ASSUME_NONNULL_BEGIN
 #endif
 @implementation UIView (SJFLLayoutElements)
 static void *kFL_Container = &kFL_Container;
-- (void)setFL_elements:(NSDictionary<SJFLAttributeKey, SJFLLayoutElement *> * _Nullable)FL_elements {
+- (void)setFL_elements:(NSDictionary<SJFLLayoutAttributeKey, SJFLLayoutElement *> * _Nullable)FL_elements {
     objc_setAssociatedObject(self, kFL_Container, [FL_elements mutableCopy], OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
-- (NSDictionary<SJFLAttributeKey, SJFLLayoutElement *> *_Nullable)FL_elements {
+- (NSDictionary<SJFLLayoutAttributeKey, SJFLLayoutElement *> *_Nullable)FL_elements {
     return objc_getAssociatedObject(self, kFL_Container);
 }
 
-- (SJFLLayoutElement *_Nullable)FL_elementForAttributeKey:(SJFLAttributeKey)attributeKey {
+- (SJFLLayoutElement *_Nullable)FL_elementForAttributeKey:(SJFLLayoutAttributeKey)attributeKey {
     return [objc_getAssociatedObject(self, kFL_Container) valueForKey:attributeKey];
 }
 
@@ -45,7 +45,7 @@ static void *kFL_Container = &kFL_Container;
 // fix inner size
 
 UIKIT_STATIC_INLINE void SJFLViewLayoutFixInnerSizeIfNeeded(UIView *view) {
-    NSMutableDictionary<SJFLAttributeKey, SJFLLayoutElement *> *_Nullable m = objc_getAssociatedObject(view, kFL_Container);
+    NSMutableDictionary<SJFLLayoutAttributeKey, SJFLLayoutElement *> *_Nullable m = objc_getAssociatedObject(view, kFL_Container);
     if ( !m )
         return;
     
@@ -53,9 +53,9 @@ UIKIT_STATIC_INLINE void SJFLViewLayoutFixInnerSizeIfNeeded(UIView *view) {
     SJFLLayoutAttributeUnit *_Nullable fit_width = nil;
     SJFLLayoutAttributeUnit *_Nullable fit_height = nil;
     
-    SJFLLayoutAttributeUnit *_Nullable widthElement = m[SJFLAttributeKeyWidth].target;
+    SJFLLayoutAttributeUnit *_Nullable widthElement = m[SJFLLayoutAttributeKeyWidth].target;
     if ( widthElement && widthElement->priority == 1 ) fit_width = widthElement;
-    SJFLLayoutAttributeUnit *_Nullable heightElement = m[SJFLAttributeKeyHeight].target;
+    SJFLLayoutAttributeUnit *_Nullable heightElement = m[SJFLLayoutAttributeKeyHeight].target;
     if ( heightElement && heightElement->priority == 1 ) fit_height = heightElement;
     
     static Class FL_UILabelClass;
@@ -85,13 +85,13 @@ UIKIT_STATIC_INLINE void SJFLViewLayoutFixInnerSizeIfNeeded(UIView *view) {
     }
 }
 
-UIKIT_STATIC_INLINE void SJFLLabelAdjustBoxIfNeeded(UILabel *label, NSMutableDictionary<SJFLAttributeKey, SJFLLayoutElement *> *m ) {
+UIKIT_STATIC_INLINE void SJFLLabelAdjustBoxIfNeeded(UILabel *label, NSMutableDictionary<SJFLLayoutAttributeKey, SJFLLayoutElement *> *m ) {
     CGFloat preferredMaxLayoutWidth = label.preferredMaxLayoutWidth;
     if ( !SJFLFloatCompare(0, preferredMaxLayoutWidth) ) {
-        SJFLLayoutAttributeUnit *_Nullable widthUnit = m[SJFLAttributeKeyWidth].target;
+        SJFLLayoutAttributeUnit *_Nullable widthUnit = m[SJFLLayoutAttributeKeyWidth].target;
         if ( (widthUnit && widthUnit->priority == 1) || !widthUnit ) {
-            widthUnit = [[SJFLLayoutAttributeUnit alloc] initWithView:label attribute:SJFLAttributeWidth];
-            m[SJFLAttributeKeyWidth] = [[SJFLLayoutElement alloc] initWithTarget:widthUnit];
+            widthUnit = [[SJFLLayoutAttributeUnit alloc] initWithView:label attribute:SJFLLayoutAttributeWidth];
+            m[SJFLLayoutAttributeKeyWidth] = [[SJFLLayoutElement alloc] initWithTarget:widthUnit];
         }
         widthUnit->offset_t = SJFLCGFloatValue;
         widthUnit->offset.value = preferredMaxLayoutWidth;
@@ -231,14 +231,14 @@ UIKIT_STATIC_INLINE void SJFLViewLayoutFixInnerSize(UIView *view, SJFLLayoutAttr
     
     CGFloat maxX = 0;
     for ( UIView *sub in view.subviews ) {
-        SJFLLayoutAttributeUnit *_Nullable right = [sub FL_elementForAttributeKey:SJFLAttributeKeyRight].target;;
+        SJFLLayoutAttributeUnit *_Nullable right = [sub FL_elementForAttributeKey:SJFLLayoutAttributeKeyRight].target;;
         CGFloat subMaxX = CGRectGetMaxX(sub.frame) - right.offset;
         if ( subMaxX > maxX ) maxX = subMaxX;
     }
 
     CGFloat maxY = 0;
     for ( UIView *sub in view.subviews ) {
-        SJFLLayoutAttributeUnit *_Nullable bottom = [sub FL_elementForAttributeKey:SJFLAttributeKeyBottom].target;
+        SJFLLayoutAttributeUnit *_Nullable bottom = [sub FL_elementForAttributeKey:SJFLLayoutAttributeKeyBottom].target;
         CGFloat subMaxY = CGRectGetMaxY(sub.frame) - bottom.offset;
         if ( subMaxY > maxY ) maxY = subMaxY;
     }

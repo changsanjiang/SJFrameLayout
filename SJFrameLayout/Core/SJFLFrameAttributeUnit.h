@@ -6,13 +6,13 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "SJFLAttributes.h"
+#import "SJFLAttributesDefines.h"
 
 NS_ASSUME_NONNULL_BEGIN
-@interface SJFLViewFrameAttribute : NSObject
-- (instancetype)initWithView:(UIView *)view attribute:(SJFLAttribute)attribute;
+@interface SJFLFrameAttributeUnit : NSObject
+- (instancetype)initWithView:(UIView *)view attribute:(SJFLFrameAttribute)attribute;
 @property (nonatomic, weak, readonly, nullable) UIView *view;
-@property (nonatomic, readonly) SJFLAttribute attribute;
+@property (nonatomic, readonly) SJFLFrameAttribute attribute;
 - (instancetype)init NS_UNAVAILABLE;
 + (instancetype)new NS_UNAVAILABLE;
 @end

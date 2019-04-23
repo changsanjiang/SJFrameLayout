@@ -30,6 +30,9 @@
 		A4AB083099B9E39F60D9FFFE /* libPods-SJFrameLayout_Example.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5BD6B1C309EF6019CEEBB679 /* libPods-SJFrameLayout_Example.a */; };
 		A6D0D2F3226C77C300BB35D1 /* SJTestView2.m in Sources */ = {isa = PBXBuildFile; fileRef = A6D0D2F2226C77C300BB35D1 /* SJTestView2.m */; };
 		A6D0D2F7226E065100BB35D1 /* SJTestButton.m in Sources */ = {isa = PBXBuildFile; fileRef = A6D0D2F6226E065100BB35D1 /* SJTestButton.m */; };
+		A6D0D300226F598900BB35D1 /* SJHomeTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = A6D0D2FF226F598900BB35D1 /* SJHomeTableViewCell.m */; };
+		A6D0D303226F5A9600BB35D1 /* SJDemo1ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = A6D0D302226F5A9600BB35D1 /* SJDemo1ViewController.m */; };
+		A6D0D306226F5B2300BB35D1 /* SJDemoItem.m in Sources */ = {isa = PBXBuildFile; fileRef = A6D0D305226F5B2300BB35D1 /* SJDemoItem.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -81,6 +84,12 @@
 		A6D0D2F2226C77C300BB35D1 /* SJTestView2.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SJTestView2.m; sourceTree = "<group>"; };
 		A6D0D2F5226E065100BB35D1 /* SJTestButton.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SJTestButton.h; sourceTree = "<group>"; };
 		A6D0D2F6226E065100BB35D1 /* SJTestButton.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SJTestButton.m; sourceTree = "<group>"; };
+		A6D0D2FE226F598900BB35D1 /* SJHomeTableViewCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SJHomeTableViewCell.h; sourceTree = "<group>"; };
+		A6D0D2FF226F598900BB35D1 /* SJHomeTableViewCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SJHomeTableViewCell.m; sourceTree = "<group>"; };
+		A6D0D301226F5A9600BB35D1 /* SJDemo1ViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SJDemo1ViewController.h; sourceTree = "<group>"; };
+		A6D0D302226F5A9600BB35D1 /* SJDemo1ViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SJDemo1ViewController.m; sourceTree = "<group>"; };
+		A6D0D304226F5B2300BB35D1 /* SJDemoItem.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SJDemoItem.h; sourceTree = "<group>"; };
+		A6D0D305226F5B2300BB35D1 /* SJDemoItem.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SJDemoItem.m; sourceTree = "<group>"; };
 		B090299FFF75AF3F6AA5C5DA /* SJFrameLayout.podspec */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = SJFrameLayout.podspec; path = ../SJFrameLayout.podspec; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.ruby; };
 		B4ABB5678BCD3374B1DD972B /* Pods-SJFrameLayout_Example.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SJFrameLayout_Example.debug.xcconfig"; path = "Target Support Files/Pods-SJFrameLayout_Example/Pods-SJFrameLayout_Example.debug.xcconfig"; sourceTree = "<group>"; };
 		C5412B85AD894E7947A0460E /* LICENSE */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = LICENSE; path = ../LICENSE; sourceTree = "<group>"; };
@@ -153,20 +162,9 @@
 				6003F59C195388D20070C39A /* SJAppDelegate.h */,
 				6003F59D195388D20070C39A /* SJAppDelegate.m */,
 				873B8AEA1B1F5CCA007FD442 /* Main.storyboard */,
-				6003F5A5195388D20070C39A /* SJViewController.h */,
-				6003F5A6195388D20070C39A /* SJViewController.m */,
-				773CA09E2268921400EA87C6 /* SJTestView.h */,
-				773CA09F2268921400EA87C6 /* SJTestView.m */,
-				773CA0A12268938D00EA87C6 /* SJTestSubView.h */,
-				773CA0A22268938D00EA87C6 /* SJTestSubView.m */,
-				A6D0D2F1226C77C300BB35D1 /* SJTestView2.h */,
-				A6D0D2F2226C77C300BB35D1 /* SJTestView2.m */,
-				7752FE73226D873600683EBD /* SJTestLabel.h */,
-				7752FE74226D873600683EBD /* SJTestLabel.m */,
-				A6D0D2F5226E065100BB35D1 /* SJTestButton.h */,
-				A6D0D2F6226E065100BB35D1 /* SJTestButton.m */,
-				7771BAB2226EB8C700C4475E /* SJTestImageView.h */,
-				7771BAB3226EB8C700C4475E /* SJTestImageView.m */,
+				A6D0D2FD226F597500BB35D1 /* Home */,
+				A6D0D2F9226F588700BB35D1 /* Demo */,
+				A6D0D2FA226F589300BB35D1 /* Test */,
 				71719F9D1E33DC2100824A3D /* LaunchScreen.storyboard */,
 				6003F5A8195388D20070C39A /* Images.xcassets */,
 				6003F594195388D20070C39A /* Supporting Files */,
@@ -224,6 +222,55 @@
 				3FFA6CCA4B48F8B018F795FE /* Pods-SJFrameLayout_Tests.release.xcconfig */,
 			);
 			path = Pods;
+			sourceTree = "<group>";
+		};
+		A6D0D2F9226F588700BB35D1 /* Demo */ = {
+			isa = PBXGroup;
+			children = (
+				A6D0D2FC226F58A300BB35D1 /* Test1 */,
+			);
+			path = Demo;
+			sourceTree = "<group>";
+		};
+		A6D0D2FA226F589300BB35D1 /* Test */ = {
+			isa = PBXGroup;
+			children = (
+				773CA09E2268921400EA87C6 /* SJTestView.h */,
+				773CA09F2268921400EA87C6 /* SJTestView.m */,
+				773CA0A12268938D00EA87C6 /* SJTestSubView.h */,
+				773CA0A22268938D00EA87C6 /* SJTestSubView.m */,
+				A6D0D2F1226C77C300BB35D1 /* SJTestView2.h */,
+				A6D0D2F2226C77C300BB35D1 /* SJTestView2.m */,
+				7752FE73226D873600683EBD /* SJTestLabel.h */,
+				7752FE74226D873600683EBD /* SJTestLabel.m */,
+				A6D0D2F5226E065100BB35D1 /* SJTestButton.h */,
+				A6D0D2F6226E065100BB35D1 /* SJTestButton.m */,
+				7771BAB2226EB8C700C4475E /* SJTestImageView.h */,
+				7771BAB3226EB8C700C4475E /* SJTestImageView.m */,
+			);
+			path = Test;
+			sourceTree = "<group>";
+		};
+		A6D0D2FC226F58A300BB35D1 /* Test1 */ = {
+			isa = PBXGroup;
+			children = (
+				A6D0D301226F5A9600BB35D1 /* SJDemo1ViewController.h */,
+				A6D0D302226F5A9600BB35D1 /* SJDemo1ViewController.m */,
+			);
+			path = Test1;
+			sourceTree = "<group>";
+		};
+		A6D0D2FD226F597500BB35D1 /* Home */ = {
+			isa = PBXGroup;
+			children = (
+				6003F5A5195388D20070C39A /* SJViewController.h */,
+				6003F5A6195388D20070C39A /* SJViewController.m */,
+				A6D0D2FE226F598900BB35D1 /* SJHomeTableViewCell.h */,
+				A6D0D2FF226F598900BB35D1 /* SJHomeTableViewCell.m */,
+				A6D0D304226F5B2300BB35D1 /* SJDemoItem.h */,
+				A6D0D305226F5B2300BB35D1 /* SJDemoItem.m */,
+			);
+			path = Home;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -383,11 +430,14 @@
 				6003F59E195388D20070C39A /* SJAppDelegate.m in Sources */,
 				773CA0A32268938D00EA87C6 /* SJTestSubView.m in Sources */,
 				A6D0D2F7226E065100BB35D1 /* SJTestButton.m in Sources */,
+				A6D0D303226F5A9600BB35D1 /* SJDemo1ViewController.m in Sources */,
 				7752FE75226D873600683EBD /* SJTestLabel.m in Sources */,
 				6003F5A7195388D20070C39A /* SJViewController.m in Sources */,
 				6003F59A195388D20070C39A /* main.m in Sources */,
+				A6D0D306226F5B2300BB35D1 /* SJDemoItem.m in Sources */,
 				A6D0D2F3226C77C300BB35D1 /* SJTestView2.m in Sources */,
 				773CA0A02268921400EA87C6 /* SJTestView.m in Sources */,
+				A6D0D300226F598900BB35D1 /* SJHomeTableViewCell.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

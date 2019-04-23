@@ -9,30 +9,30 @@
 
 NS_ASSUME_NONNULL_BEGIN
 @implementation SJFLLayoutAttributeUnit
-+ (NSString *)debug_attributeToString:(SJFLAttribute)attribute {
++ (NSString *)debug_attributeToString:(SJFLLayoutAttribute)attribute {
     switch ( attribute ) {
-        case SJFLAttributeNone:
-            return @"SJFLAttributeNone";
-        case SJFLAttributeTop:
-            return @"SJFLAttributeTop";
-        case SJFLAttributeLeft:
-            return @"SJFLAttributeLeft";
-        case SJFLAttributeBottom:
-            return @"SJFLAttributeBottom";
-        case SJFLAttributeRight:
-            return @"SJFLAttributeRight";
-        case SJFLAttributeWidth:
-            return @"SJFLAttributeWidth";
-        case SJFLAttributeHeight:
-            return @"SJFLAttributeHeight";
-        case SJFLAttributeCenterX:
-            return @"SJFLAttributeCenterX";
-        case SJFLAttributeCenterY:
-            return @"SJFLAttributeCenterY";
+        case SJFLLayoutAttributeNone:
+            return @"SJFLLayoutAttributeNone";
+        case SJFLLayoutAttributeTop:
+            return @"SJFLLayoutAttributeTop";
+        case SJFLLayoutAttributeLeft:
+            return @"SJFLLayoutAttributeLeft";
+        case SJFLLayoutAttributeBottom:
+            return @"SJFLLayoutAttributeBottom";
+        case SJFLLayoutAttributeRight:
+            return @"SJFLLayoutAttributeRight";
+        case SJFLLayoutAttributeWidth:
+            return @"SJFLLayoutAttributeWidth";
+        case SJFLLayoutAttributeHeight:
+            return @"SJFLLayoutAttributeHeight";
+        case SJFLLayoutAttributeCenterX:
+            return @"SJFLLayoutAttributeCenterX";
+        case SJFLLayoutAttributeCenterY:
+            return @"SJFLLayoutAttributeCenterY";
     }
 }
 
-- (instancetype)initWithView:(UIView *)view attribute:(SJFLAttribute)attribute {
+- (instancetype)initWithView:(UIView *)view attribute:(SJFLLayoutAttribute)attribute {
     self = [super init];
     if ( !self ) return nil;
     _attribute = attribute;
@@ -40,7 +40,7 @@ NS_ASSUME_NONNULL_BEGIN
     self->multiplier = 1.0;
     return self;
 }
-- (void)equalTo:(SJFLViewFrameAttribute *)viewAttribute {
+- (void)equalTo:(SJFLFrameAttributeUnit *)viewAttribute {
     _equalToViewAttribute = viewAttribute;
 }
 - (CGFloat)offset {
@@ -48,18 +48,20 @@ NS_ASSUME_NONNULL_BEGIN
         return offset.value;
     }
     
-    SJFLAttribute attr = _equalToViewAttribute.attribute;
+    SJFLFrameAttribute attr = _equalToViewAttribute.attribute;
     CGFloat value = 0;
     switch ( attr ) {
-        case SJFLAttributeNone: {
+        case SJFLFrameAttributeNone: {
             value = offset.value;
         }
             break;
-        case SJFLAttributeTop: {
+        case SJFLFrameAttributeSafeTop:
+        case SJFLFrameAttributeTop: {
             value = offset.value;
         }
             break;
-        case SJFLAttributeLeft: {
+        case SJFLFrameAttributeSafeLeft:
+        case SJFLFrameAttributeLeft: {
             switch ( offset_t ) {
                 case SJFLCGFloatValue:
                 case SJFLCGPointValue:
@@ -74,7 +76,8 @@ NS_ASSUME_NONNULL_BEGIN
             }
         }
             break;
-        case SJFLAttributeBottom: {
+        case SJFLFrameAttributeSafeBottom:
+        case SJFLFrameAttributeBottom: {
             switch ( offset_t ) {
                 case SJFLCGFloatValue:
                 case SJFLCGPointValue:
@@ -89,7 +92,8 @@ NS_ASSUME_NONNULL_BEGIN
             }
         }
             break;
-        case SJFLAttributeRight: {
+        case SJFLFrameAttributeSafeRight:
+        case SJFLFrameAttributeRight: {
             switch ( offset_t ) {
                 case SJFLCGFloatValue:
                 case SJFLCGPointValue:
@@ -104,7 +108,7 @@ NS_ASSUME_NONNULL_BEGIN
             }
         }
             break;
-        case SJFLAttributeWidth: {
+        case SJFLFrameAttributeWidth: {
             switch ( offset_t ) {
                 case SJFLCGFloatValue:
                 case SJFLCGPointValue:
@@ -119,7 +123,7 @@ NS_ASSUME_NONNULL_BEGIN
             }
         }
             break;
-        case SJFLAttributeHeight: {
+        case SJFLFrameAttributeHeight: {
             switch ( offset_t ) {
                 case SJFLCGFloatValue:
                 case SJFLCGPointValue:
@@ -134,7 +138,7 @@ NS_ASSUME_NONNULL_BEGIN
             }
         }
             break;
-        case SJFLAttributeCenterX: {
+        case SJFLFrameAttributeCenterX: {
             switch ( offset_t ) {
                 case SJFLCGFloatValue:
                 case SJFLCGSizeValue:
@@ -149,7 +153,7 @@ NS_ASSUME_NONNULL_BEGIN
             }
         }
             break;
-        case SJFLAttributeCenterY: {
+        case SJFLFrameAttributeCenterY: {
             switch ( offset_t ) {
                 case SJFLCGFloatValue:
                 case SJFLCGSizeValue:
@@ -165,6 +169,7 @@ NS_ASSUME_NONNULL_BEGIN
         }
             break;
     }
+    
     return value;
 }
 @end

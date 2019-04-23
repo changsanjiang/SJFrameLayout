@@ -39,49 +39,49 @@ if ( !unit ) { \
 } \
 return unit;
 - (SJFLLayoutAttributeUnit *)FL_topUnit {
-    RETURN_FL_ATTR_UNIT(SJFLAttributeTop);
+    RETURN_FL_ATTR_UNIT(SJFLLayoutAttributeTop);
 }
 - (SJFLLayoutAttributeUnit *)FL_leftUnit {
-    RETURN_FL_ATTR_UNIT(SJFLAttributeLeft);
+    RETURN_FL_ATTR_UNIT(SJFLLayoutAttributeLeft);
 }
 - (SJFLLayoutAttributeUnit *)FL_bottomUnit {
-    RETURN_FL_ATTR_UNIT(SJFLAttributeBottom);
+    RETURN_FL_ATTR_UNIT(SJFLLayoutAttributeBottom);
 }
 - (SJFLLayoutAttributeUnit *)FL_rightUnit {
-    RETURN_FL_ATTR_UNIT(SJFLAttributeRight);
+    RETURN_FL_ATTR_UNIT(SJFLLayoutAttributeRight);
 }
 - (SJFLLayoutAttributeUnit *)FL_widthUnit {
-    RETURN_FL_ATTR_UNIT(SJFLAttributeWidth);
+    RETURN_FL_ATTR_UNIT(SJFLLayoutAttributeWidth);
 }
 - (SJFLLayoutAttributeUnit *)FL_heightUnit {
-    RETURN_FL_ATTR_UNIT(SJFLAttributeHeight);
+    RETURN_FL_ATTR_UNIT(SJFLLayoutAttributeHeight);
 }
 - (SJFLLayoutAttributeUnit *)FL_centerXUnit {
-    RETURN_FL_ATTR_UNIT(SJFLAttributeCenterX);
+    RETURN_FL_ATTR_UNIT(SJFLLayoutAttributeCenterX);
 }
 - (SJFLLayoutAttributeUnit *)FL_centerYUnit {
-    RETURN_FL_ATTR_UNIT(SJFLAttributeCenterY);
+    RETURN_FL_ATTR_UNIT(SJFLLayoutAttributeCenterY);
 }
-- (SJFLLayoutAttributeUnit *_Nullable)FL_attributeUnitForAttribute:(SJFLAttribute)attr {
+- (SJFLLayoutAttributeUnit *_Nullable)FL_attributeUnitForAttribute:(SJFLLayoutAttribute)attr {
     FL_selectorsInit();
     switch ( attr ) {
-        case SJFLAttributeNone:
+        case SJFLLayoutAttributeNone:
             break;
-        case SJFLAttributeTop:
+        case SJFLLayoutAttributeTop:
             return objc_getAssociatedObject(self, FL_topUnit);
-        case SJFLAttributeLeft:
+        case SJFLLayoutAttributeLeft:
             return objc_getAssociatedObject(self, FL_leftUnit);
-        case SJFLAttributeBottom:
+        case SJFLLayoutAttributeBottom:
             return objc_getAssociatedObject(self, FL_bottomUnit);
-        case SJFLAttributeRight:
+        case SJFLLayoutAttributeRight:
             return objc_getAssociatedObject(self, FL_rightUnit);
-        case SJFLAttributeWidth:
+        case SJFLLayoutAttributeWidth:
             return objc_getAssociatedObject(self, FL_widthUnit);
-        case SJFLAttributeHeight:
+        case SJFLLayoutAttributeHeight:
             return objc_getAssociatedObject(self, FL_heightUnit);
-        case SJFLAttributeCenterX:
+        case SJFLLayoutAttributeCenterX:
             return objc_getAssociatedObject(self, FL_centerXUnit);
-        case SJFLAttributeCenterY:
+        case SJFLLayoutAttributeCenterY:
             return objc_getAssociatedObject(self, FL_centerYUnit);
     }
     return nil;
