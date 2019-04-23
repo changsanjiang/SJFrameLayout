@@ -48,16 +48,6 @@ UIKIT_STATIC_INLINE void SJFLViewLayoutFixInnerSizeIfNeeded(UIView *view) {
     NSMutableDictionary<SJFLLayoutAttributeKey, SJFLLayoutElement *> *_Nullable m = objc_getAssociatedObject(view, kFL_Container);
     if ( !m )
         return;
-    
-    // - fitting size -
-    SJFLLayoutAttributeUnit *_Nullable fit_width = nil;
-    SJFLLayoutAttributeUnit *_Nullable fit_height = nil;
-    
-    SJFLLayoutAttributeUnit *_Nullable widthElement = m[SJFLLayoutAttributeKeyWidth].target;
-    if ( widthElement && widthElement->priority == 1 ) fit_width = widthElement;
-    SJFLLayoutAttributeUnit *_Nullable heightElement = m[SJFLLayoutAttributeKeyHeight].target;
-    if ( heightElement && heightElement->priority == 1 ) fit_height = heightElement;
-    
     static Class FL_UILabelClass;
     static Class FL_UIButtonClass;
     static Class FL_UIImageViewClass;
@@ -68,9 +58,21 @@ UIKIT_STATIC_INLINE void SJFLViewLayoutFixInnerSizeIfNeeded(UIView *view) {
         FL_UIImageViewClass = [UIImageView class];
     });
     
+    if ( [view isKindOfClass:FL_UILabelClass] ) {
+        SJFLLabelAdjustBoxIfNeeded((id)view, m);
+    }
+    
+    // - fitting size -
+    SJFLLayoutAttributeUnit *_Nullable fit_width = nil;
+    SJFLLayoutAttributeUnit *_Nullable fit_height = nil;
+    
+    SJFLLayoutAttributeUnit *_Nullable widthElement = m[SJFLLayoutAttributeKeyWidth].target;
+    if ( widthElement && widthElement->priority == 1 ) fit_width = widthElement;
+    SJFLLayoutAttributeUnit *_Nullable heightElement = m[SJFLLayoutAttributeKeyHeight].target;
+    if ( heightElement && heightElement->priority == 1 ) fit_height = heightElement;
+    
     if ( fit_width != nil || fit_height != nil ) {
         if ( [view isKindOfClass:FL_UILabelClass] ) {
-            SJFLLabelAdjustBoxIfNeeded((id)view, m);
             SJFLLabelLayoutFixInnerSize((id)view, fit_width, fit_height);
         }
         else if ( [view isKindOfClass:FL_UIButtonClass] ) {
