@@ -45,6 +45,18 @@ static void *kFL_Container = &kFL_Container;
             // left 安装好之后, 会影响到什么, 或者什么可以定位到了 ?
             // - right
             // 当 left 和 right 同时安装之后, 会生成 width. 当height依赖width时, 此时可以刷新height
+        
+            // height 改变之后, 会影响到什么?
+            // - centerY
+            // - bottom
+            
+            // width 改变之后, 会影响到什么?
+            // - centerX
+            // - right
+            
+            // bottom 安装之后, 会影响到什么?
+            // centerY 安装之后, 会影响到什么?
+            // centerX 安装之后, 会影响到什么?
             
             [m[SJFLLayoutAttributeKeyWidth] refreshLayoutIfNeeded];
             [m[SJFLLayoutAttributeKeyHeight] refreshLayoutIfNeeded];
@@ -56,9 +68,11 @@ static void *kFL_Container = &kFL_Container;
             [m[SJFLLayoutAttributeKeyLeft] refreshLayoutIfNeeded];
             [m[SJFLLayoutAttributeKeyRight] refreshLayoutIfNeeded];
             [m[SJFLLayoutAttributeKeyHeight] refreshLayoutIfNeeded];
-            
-            [m[SJFLLayoutAttributeKeyCenterX] refreshLayoutIfNeeded];
+
+            [m[SJFLLayoutAttributeKeyBottom] refreshLayoutIfNeeded];
+
             [m[SJFLLayoutAttributeKeyCenterY] refreshLayoutIfNeeded];
+            [m[SJFLLayoutAttributeKeyCenterX] refreshLayoutIfNeeded];
         }
     }
     
