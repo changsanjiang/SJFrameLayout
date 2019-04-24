@@ -433,30 +433,26 @@ UIKIT_STATIC_INLINE BOOL SJFLVerticalLayoutContains(SJFLLayoutAttribute attr) {
     return (attr == SJFLLayoutAttributeTop) || (attr == SJFLLayoutAttributeBottom) || (attr == SJFLLayoutAttributeHeight) || (attr == SJFLLayoutAttributeCenterY);
 }
 
-UIKIT_STATIC_INLINE BOOL SJFLFloatCompare(CGFloat value1, CGFloat value2) {
-    return floor(value1 + 0.5) == floor(value2 + 0.5);
-}
-
 UIKIT_STATIC_INLINE BOOL SJFLViewLayoutCompare(CGRect frame, SJFLLayoutAttribute attr, CGFloat value) {
     switch ( attr ) {
         case SJFLLayoutAttributeNone:
             return NO;
         case SJFLLayoutAttributeTop:
-            return SJFLFloatCompare(value, CGRectGetMinY(frame));
+            return value == frame.origin.y;
         case SJFLLayoutAttributeLeft:
-            return SJFLFloatCompare(value, CGRectGetMinX(frame));
+            return value == frame.origin.x;
         case SJFLLayoutAttributeBottom:
-            return SJFLFloatCompare(value, CGRectGetMaxY(frame));
+            return value == frame.origin.y + frame.size.height;
         case SJFLLayoutAttributeRight:
-            return SJFLFloatCompare(value, CGRectGetMaxX(frame));
+            return value == frame.origin.x + frame.size.width;
         case SJFLLayoutAttributeWidth:
-            return SJFLFloatCompare(value, CGRectGetWidth(frame));
+            return value == frame.size.width;
         case SJFLLayoutAttributeHeight:
-            return SJFLFloatCompare(value, CGRectGetHeight(frame));
+            return value == frame.size.height;
         case SJFLLayoutAttributeCenterX:
-            return SJFLFloatCompare(value, CGRectGetWidth(frame) * 0.5 + CGRectGetMinX(frame));
+            return value == frame.origin.x + frame.size.width * 0.5;
         case SJFLLayoutAttributeCenterY:
-            return SJFLFloatCompare(value, CGRectGetHeight(frame) * 0.5 + CGRectGetMinY(frame));
+            return value == frame.origin.y + frame.size.height * 0.5;
             break;
     }
 }
