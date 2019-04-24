@@ -91,8 +91,7 @@ static void *kFL_Container = &kFL_Container;
         }
     }
     
-    SJFLViewLayoutFixInnerSizeIfNeeded(self);
-    SJFLViewLayoutFixInnerSizeIfNeeded(self.superview);
+    SJFLViewLayoutFixInnerSizeIfNeeded(view);
 }
 
 //UIKIT_STATIC_INLINE BOOL SJFLViewBottomCanSettable(UIView *view) {
