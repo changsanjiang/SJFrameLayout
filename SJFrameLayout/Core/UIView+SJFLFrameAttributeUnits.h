@@ -19,11 +19,11 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, strong, readonly) SJFLFrameAttributeUnit *FL_centerX;
 @property (nonatomic, strong, readonly) SJFLFrameAttributeUnit *FL_centerY;
 
+@property (nonatomic, strong, readonly) NSArray<SJFLFrameAttributeUnit *> *FL_safeArea;
 @property (nonatomic, strong, readonly) SJFLFrameAttributeUnit *FL_safeTop;
 @property (nonatomic, strong, readonly) SJFLFrameAttributeUnit *FL_safeLeft;
 @property (nonatomic, strong, readonly) SJFLFrameAttributeUnit *FL_safeBottom;
 @property (nonatomic, strong, readonly) SJFLFrameAttributeUnit *FL_safeRight;
-
 - (SJFLFrameAttributeUnit *)FL_frameAtrributeUnitForAttribute:(SJFLFrameAttribute)attribtue;
 @end
 NS_ASSUME_NONNULL_END

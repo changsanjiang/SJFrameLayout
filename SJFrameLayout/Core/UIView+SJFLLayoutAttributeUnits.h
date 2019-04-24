@@ -18,6 +18,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, strong, readonly) SJFLLayoutAttributeUnit *FL_centerXUnit;
 @property (nonatomic, strong, readonly) SJFLLayoutAttributeUnit *FL_centerYUnit;
 - (SJFLLayoutAttributeUnit *_Nullable)FL_attributeUnitForAttribute:(SJFLLayoutAttribute)attr;
+- (SJFLLayoutAttributeUnit *)FL_requestAttributeUnitForAttribute:(SJFLLayoutAttribute)attr;
 - (void)FL_resetAttributeUnits;
 @end
 NS_ASSUME_NONNULL_END

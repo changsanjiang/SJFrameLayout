@@ -8,11 +8,22 @@
 #import "SJFLLayoutMask.h"
 #import "UIView+SJFLLayoutAttributeUnits.h"
 #import "UIView+SJFLFrameAttributeUnits.h"
+#import "SJFLAttributesDefines.h"
 
 NS_ASSUME_NONNULL_BEGIN
 @implementation SJFLLayoutMask {
     SJFLLayoutAttributeMask _attrs;
     __weak UIView *_view;
+}
+
+static Class SJFLFrameAttributeUnitClass;
+static Class SJFLArrayClass;
+static Class SJFLViewClass;
+
++ (void)initialize {
+    SJFLFrameAttributeUnitClass = SJFLFrameAttributeUnit.class;
+    SJFLArrayClass = NSArray.class;
+    SJFLViewClass = UIView.class;
 }
 
 - (instancetype)initWithView:(UIView *)view attributes:(SJFLLayoutAttributeMask)attrs {
@@ -85,18 +96,18 @@ NS_ASSUME_NONNULL_BEGIN
     return ^SJFLLayoutMask *(id box) {
         SJFLLayoutAttributeMask attributes = self->_attrs;
         UIView *view = self->_view;
-        if      ( [box isKindOfClass:SJFLFrameAttributeUnit.class] ) {
-            SJFLFrameAttributeUnit *attribute = box;
-            if ( SJFLLayoutContainsAttribute(attributes, SJFLLayoutAttributeTop) ) [view.FL_topUnit equalTo:attribute];
-            if ( SJFLLayoutContainsAttribute(attributes, SJFLLayoutAttributeLeft) ) [view.FL_leftUnit equalTo:attribute];
-            if ( SJFLLayoutContainsAttribute(attributes, SJFLLayoutAttributeBottom) ) [view.FL_bottomUnit equalTo:attribute];
-            if ( SJFLLayoutContainsAttribute(attributes, SJFLLayoutAttributeRight) ) [view.FL_rightUnit equalTo:attribute];
-            if ( SJFLLayoutContainsAttribute(attributes, SJFLLayoutAttributeWidth) ) [view.FL_widthUnit equalTo:attribute];
-            if ( SJFLLayoutContainsAttribute(attributes, SJFLLayoutAttributeHeight) ) [view.FL_heightUnit equalTo:attribute];
-            if ( SJFLLayoutContainsAttribute(attributes, SJFLLayoutAttributeCenterX) ) [view.FL_centerXUnit equalTo:attribute];
-            if ( SJFLLayoutContainsAttribute(attributes, SJFLLayoutAttributeCenterY) ) [view.FL_centerYUnit equalTo:attribute];
+        if      ( [box isKindOfClass:SJFLFrameAttributeUnitClass] ) {
+            SJFLFrameAttributeUnit *unit = box;
+            if ( SJFLLayoutContainsAttribute(attributes, SJFLLayoutAttributeTop) ) [view.FL_topUnit equalTo:unit];
+            if ( SJFLLayoutContainsAttribute(attributes, SJFLLayoutAttributeLeft) ) [view.FL_leftUnit equalTo:unit];
+            if ( SJFLLayoutContainsAttribute(attributes, SJFLLayoutAttributeBottom) ) [view.FL_bottomUnit equalTo:unit];
+            if ( SJFLLayoutContainsAttribute(attributes, SJFLLayoutAttributeRight) ) [view.FL_rightUnit equalTo:unit];
+            if ( SJFLLayoutContainsAttribute(attributes, SJFLLayoutAttributeWidth) ) [view.FL_widthUnit equalTo:unit];
+            if ( SJFLLayoutContainsAttribute(attributes, SJFLLayoutAttributeHeight) ) [view.FL_heightUnit equalTo:unit];
+            if ( SJFLLayoutContainsAttribute(attributes, SJFLLayoutAttributeCenterX) ) [view.FL_centerXUnit equalTo:unit];
+            if ( SJFLLayoutContainsAttribute(attributes, SJFLLayoutAttributeCenterY) ) [view.FL_centerYUnit equalTo:unit];
         }
-        else if ( [box isKindOfClass:UIView.class] ) {
+        else if ( [box isKindOfClass:SJFLViewClass] ) {
             UIView *dep_view = box;
             if ( SJFLLayoutContainsAttribute(attributes, SJFLLayoutAttributeTop) ) [view.FL_topUnit equalTo:dep_view.FL_top];
             if ( SJFLLayoutContainsAttribute(attributes, SJFLLayoutAttributeLeft) ) [view.FL_leftUnit equalTo:dep_view.FL_left];
@@ -106,6 +117,13 @@ NS_ASSUME_NONNULL_BEGIN
             if ( SJFLLayoutContainsAttribute(attributes, SJFLLayoutAttributeHeight) ) [view.FL_heightUnit equalTo:dep_view.FL_height];
             if ( SJFLLayoutContainsAttribute(attributes, SJFLLayoutAttributeCenterX) ) [view.FL_centerXUnit equalTo:dep_view.FL_centerX];
             if ( SJFLLayoutContainsAttribute(attributes, SJFLLayoutAttributeCenterY) ) [view.FL_centerYUnit equalTo:dep_view.FL_centerY];
+        }
+        else if ( [box isKindOfClass:SJFLArrayClass] ) {
+            for ( SJFLFrameAttributeUnit *unit in (NSArray *)box ) {
+                SJFLLayoutAttribute layoutAttribute = SJFLLayoutAttributeForFrameAttribute(unit.attribute);
+                SJFLLayoutAttributeUnit *layoutUnit = [view FL_requestAttributeUnitForAttribute:layoutAttribute];
+                if ( layoutUnit ) [layoutUnit equalTo:unit];
+            }
         }
         else {
             self.box_offset(box);

@@ -57,6 +57,14 @@ NS_ASSUME_NONNULL_BEGIN
 - (SJFLFrameAttributeUnit *)FL_safeRight {
     RETURN_FL_VIEW_ATTR_LAYOUT(SJFLFrameAttributeSafeRight);
 }
+- (NSArray<SJFLFrameAttributeUnit *> *)FL_safeArea {
+    NSArray<SJFLFrameAttributeUnit *> *_Nullable safeArea = objc_getAssociatedObject(self, _cmd);
+    if ( !safeArea ) {
+        safeArea = @[self.FL_safeTop, self.FL_safeLeft, self.FL_safeBottom, self.FL_safeRight];
+        objc_setAssociatedObject(self, _cmd, safeArea, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    }
+    return safeArea;
+}
 - (SJFLFrameAttributeUnit *)FL_frameAtrributeUnitForAttribute:(SJFLFrameAttribute)attribtue {
     switch ( attribtue ) {
         case SJFLFrameAttributeNone:

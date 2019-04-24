@@ -86,6 +86,28 @@ return unit;
     }
     return nil;
 }
+- (SJFLLayoutAttributeUnit *)FL_requestAttributeUnitForAttribute:(SJFLLayoutAttribute)attr {
+    switch ( attr ) {
+        case SJFLLayoutAttributeNone:
+            return [[SJFLLayoutAttributeUnit alloc] initWithView:self attribute:SJFLLayoutAttributeNone];
+        case SJFLLayoutAttributeTop:
+            return self.FL_topUnit;
+        case SJFLLayoutAttributeLeft:
+            return self.FL_leftUnit;
+        case SJFLLayoutAttributeBottom:
+            return self.FL_bottomUnit;
+        case SJFLLayoutAttributeRight:
+            return self.FL_rightUnit;
+        case SJFLLayoutAttributeWidth:
+            return self.FL_widthUnit;
+        case SJFLLayoutAttributeHeight:
+            return self.FL_heightUnit;
+        case SJFLLayoutAttributeCenterX:
+            return self.FL_centerXUnit;
+        case SJFLLayoutAttributeCenterY:
+            return self.FL_centerYUnit;
+    }
+}
 - (void)FL_resetAttributeUnits {
     FL_selectorsInit();
     objc_setAssociatedObject(self, FL_topUnit, nil, 0);
