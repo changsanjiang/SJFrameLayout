@@ -19,7 +19,10 @@ NS_ASSUME_NONNULL_BEGIN
 UIKIT_EXTERN
 NSMutableSet<UIView *> *SJFLGetElementsRelatedViews(NSArray<SJFLLayoutElement *> *eles);
 
-UIKIT_EXTERN
-void SJFLRefreshLayoutsForRelatedView(UIView *view);
+UIKIT_EXTERN void
+SJFLRefreshLayoutsForRelatedView(UIView *view);
+
+UIKIT_EXTERN NSDictionary<SJFLLayoutAttributeKey, SJFLLayoutElement *> *_Nullable
+SJFLElements(UIView *view);
 @end
 NS_ASSUME_NONNULL_END

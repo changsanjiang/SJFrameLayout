@@ -24,6 +24,8 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, strong, readonly) SJFLFrameAttributeUnit *FL_safeLeft;
 @property (nonatomic, strong, readonly) SJFLFrameAttributeUnit *FL_safeBottom;
 @property (nonatomic, strong, readonly) SJFLFrameAttributeUnit *FL_safeRight;
-- (SJFLFrameAttributeUnit *)FL_frameAtrributeUnitForAttribute:(SJFLFrameAttribute)attribtue;
 @end
+
+UIKIT_EXTERN SJFLFrameAttributeUnit *
+SJFLFrameAtrributeUnitForAttribute(UIView *view, SJFLFrameAttribute attribute);
 NS_ASSUME_NONNULL_END

@@ -65,8 +65,11 @@ NS_ASSUME_NONNULL_BEGIN
     }
     return safeArea;
 }
-- (SJFLFrameAttributeUnit *)FL_frameAtrributeUnitForAttribute:(SJFLFrameAttribute)attribtue {
-    switch ( attribtue ) {
+@end
+
+UIKIT_EXTERN SJFLFrameAttributeUnit *
+SJFLFrameAtrributeUnitForAttribute(UIView *self, SJFLFrameAttribute attribute) {
+    switch ( attribute ) {
         case SJFLFrameAttributeNone:
             return self.FL_none;
         case SJFLFrameAttributeTop:
@@ -95,5 +98,4 @@ NS_ASSUME_NONNULL_BEGIN
             return self.FL_safeRight;
     }
 }
-@end
 NS_ASSUME_NONNULL_END

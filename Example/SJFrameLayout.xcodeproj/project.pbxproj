@@ -25,6 +25,8 @@
 		773CA0A32268938D00EA87C6 /* SJTestSubView.m in Sources */ = {isa = PBXBuildFile; fileRef = 773CA0A22268938D00EA87C6 /* SJTestSubView.m */; };
 		7752FE75226D873600683EBD /* SJTestLabel.m in Sources */ = {isa = PBXBuildFile; fileRef = 7752FE74226D873600683EBD /* SJTestLabel.m */; };
 		7771BAB4226EB8C700C4475E /* SJTestImageView.m in Sources */ = {isa = PBXBuildFile; fileRef = 7771BAB3226EB8C700C4475E /* SJTestImageView.m */; };
+		77B035EB22704A01001321A5 /* SJDemo2ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 77B035EA22704A01001321A5 /* SJDemo2ViewController.m */; };
+		77B035ED22704A4B001321A5 /* SJDemo2ViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 77B035EC22704A4B001321A5 /* SJDemo2ViewController.xib */; };
 		873B8AEB1B1F5CCA007FD442 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 873B8AEA1B1F5CCA007FD442 /* Main.storyboard */; };
 		9508F28BE2D1BFCA0D1177F1 /* libPods-SJFrameLayout_Tests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 660FE82373DE52E9E85B8DD1 /* libPods-SJFrameLayout_Tests.a */; };
 		A4AB083099B9E39F60D9FFFE /* libPods-SJFrameLayout_Example.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5BD6B1C309EF6019CEEBB679 /* libPods-SJFrameLayout_Example.a */; };
@@ -78,6 +80,9 @@
 		7752FE74226D873600683EBD /* SJTestLabel.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SJTestLabel.m; sourceTree = "<group>"; };
 		7771BAB2226EB8C700C4475E /* SJTestImageView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SJTestImageView.h; sourceTree = "<group>"; };
 		7771BAB3226EB8C700C4475E /* SJTestImageView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SJTestImageView.m; sourceTree = "<group>"; };
+		77B035E922704A01001321A5 /* SJDemo2ViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SJDemo2ViewController.h; sourceTree = "<group>"; };
+		77B035EA22704A01001321A5 /* SJDemo2ViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SJDemo2ViewController.m; sourceTree = "<group>"; };
+		77B035EC22704A4B001321A5 /* SJDemo2ViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = SJDemo2ViewController.xib; sourceTree = "<group>"; };
 		873B8AEA1B1F5CCA007FD442 /* Main.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = Main.storyboard; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		8BE31FA8813B87261BB9C534 /* Pods-SJFrameLayout_Example.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SJFrameLayout_Example.release.xcconfig"; path = "Target Support Files/Pods-SJFrameLayout_Example/Pods-SJFrameLayout_Example.release.xcconfig"; sourceTree = "<group>"; };
 		A0DC781011015BDC96F9B8E2 /* README.md */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = net.daringfireball.markdown; name = README.md; path = ../README.md; sourceTree = "<group>"; };
@@ -226,10 +231,21 @@
 			path = Pods;
 			sourceTree = "<group>";
 		};
+		77B035E8227049F0001321A5 /* Demo02 */ = {
+			isa = PBXGroup;
+			children = (
+				77B035E922704A01001321A5 /* SJDemo2ViewController.h */,
+				77B035EA22704A01001321A5 /* SJDemo2ViewController.m */,
+				77B035EC22704A4B001321A5 /* SJDemo2ViewController.xib */,
+			);
+			path = Demo02;
+			sourceTree = "<group>";
+		};
 		A6D0D2F9226F588700BB35D1 /* Demo */ = {
 			isa = PBXGroup;
 			children = (
-				A6D0D2FC226F58A300BB35D1 /* Test1 */,
+				A6D0D2FC226F58A300BB35D1 /* Demo01 */,
+				77B035E8227049F0001321A5 /* Demo02 */,
 			);
 			path = Demo;
 			sourceTree = "<group>";
@@ -253,14 +269,14 @@
 			path = Test;
 			sourceTree = "<group>";
 		};
-		A6D0D2FC226F58A300BB35D1 /* Test1 */ = {
+		A6D0D2FC226F58A300BB35D1 /* Demo01 */ = {
 			isa = PBXGroup;
 			children = (
 				A6D0D301226F5A9600BB35D1 /* SJDemo1ViewController.h */,
 				A6D0D302226F5A9600BB35D1 /* SJDemo1ViewController.m */,
 				A6D0D30A226F737500BB35D1 /* SJDemo1ViewController.xib */,
 			);
-			path = Test1;
+			path = Demo01;
 			sourceTree = "<group>";
 		};
 		A6D0D2FD226F597500BB35D1 /* Home */ = {
@@ -361,6 +377,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				873B8AEB1B1F5CCA007FD442 /* Main.storyboard in Resources */,
+				77B035ED22704A4B001321A5 /* SJDemo2ViewController.xib in Resources */,
 				A6D0D30B226F737500BB35D1 /* SJDemo1ViewController.xib in Resources */,
 				71719F9F1E33DC2100824A3D /* LaunchScreen.storyboard in Resources */,
 				6003F5A9195388D20070C39A /* Images.xcassets in Resources */,
@@ -442,6 +459,7 @@
 				A6D0D2F3226C77C300BB35D1 /* SJTestView2.m in Sources */,
 				773CA0A02268921400EA87C6 /* SJTestView.m in Sources */,
 				A6D0D300226F598900BB35D1 /* SJHomeTableViewCell.m in Sources */,
+				77B035EB22704A01001321A5 /* SJDemo2ViewController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -21,6 +21,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface SJFLLayoutMaker () {
     __weak UIView *_Nullable _view;
+    __weak UIView *_Nullable _superview;
 }
 @end
 
@@ -29,7 +30,8 @@ NS_ASSUME_NONNULL_BEGIN
     self = [super init];
     if ( !self ) return nil;
     _view = view;
-    SJFLRemoveObserverFromRelatedViews(view);
+    _superview = view.superview;
+    SJFLRemoveObserverFromRelatedViews(view, _superview);
     return self;
 } 
 
@@ -66,10 +68,10 @@ RETURN_FL_MAKER_LAYOUT(centerY, SJFLLayoutAttributeCenterY);
 RETURN_FL_MAKER_LAYOUT_MASK(center, SJFLLayoutAttributeMaskCenter);
 
 - (void)install {
-    NSMutableDictionary<SJFLLayoutAttributeKey, SJFLLayoutElement *> *m = SJFLCreateElementsForAttributeUnits(_view);
+    NSMutableDictionary<SJFLLayoutAttributeKey, SJFLLayoutElement *> *m = SJFLCreateElementsForAttributeUnits(_view, _superview);
     SJFLAddFittingSizeUnitsIfNeeded(_view, m);
     _view.FL_elements = m;
-    SJFLAddObserverToRelatedViews(_view);
+    SJFLAddObserverToRelatedViews(_view, _superview);
     [_view FL_resetAttributeUnits];
     
 #ifdef DEBUG
@@ -82,8 +84,8 @@ RETURN_FL_MAKER_LAYOUT_MASK(center, SJFLLayoutAttributeMaskCenter);
 }
 
 UIKIT_STATIC_INLINE
-NSMutableDictionary<SJFLLayoutAttributeKey, SJFLLayoutElement *> *SJFLCreateElementsForAttributeUnits(UIView *view) {
-    NSMutableDictionary<SJFLLayoutAttributeKey, SJFLLayoutElement *> *m = [NSMutableDictionary dictionary];
+NSMutableDictionary<SJFLLayoutAttributeKey, SJFLLayoutElement *> *SJFLCreateElementsForAttributeUnits(UIView *view, UIView *superview) {
+    NSMutableDictionary<SJFLLayoutAttributeKey, SJFLLayoutElement *> *m = [NSMutableDictionary dictionaryWithCapacity:8];
     SJFLLayoutAttributeUnit *_Nullable top = [view FL_attributeUnitForAttribute:SJFLLayoutAttributeTop];
     SJFLLayoutAttributeUnit *_Nullable left = [view FL_attributeUnitForAttribute:SJFLLayoutAttributeLeft];
     SJFLLayoutAttributeUnit *_Nullable bottom = [view FL_attributeUnitForAttribute:SJFLLayoutAttributeBottom];
@@ -93,14 +95,14 @@ NSMutableDictionary<SJFLLayoutAttributeKey, SJFLLayoutElement *> *SJFLCreateElem
     SJFLLayoutAttributeUnit *_Nullable centerX = [view FL_attributeUnitForAttribute:SJFLLayoutAttributeCenterX];
     SJFLLayoutAttributeUnit *_Nullable centerY = [view FL_attributeUnitForAttribute:SJFLLayoutAttributeCenterY];
     
-    if ( top ) m[SJFLLayoutAttributeKeyTop] = [[SJFLLayoutElement alloc] initWithTarget:top];
-    if ( left ) m[SJFLLayoutAttributeKeyLeft] = [[SJFLLayoutElement alloc] initWithTarget:left];
-    if ( bottom ) m[SJFLLayoutAttributeKeyBottom] = [[SJFLLayoutElement alloc] initWithTarget:bottom];
-    if ( right ) m[SJFLLayoutAttributeKeyRight] = [[SJFLLayoutElement alloc] initWithTarget:right];
-    if ( width ) m[SJFLLayoutAttributeKeyWidth] = [[SJFLLayoutElement alloc] initWithTarget:width];
-    if ( height ) m[SJFLLayoutAttributeKeyHeight] = [[SJFLLayoutElement alloc] initWithTarget:height];
-    if ( centerX ) m[SJFLLayoutAttributeKeyCenterX] = [[SJFLLayoutElement alloc] initWithTarget:centerX];
-    if ( centerY ) m[SJFLLayoutAttributeKeyCenterY] = [[SJFLLayoutElement alloc] initWithTarget:centerY];
+    if ( top ) m[SJFLLayoutAttributeKeyTop] = [[SJFLLayoutElement alloc] initWithTarget:top superview:superview];
+    if ( left ) m[SJFLLayoutAttributeKeyLeft] = [[SJFLLayoutElement alloc] initWithTarget:left superview:superview];
+    if ( bottom ) m[SJFLLayoutAttributeKeyBottom] = [[SJFLLayoutElement alloc] initWithTarget:bottom superview:superview];
+    if ( right ) m[SJFLLayoutAttributeKeyRight] = [[SJFLLayoutElement alloc] initWithTarget:right superview:superview];
+    if ( width ) m[SJFLLayoutAttributeKeyWidth] = [[SJFLLayoutElement alloc] initWithTarget:width superview:superview];
+    if ( height ) m[SJFLLayoutAttributeKeyHeight] = [[SJFLLayoutElement alloc] initWithTarget:height superview:superview];
+    if ( centerX ) m[SJFLLayoutAttributeKeyCenterX] = [[SJFLLayoutElement alloc] initWithTarget:centerX superview:superview];
+    if ( centerY ) m[SJFLLayoutAttributeKeyCenterY] = [[SJFLLayoutElement alloc] initWithTarget:centerY superview:superview];
     return m;
 }
 
@@ -144,31 +146,38 @@ SJFLAddFittingSizeUnitsIfNeeded(UIView *view, NSMutableDictionary<SJFLLayoutAttr
 
 - (void)update {
     NSMutableDictionary<SJFLLayoutAttributeKey, SJFLLayoutElement *> *m = _view.FL_elements?:@{}.mutableCopy;
-    NSMutableDictionary<SJFLLayoutAttributeKey, SJFLLayoutElement *> *update = SJFLCreateElementsForAttributeUnits(_view);
+    NSMutableDictionary<SJFLLayoutAttributeKey, SJFLLayoutElement *> *update = SJFLCreateElementsForAttributeUnits(_view, _superview);
     [m setDictionary:update];
     
     SJFLAddFittingSizeUnitsIfNeeded(_view, m);
     _view.FL_elements = m;
-    SJFLAddObserverToRelatedViews(_view);
+    SJFLAddObserverToRelatedViews(_view, _superview);
     SJFLRefreshLayoutsForRelatedView(_view);
     [_view FL_resetAttributeUnits];
 }
 
 UIKIT_STATIC_INLINE
-void SJFLRemoveObserverFromRelatedViews(UIView *view) {
-    [view FL_removeObserver:view];
-    [view.superview FL_removeObserver:view];
-    for ( UIView *dependecy in SJFLGetElementsRelatedViews([view FL_elements].allValues) ) {
-        [dependecy FL_removeObserver:view];
+void SJFLRemoveObserverFromRelatedViews(UIView *view, UIView *superview) {
+    NSDictionary<SJFLLayoutAttributeKey, SJFLLayoutElement *> *_Nullable m = SJFLElements(view);
+    if ( m ) {
+        [view FL_removeObserver:view];
+        [superview FL_removeObserver:view];
+        for ( UIView *dependecy in SJFLGetElementsRelatedViews(SJFLElements(view).allValues) ) {
+            [dependecy FL_removeObserver:view];
+        }
     }
 }
 
-void SJFLAddObserverToRelatedViews(UIView *view) {
+void SJFLAddObserverToRelatedViews(UIView *view, UIView *superview) {
     [view FL_addObserver:view];
-    [view.superview FL_addObserver:view];
-    for ( UIView *dependency in SJFLGetElementsRelatedViews([view FL_elements].allValues) ) {
+    [superview FL_addObserver:view];
+    for ( UIView *dependency in SJFLGetElementsRelatedViews(SJFLElements(view).allValues) ) {
         [dependency FL_addObserver:view];
     }
+}
+
++ (void)removeAllLayouts:(UIView *)view {
+    view.FL_elements = nil;
 }
 @end
 NS_ASSUME_NONNULL_END

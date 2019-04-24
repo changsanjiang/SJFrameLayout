@@ -13,5 +13,6 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithView:(UIView *)view;
 - (void)install;
 - (void)update;
++ (void)removeAllLayouts:(UIView *)view;
 @end
 NS_ASSUME_NONNULL_END

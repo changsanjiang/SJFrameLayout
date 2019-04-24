@@ -31,6 +31,7 @@ static NSString *SJHomeTableViewCellID = @"SJHomeTableViewCell";
 - (void)_makeDemos {
     NSMutableArray<SJDemoItem *> *m = [NSMutableArray array];
     [m addObject:[SJDemoItem itemWithTitle:@"demo 1" subtitle:@"" routePath:@"demos/1"]];
+    [m addObject:[SJDemoItem itemWithTitle:@"demo 2" subtitle:@"" routePath:@"demos/2"]];
     _demos = m;
     [_tableView reloadData];
 }

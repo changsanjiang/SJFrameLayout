@@ -19,5 +19,8 @@ NS_ASSUME_NONNULL_BEGIN
     block(maker);
     [maker update];
 }
+- (void)sj_removeFrameLayouts {
+    [SJFLLayoutMaker removeAllLayouts:self];
+}
 @end
 NS_ASSUME_NONNULL_END

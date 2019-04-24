@@ -38,7 +38,6 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, weak, readonly, nullable) UIView *view;
 @property (nonatomic, strong, readonly, nullable) SJFLFrameAttributeUnit *equalToViewAttribute;
 - (void)equalTo:(SJFLFrameAttributeUnit *)viewAttribute;
-- (CGFloat)offset;
 - (instancetype)init NS_UNAVAILABLE;
 + (instancetype)new NS_UNAVAILABLE;
 + (NSString *)debug_attributeToString:(SJFLLayoutAttribute)attribute;

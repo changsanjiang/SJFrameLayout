@@ -233,16 +233,26 @@ UIKIT_STATIC_INLINE void SJFLViewLayoutFixInnerSize(UIView *view, SJFLLayoutAttr
     
     CGFloat maxX = 0;
     for ( UIView *sub in view.subviews ) {
-        SJFLLayoutAttributeUnit *_Nullable right = [sub FL_elementForAttributeKey:SJFLLayoutAttributeKeyRight].target;;
+        SJFLLayoutElement *_Nullable right = [sub FL_elementForAttributeKey:SJFLLayoutAttributeKeyRight];;
         CGFloat subMaxX = CGRectGetMaxX(sub.frame) - right.offset;
         if ( subMaxX > maxX ) maxX = subMaxX;
     }
 
     CGFloat maxY = 0;
     for ( UIView *sub in view.subviews ) {
-        SJFLLayoutAttributeUnit *_Nullable bottom = [sub FL_elementForAttributeKey:SJFLLayoutAttributeKeyBottom].target;
+        SJFLLayoutElement *_Nullable bottom = [sub FL_elementForAttributeKey:SJFLLayoutAttributeKeyBottom];
         CGFloat subMaxY = CGRectGetMaxY(sub.frame) - bottom.offset;
         if ( subMaxY > maxY ) maxY = subMaxY;
+    }
+    
+    CGSize intrinsicContentSize = view.intrinsicContentSize;
+    if ( SJFLFloatCompare(0, maxX) ) {
+        if ( intrinsicContentSize.width != UIViewNoIntrinsicMetric )
+            maxX = intrinsicContentSize.width;
+    }
+    if ( SJFLFloatCompare(0, maxY) ) {
+        if ( intrinsicContentSize.height != UIViewNoIntrinsicMetric )
+            maxY = intrinsicContentSize.height;
     }
     
     BOOL needRefresh = NO;
@@ -283,6 +293,11 @@ void SJFLRefreshLayoutsForRelatedView(UIView *view) {
     for ( UIView *view in set ) {
         [view layoutSubviews];
     }
+}
+
+NSDictionary<SJFLLayoutAttributeKey, SJFLLayoutElement *> *_Nullable
+SJFLElements(UIView *view) {
+    return objc_getAssociatedObject(view, kFL_Container);
 }
 @end
 NS_ASSUME_NONNULL_END
