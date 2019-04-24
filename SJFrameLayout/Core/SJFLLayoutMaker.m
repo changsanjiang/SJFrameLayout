@@ -173,19 +173,17 @@ SJFLAddFittingSizeUnitsIfNeeded(UIView *view, NSMutableDictionary<SJFLLayoutAttr
     // - 如果视图自己依赖其他视图, 也需要观察对应的视图.
     [m enumerateKeysAndObjectsUsingBlock:^(SJFLLayoutAttributeKey  _Nonnull key, SJFLLayoutElement * _Nonnull obj, BOOL * _Nonnull stop) {
         UIView *view = obj.dep_view;
-        if ( view != self->_view ) {
-            [view FL_addObserver:self->_view];
-        }
+        [view FL_addObserver:self->_view];
     }];
+    [_view FL_addObserver:_view];
 }
 
 - (void)_removeObserver {
+    [_view FL_removeObserver:_view];
     [_view.FL_elementsCommonSuperview FL_removeObserver:_view];
     [_view.FL_elements enumerateKeysAndObjectsUsingBlock:^(SJFLLayoutAttributeKey  _Nonnull key, SJFLLayoutElement * _Nonnull obj, BOOL * _Nonnull stop) {
         UIView *view = obj.dep_view;
-        if ( view != self->_view ) {
-            [view FL_removeObserver:self->_view];
-        }
+        [view FL_removeObserver:self->_view];
     }];
 }
 

@@ -32,63 +32,65 @@ static void *kFL_Container = &kFL_Container;
 // -
 
 - (void)FL_dependencyViewDidLayoutSubviews:(UIView *)view {
-    NSMutableDictionary<SJFLLayoutAttributeKey, SJFLLayoutElement *> *_Nullable
-    m = objc_getAssociatedObject(self, kFL_Container);
-    if ( m ) {
-        // 布局应该从width和height优先安装
-        
-        // top 安装好之后, 会影响到什么, 或者什么可以定位到了 ?
-        // - bottom
-        // 当 top 和 bottom 同时安装之后, 会生成 height. 当width依赖height时, 此时可以刷新width
-        
-        // left 安装好之后, 会影响到什么, 或者什么可以定位到了 ?
-        // - right
-        // 当 left 和 right 同时安装之后, 会生成 width. 当height依赖width时, 此时可以刷新height
-        
-        // height 改变之后, 会影响到什么?
-        // - centerY
-        // - bottom
-        
-        // width 改变之后, 会影响到什么?
-        // - centerX
-        // - right
-        
-        // bottom 安装之后, 会影响到什么?
-        // centerY 安装之后, 会影响到什么?
-        // centerX 安装之后, 会影响到什么?
-        
-        SJFLLayoutElement *_Nullable top = m[SJFLLayoutAttributeKeyTop];
-        SJFLLayoutElement *_Nullable left = m[SJFLLayoutAttributeKeyLeft];
-        SJFLLayoutElement *_Nullable bottom = m[SJFLLayoutAttributeKeyBottom];
-        SJFLLayoutElement *_Nullable right = m[SJFLLayoutAttributeKeyRight];
-        SJFLLayoutElement *_Nullable width = m[SJFLLayoutAttributeKeyWidth];
-        SJFLLayoutElement *_Nullable height = m[SJFLLayoutAttributeKeyHeight];
-        SJFLLayoutElement *_Nullable centerX = m[SJFLLayoutAttributeKeyCenterX];
-        SJFLLayoutElement *_Nullable centerY = m[SJFLLayoutAttributeKeyCenterY];
-        
-        CGRect previous = self.frame;
-        CGRect frame = previous;
-        if ( width ) [width refreshLayoutIfNeeded:&frame];
-        if ( height ) [height refreshLayoutIfNeeded:&frame];
-        
-        if ( top ) [top refreshLayoutIfNeeded:&frame];
-        if ( !height ) [bottom refreshLayoutIfNeeded:&frame];
-        if ( width ) [width refreshLayoutIfNeeded:&frame];
-        
-        if ( left ) [left refreshLayoutIfNeeded:&frame];
-        if ( left && width ) {}
-        else if ( right ) [right refreshLayoutIfNeeded:&frame];
-        if ( height ) [height refreshLayoutIfNeeded:&frame];
-        
-        if ( top && height ) {}
-        else if ( bottom ) [bottom refreshLayoutIfNeeded:&frame];
-        
-        if ( centerX ) [centerX refreshLayoutIfNeeded:&frame];
-        if ( centerY ) [centerY refreshLayoutIfNeeded:&frame];
-        if ( !CGRectEqualToRect(frame, previous) )
-            self.frame = frame;
-        
-        SJFLViewLayoutFixInnerSizeIfNeeded(self, m);
+    if ( view != self ) {
+        NSMutableDictionary<SJFLLayoutAttributeKey, SJFLLayoutElement *> *_Nullable
+        m = objc_getAssociatedObject(self, kFL_Container);
+        if ( m ) {
+            // 布局应该从width和height优先安装
+            
+            // top 安装好之后, 会影响到什么, 或者什么可以定位到了 ?
+            // - bottom
+            // 当 top 和 bottom 同时安装之后, 会生成 height. 当width依赖height时, 此时可以刷新width
+            
+            // left 安装好之后, 会影响到什么, 或者什么可以定位到了 ?
+            // - right
+            // 当 left 和 right 同时安装之后, 会生成 width. 当height依赖width时, 此时可以刷新height
+            
+            // height 改变之后, 会影响到什么?
+            // - centerY
+            // - bottom
+            
+            // width 改变之后, 会影响到什么?
+            // - centerX
+            // - right
+            
+            // bottom 安装之后, 会影响到什么?
+            // centerY 安装之后, 会影响到什么?
+            // centerX 安装之后, 会影响到什么?
+            
+            SJFLLayoutElement *_Nullable top = m[SJFLLayoutAttributeKeyTop];
+            SJFLLayoutElement *_Nullable left = m[SJFLLayoutAttributeKeyLeft];
+            SJFLLayoutElement *_Nullable bottom = m[SJFLLayoutAttributeKeyBottom];
+            SJFLLayoutElement *_Nullable right = m[SJFLLayoutAttributeKeyRight];
+            SJFLLayoutElement *_Nullable width = m[SJFLLayoutAttributeKeyWidth];
+            SJFLLayoutElement *_Nullable height = m[SJFLLayoutAttributeKeyHeight];
+            SJFLLayoutElement *_Nullable centerX = m[SJFLLayoutAttributeKeyCenterX];
+            SJFLLayoutElement *_Nullable centerY = m[SJFLLayoutAttributeKeyCenterY];
+            
+            CGRect previous = self.frame;
+            CGRect frame = previous;
+            if ( width ) [width refreshLayoutIfNeeded:&frame];
+            if ( height ) [height refreshLayoutIfNeeded:&frame];
+            
+            if ( top ) [top refreshLayoutIfNeeded:&frame];
+            if ( !height ) [bottom refreshLayoutIfNeeded:&frame];
+            if ( width ) [width refreshLayoutIfNeeded:&frame];
+            
+            if ( left ) [left refreshLayoutIfNeeded:&frame];
+            if ( left && width ) {}
+            else if ( right ) [right refreshLayoutIfNeeded:&frame];
+            if ( height ) [height refreshLayoutIfNeeded:&frame];
+            
+            if ( top && height ) {}
+            else if ( bottom ) [bottom refreshLayoutIfNeeded:&frame];
+            
+            if ( centerX ) [centerX refreshLayoutIfNeeded:&frame];
+            if ( centerY ) [centerY refreshLayoutIfNeeded:&frame];
+            if ( !CGRectEqualToRect(frame, previous) )
+                self.frame = frame;
+            
+            SJFLViewLayoutFixInnerSizeIfNeeded(self, m);
+        }
     }
     
     SJFLViewLayoutFixInnerSizeIfNeeded(view, nil);

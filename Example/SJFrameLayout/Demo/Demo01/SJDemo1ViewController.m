@@ -69,6 +69,7 @@ NS_ASSUME_NONNULL_BEGIN
     // - button -
     _button = [UIButton buttonWithType:UIButtonTypeSystem];
     [_button setTitle:@"change label text" forState:UIControlStateNormal];
+    [_button setTitle:@"change label text(state Highlighted)" forState:UIControlStateHighlighted];
     [_button addTarget:self action:@selector(clickedButton:) forControlEvents:UIControlEventTouchUpInside];
     [self.view addSubview:_button];
     [_button sj_makeFrameLayout:^(SJFLLayoutMaker * _Nonnull make) {
