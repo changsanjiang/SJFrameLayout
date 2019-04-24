@@ -33,13 +33,86 @@ static void *kFL_Container = &kFL_Container;
 
 - (void)FL_dependencyViewDidLayoutSubviews:(UIView *)view {
     if ( view != self ) {
-        for ( SJFLLayoutElement *ele in [objc_getAssociatedObject(self, kFL_Container) allValues] ) {
-            [ele refreshLayoutIfNeeded];
+        NSDictionary<SJFLLayoutAttributeKey, SJFLLayoutElement *> *_Nullable
+        m = objc_getAssociatedObject(self, kFL_Container);
+        if ( m ) {
+            // 布局应该从width和height优先安装
+            
+            // top 安装好之后, 会影响到什么, 或者什么可以定位到了 ?
+            // - bottom
+            // 当 top 和 bottom 同时安装之后, 会生成 height. 当width依赖height时, 此时可以刷新width
+            
+            // left 安装好之后, 会影响到什么, 或者什么可以定位到了 ?
+            // - right
+            // 当 left 和 right 同时安装之后, 会生成 width. 当height依赖width时, 此时可以刷新height
+            
+            [m[SJFLLayoutAttributeKeyWidth] refreshLayoutIfNeeded];
+            [m[SJFLLayoutAttributeKeyHeight] refreshLayoutIfNeeded];
+            
+            [m[SJFLLayoutAttributeKeyTop] refreshLayoutIfNeeded];
+            [m[SJFLLayoutAttributeKeyBottom] refreshLayoutIfNeeded];
+            [m[SJFLLayoutAttributeKeyWidth] refreshLayoutIfNeeded];
+            
+            [m[SJFLLayoutAttributeKeyLeft] refreshLayoutIfNeeded];
+            [m[SJFLLayoutAttributeKeyRight] refreshLayoutIfNeeded];
+            [m[SJFLLayoutAttributeKeyHeight] refreshLayoutIfNeeded];
+            
+            [m[SJFLLayoutAttributeKeyCenterX] refreshLayoutIfNeeded];
+            [m[SJFLLayoutAttributeKeyCenterY] refreshLayoutIfNeeded];
         }
     }
     
     SJFLViewLayoutFixInnerSizeIfNeeded(self);
     SJFLViewLayoutFixInnerSizeIfNeeded(self.superview);
+}
+
+- (void)FL_elementDidRefreshLayout:(SJFLLayoutElement *)element {
+    UIView *view = self;
+    NSDictionary<SJFLLayoutAttributeKey, SJFLLayoutElement *> *m = SJFLElements(view);
+    switch ( element.tar_attr ) {
+        case SJFLLayoutAttributeNone:
+            break;
+        case SJFLLayoutAttributeWidth: {
+            if ( 0 != CGRectGetWidth(view.frame) ) {
+                [m[SJFLLayoutAttributeKeyLeft] refreshLayoutIfNeeded];
+                [m[SJFLLayoutAttributeKeyCenterX] refreshLayoutIfNeeded];
+                [m[SJFLLayoutAttributeKeyRight] refreshLayoutIfNeeded];
+                [m[SJFLLayoutAttributeKeyHeight] refreshLayoutIfNeeded];
+            }
+        }
+            break;
+        case SJFLLayoutAttributeHeight: {
+            if ( 0 != CGRectGetHeight(view.frame) ) {
+                [m[SJFLLayoutAttributeKeyTop] refreshLayoutIfNeeded];
+                [m[SJFLLayoutAttributeKeyCenterY] refreshLayoutIfNeeded];
+                [m[SJFLLayoutAttributeKeyBottom] refreshLayoutIfNeeded];
+                [m[SJFLLayoutAttributeKeyWidth] refreshLayoutIfNeeded];
+            }
+        }
+            break;
+        case SJFLLayoutAttributeTop: {
+            // update bottom layout
+            [m[SJFLLayoutAttributeKeyBottom] refreshLayoutIfNeeded];
+        }
+            break;
+        case SJFLLayoutAttributeLeft: {
+            // update right layout
+            [m[SJFLLayoutAttributeKeyRight] refreshLayoutIfNeeded];
+        }
+            break;
+        case SJFLLayoutAttributeBottom: {
+            [m[SJFLLayoutAttributeKeyWidth] refreshLayoutIfNeeded];
+        }
+            break;
+        case SJFLLayoutAttributeRight: {
+            [m[SJFLLayoutAttributeKeyHeight] refreshLayoutIfNeeded];
+        }
+            break;
+        case SJFLLayoutAttributeCenterX:
+            break;
+        case SJFLLayoutAttributeCenterY:
+            break;
+    }
 }
 
 // fix inner size

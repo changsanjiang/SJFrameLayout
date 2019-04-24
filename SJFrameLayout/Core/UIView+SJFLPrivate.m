@@ -62,13 +62,13 @@ SJFLSwizzleMethod(Class cls, SEL originalSelector, SEL swizzledSelector) {
 
 - (void)FL_addObserver:(id<SJFLDependencyViewDidLayoutSubviewsProtocol>)observer {
     if ( observer ) {
-        NSNumber *num = @([observer hash]);
+        NSNumber *num = @([(id)observer hash]);
         SJFLObserversContainer(self)[num] = [[SJFLDependencyObserveTarget alloc] initWithTarget:observer];
     }
 }
 
 - (void)FL_removeObserver:(id<SJFLDependencyViewDidLayoutSubviewsProtocol>)observer {
-    [SJFLGetObserversContainerIfExists(self) removeObjectForKey:@([observer hash])];
+    [SJFLGetObserversContainerIfExists(self) removeObjectForKey:@([(id)observer hash])];
 }
 
 static void *FL_kContainer = &FL_kContainer;

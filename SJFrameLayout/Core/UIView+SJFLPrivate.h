@@ -8,7 +8,7 @@
 #import <UIKit/UIKit.h>
 
 NS_ASSUME_NONNULL_BEGIN
-@protocol SJFLDependencyViewDidLayoutSubviewsProtocol <NSObject>
+@protocol SJFLDependencyViewDidLayoutSubviewsProtocol
 - (void)FL_dependencyViewDidLayoutSubviews:(UIView *)view;
 @end
 

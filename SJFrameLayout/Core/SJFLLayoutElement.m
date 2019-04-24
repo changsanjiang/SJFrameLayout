@@ -12,12 +12,6 @@
 #import "UIView+SJFLLayoutElements.h"
 
 NS_ASSUME_NONNULL_BEGIN
-#if 1
-#ifdef DEBUG
-#undef DEBUG
-#endif
-#endif
-
 @interface SJFLLayoutSetInfo : NSObject
 - (void)set:(SJFLLayoutAttribute)attribute;
 - (BOOL)get:(SJFLLayoutAttribute)attribute;
@@ -158,7 +152,7 @@ NS_ASSUME_NONNULL_BEGIN
     return self;
 }
 
-#ifdef DEBUG
+#ifdef SJFLLib
 - (NSString *)description {
     return [NSString stringWithFormat:@"[_tar_view:%p,\t _tar_attr:%s,\t _dep_view:%p,\t _dep_attr:%s,\t _priority:%d]", _tar_view, [SJFLLayoutAttributeUnit debug_attributeToString:_tar_attr].UTF8String, _dep_view, [SJFLLayoutAttributeUnit debug_attributeToString:_dep_attr].UTF8String, _target->priority];
 }
@@ -224,7 +218,7 @@ NS_ASSUME_NONNULL_BEGIN
             break;
     }
     
-#ifdef DEBUG
+#ifdef SJFLLib
     printf("\n_tar_view:[%s]", _tar_view.description.UTF8String);
     printf("\n_tar_attr:[%s]", [SJFLLayoutAttributeUnit debug_attributeToString:tar_attr].UTF8String);
     printf("\n_dep_view:[%s]", _dep_view.description.UTF8String);
@@ -232,8 +226,6 @@ NS_ASSUME_NONNULL_BEGIN
     printf("\n");
     printf("\n");
 #endif
-    
-    SJFLViewUpdateRelatedLayoutIfNeeded(view, tar_attr);
 }
 
 // value = dependency_value * multiplier + offset
@@ -375,57 +367,6 @@ NS_ASSUME_NONNULL_BEGIN
         }
     }
     return 0;
-}
-
-// - update -
-
-UIKIT_STATIC_INLINE void
-SJFLViewUpdateRelatedLayoutIfNeeded(UIView *view, SJFLLayoutAttribute attr) {
-    NSDictionary<SJFLLayoutAttributeKey, SJFLLayoutElement *> *m = SJFLElements(view);
-    switch ( attr ) {
-        case SJFLLayoutAttributeNone:
-            break;
-        case SJFLLayoutAttributeWidth: {
-            if ( !SJFLFloatCompare(0, CGRectGetWidth(view.frame)) ) {
-                [m[SJFLLayoutAttributeKeyLeft] refreshLayoutIfNeeded];
-                [m[SJFLLayoutAttributeKeyCenterX] refreshLayoutIfNeeded];
-                [m[SJFLLayoutAttributeKeyRight] refreshLayoutIfNeeded];
-                [m[SJFLLayoutAttributeKeyHeight] refreshLayoutIfNeeded];
-            }
-        }
-            break;
-        case SJFLLayoutAttributeHeight: {
-            if ( !SJFLFloatCompare(0, CGRectGetHeight(view.frame)) ) {
-                [m[SJFLLayoutAttributeKeyTop] refreshLayoutIfNeeded];
-                [m[SJFLLayoutAttributeKeyCenterY] refreshLayoutIfNeeded];
-                [m[SJFLLayoutAttributeKeyBottom] refreshLayoutIfNeeded];
-                [m[SJFLLayoutAttributeKeyWidth] refreshLayoutIfNeeded];
-            }
-        }
-            break;
-        case SJFLLayoutAttributeTop: {
-            // update bottom layout
-            [m[SJFLLayoutAttributeKeyBottom] refreshLayoutIfNeeded];
-        }
-            break;
-        case SJFLLayoutAttributeLeft: {
-            // update right layout
-            [m[SJFLLayoutAttributeKeyRight] refreshLayoutIfNeeded];
-        }
-            break;
-        case SJFLLayoutAttributeBottom: {
-            [m[SJFLLayoutAttributeKeyWidth] refreshLayoutIfNeeded];
-        }
-            break;
-        case SJFLLayoutAttributeRight: {
-            [m[SJFLLayoutAttributeKeyHeight] refreshLayoutIfNeeded];
-        }
-            break;
-        case SJFLLayoutAttributeCenterX:
-            break;
-        case SJFLLayoutAttributeCenterY:
-            break;
-    }
 }
 
 // 如果高度依赖于宽度, 则宽度布局完成后, 刷新高度
@@ -608,9 +549,6 @@ UIKIT_STATIC_INLINE void SJFLViewSetBottom(UIView *view, CGFloat bottom) {
         CGFloat height = bottom - CGRectGetMinY(frame);
         if ( height < 0 ) height = 0;
         if ( height != frame.size.height ) {
-            
-            NSLog(@"height: \t %lf \t %lf", height, frame.size.height);
-            
             frame.size.height = height;
             view.frame = frame;
         }
@@ -639,9 +577,6 @@ UIKIT_STATIC_INLINE void SJFLViewSetRight(UIView *view, CGFloat right) {
         CGFloat width = right - CGRectGetMinX(frame);
         if ( width < 0 ) width = 0;
         if ( width != frame.size.width ) {
-            
-            NSLog(@"width: \t %lf \t %lf", width, frame.size.width);
-            
             frame.size.width = width;
             view.frame = frame;
         }

@@ -6,6 +6,7 @@
 //
 
 #import "SJFLLayoutAttributeUnit.h"
+@class SJFLLayoutElement;
 
 NS_ASSUME_NONNULL_BEGIN
 @interface SJFLLayoutElement : NSObject
