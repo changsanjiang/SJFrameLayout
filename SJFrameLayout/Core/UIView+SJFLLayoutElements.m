@@ -66,55 +66,6 @@ static void *kFL_Container = &kFL_Container;
     SJFLViewLayoutFixInnerSizeIfNeeded(self.superview);
 }
 
-- (void)FL_elementDidRefreshLayout:(SJFLLayoutElement *)element {
-    UIView *view = self;
-    NSDictionary<SJFLLayoutAttributeKey, SJFLLayoutElement *> *m = SJFLElements(view);
-    switch ( element.tar_attr ) {
-        case SJFLLayoutAttributeNone:
-            break;
-        case SJFLLayoutAttributeWidth: {
-            if ( 0 != CGRectGetWidth(view.frame) ) {
-                [m[SJFLLayoutAttributeKeyLeft] refreshLayoutIfNeeded];
-                [m[SJFLLayoutAttributeKeyCenterX] refreshLayoutIfNeeded];
-                [m[SJFLLayoutAttributeKeyRight] refreshLayoutIfNeeded];
-                [m[SJFLLayoutAttributeKeyHeight] refreshLayoutIfNeeded];
-            }
-        }
-            break;
-        case SJFLLayoutAttributeHeight: {
-            if ( 0 != CGRectGetHeight(view.frame) ) {
-                [m[SJFLLayoutAttributeKeyTop] refreshLayoutIfNeeded];
-                [m[SJFLLayoutAttributeKeyCenterY] refreshLayoutIfNeeded];
-                [m[SJFLLayoutAttributeKeyBottom] refreshLayoutIfNeeded];
-                [m[SJFLLayoutAttributeKeyWidth] refreshLayoutIfNeeded];
-            }
-        }
-            break;
-        case SJFLLayoutAttributeTop: {
-            // update bottom layout
-            [m[SJFLLayoutAttributeKeyBottom] refreshLayoutIfNeeded];
-        }
-            break;
-        case SJFLLayoutAttributeLeft: {
-            // update right layout
-            [m[SJFLLayoutAttributeKeyRight] refreshLayoutIfNeeded];
-        }
-            break;
-        case SJFLLayoutAttributeBottom: {
-            [m[SJFLLayoutAttributeKeyWidth] refreshLayoutIfNeeded];
-        }
-            break;
-        case SJFLLayoutAttributeRight: {
-            [m[SJFLLayoutAttributeKeyHeight] refreshLayoutIfNeeded];
-        }
-            break;
-        case SJFLLayoutAttributeCenterX:
-            break;
-        case SJFLLayoutAttributeCenterY:
-            break;
-    }
-}
-
 // fix inner size
 
 UIKIT_STATIC_INLINE void SJFLViewLayoutFixInnerSizeIfNeeded(UIView *view) {
