@@ -67,11 +67,12 @@ RETURN_FL_MAKER_LAYOUT(centerY, SJFLLayoutAttributeCenterY);
 RETURN_FL_MAKER_LAYOUT_MASK(center, SJFLLayoutAttributeMaskCenter);
 
 - (void)install {
+    [self _removeObserver];
     NSMutableDictionary<SJFLLayoutAttributeKey, SJFLLayoutElement *> *m = SJFLCreateElementsForAttributeUnits(_view, _superview);
     SJFLAddFittingSizeUnitsIfNeeded(_view, m);
     _view.FL_elements = m;
     [_view FL_resetAttributeUnits];
-    [self _observeCommonSuperviewDidLayoutSubviews:m];
+    [self _observeDependencyViewDidLayoutSubviews:m];
     
 #ifdef DEBUG
     for ( SJFLLayoutElement *ele in m ) {
@@ -142,6 +143,7 @@ SJFLAddFittingSizeUnitsIfNeeded(UIView *view, NSMutableDictionary<SJFLLayoutAttr
 }
 
 - (void)update {
+    [self _removeObserver];
     // - elements
     NSMutableDictionary<SJFLLayoutAttributeKey, SJFLLayoutElement *> *m = _view.FL_elements?:@{}.mutableCopy;
     NSMutableDictionary<SJFLLayoutAttributeKey, SJFLLayoutElement *> *update = SJFLCreateElementsForAttributeUnits(_view, _superview);
@@ -151,7 +153,7 @@ SJFLAddFittingSizeUnitsIfNeeded(UIView *view, NSMutableDictionary<SJFLLayoutAttr
     [_view FL_resetAttributeUnits];
     
     // - observe
-    [self _observeCommonSuperviewDidLayoutSubviews:m];
+    [self _observeDependencyViewDidLayoutSubviews:m];
     
     // - update
     [_view.FL_elementsCommonSuperview layoutSubviews];
@@ -162,19 +164,29 @@ SJFLAddFittingSizeUnitsIfNeeded(UIView *view, NSMutableDictionary<SJFLLayoutAttr
 }
 
 #pragma mark -
-- (void)_observeCommonSuperviewDidLayoutSubviews:(NSDictionary<SJFLLayoutAttributeKey, SJFLLayoutElement *> *)m {
+- (void)_observeDependencyViewDidLayoutSubviews:(NSDictionary<SJFLLayoutAttributeKey, SJFLLayoutElement *> *)m {
     UIView *_Nullable commonSuperview = SJFLCommonSuperviewOfElements(_view, m);
     NSAssert(commonSuperview, @"Can't constrain views that do not share a common superview. Make sure that all the views in this array have been added into the same view hierarchy.");
     
-    // elementsCommonSuperview 如何通知子视图 它正在布局?
-    // 子视图如何移除对它的观察?
-    
-    // 移除观察
-    [_view.FL_elementsCommonSuperview FL_removeObserver:_view];
-    // 记录commsuperview, 再次设置之前, 进行移除操作`FL_removeObserver`
     _view.FL_elementsCommonSuperview = commonSuperview;
-    // 观察layoutSubviews
     [commonSuperview FL_addObserver:_view];
+    // - 如果视图自己依赖其他视图, 也需要观察对应的视图.
+    [m enumerateKeysAndObjectsUsingBlock:^(SJFLLayoutAttributeKey  _Nonnull key, SJFLLayoutElement * _Nonnull obj, BOOL * _Nonnull stop) {
+        UIView *view = obj.dep_view;
+        if ( view != self->_view ) {
+            [view FL_addObserver:self->_view];
+        }
+    }];
+}
+
+- (void)_removeObserver {
+    [_view.FL_elementsCommonSuperview FL_removeObserver:_view];
+    [_view.FL_elements enumerateKeysAndObjectsUsingBlock:^(SJFLLayoutAttributeKey  _Nonnull key, SJFLLayoutElement * _Nonnull obj, BOOL * _Nonnull stop) {
+        UIView *view = obj.dep_view;
+        if ( view != self->_view ) {
+            [view FL_removeObserver:self->_view];
+        }
+    }];
 }
 
 static UIView *_Nullable SJFLCommonSuperviewOfElements(UIView *view, NSDictionary<SJFLLayoutAttributeKey, SJFLLayoutElement *> *m) {
