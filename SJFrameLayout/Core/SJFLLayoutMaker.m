@@ -31,7 +31,6 @@ NS_ASSUME_NONNULL_BEGIN
     if ( !self ) return nil;
     _view = view;
     _superview = view.superview;
-    SJFLRemoveObserverFromRelatedViews(view, _superview);
     return self;
 } 
 
@@ -71,8 +70,8 @@ RETURN_FL_MAKER_LAYOUT_MASK(center, SJFLLayoutAttributeMaskCenter);
     NSMutableDictionary<SJFLLayoutAttributeKey, SJFLLayoutElement *> *m = SJFLCreateElementsForAttributeUnits(_view, _superview);
     SJFLAddFittingSizeUnitsIfNeeded(_view, m);
     _view.FL_elements = m;
-    SJFLAddObserverToRelatedViews(_view, _superview);
     [_view FL_resetAttributeUnits];
+    [self _observeCommonSuperviewDidLayoutSubviews:m];
     
 #ifdef DEBUG
     for ( SJFLLayoutElement *ele in m ) {
@@ -142,42 +141,67 @@ SJFLAddFittingSizeUnitsIfNeeded(UIView *view, NSMutableDictionary<SJFLLayoutAttr
     return m;
 }
 
-// - update
-
 - (void)update {
+    // - elements
     NSMutableDictionary<SJFLLayoutAttributeKey, SJFLLayoutElement *> *m = _view.FL_elements?:@{}.mutableCopy;
     NSMutableDictionary<SJFLLayoutAttributeKey, SJFLLayoutElement *> *update = SJFLCreateElementsForAttributeUnits(_view, _superview);
     [m setDictionary:update];
-    
     SJFLAddFittingSizeUnitsIfNeeded(_view, m);
     _view.FL_elements = m;
-    SJFLAddObserverToRelatedViews(_view, _superview);
-    SJFLRefreshLayoutsForRelatedView(_view);
     [_view FL_resetAttributeUnits];
-}
-
-UIKIT_STATIC_INLINE
-void SJFLRemoveObserverFromRelatedViews(UIView *view, UIView *superview) {
-    NSDictionary<SJFLLayoutAttributeKey, SJFLLayoutElement *> *_Nullable m = SJFLElements(view);
-    if ( m ) {
-        [view FL_removeObserver:view];
-        [superview FL_removeObserver:view];
-        for ( UIView *dependecy in SJFLGetElementsRelatedViews(SJFLElements(view).allValues) ) {
-            [dependecy FL_removeObserver:view];
-        }
-    }
-}
-
-void SJFLAddObserverToRelatedViews(UIView *view, UIView *superview) {
-    [view FL_addObserver:view];
-    [superview FL_addObserver:view];
-    for ( UIView *dependency in SJFLGetElementsRelatedViews(SJFLElements(view).allValues) ) {
-        [dependency FL_addObserver:view];
-    }
+    
+    // - observe
+    [self _observeCommonSuperviewDidLayoutSubviews:m];
+    
+    // - update
+    [_view.FL_elementsCommonSuperview layoutSubviews];
 }
 
 + (void)removeAllLayouts:(UIView *)view {
     view.FL_elements = nil;
+}
+
+#pragma mark -
+- (void)_observeCommonSuperviewDidLayoutSubviews:(NSDictionary<SJFLLayoutAttributeKey, SJFLLayoutElement *> *)m {
+    UIView *_Nullable commonSuperview = SJFLCommonSuperviewOfElements(_view, m);
+    NSAssert(commonSuperview, @"Can't constrain views that do not share a common superview. Make sure that all the views in this array have been added into the same view hierarchy.");
+    
+    // elementsCommonSuperview 如何通知子视图 它正在布局?
+    // 子视图如何移除对它的观察?
+    
+    // 移除观察
+    [_view.FL_elementsCommonSuperview FL_removeObserver:_view];
+    // 记录commsuperview, 再次设置之前, 进行移除操作`FL_removeObserver`
+    _view.FL_elementsCommonSuperview = commonSuperview;
+    // 观察layoutSubviews
+    [commonSuperview FL_addObserver:_view];
+}
+
+static UIView *_Nullable SJFLCommonSuperviewOfElements(UIView *view, NSDictionary<SJFLLayoutAttributeKey, SJFLLayoutElement *> *m) {
+    __block UIView *commonSuperview = view;
+    __block UIView *previousView = nil;
+    [m enumerateKeysAndObjectsUsingBlock:^(SJFLLayoutAttributeKey  _Nonnull key, SJFLLayoutElement * _Nonnull obj, BOOL * _Nonnull stop) {
+        UIView *view = obj.dep_view;
+        commonSuperview = SJFLClosestCommonSuperView(view, commonSuperview);
+        previousView = view;
+    }];
+    return commonSuperview;
+}
+
+static UIView *SJFLClosestCommonSuperView(UIView *view1, UIView *view2) {
+        UIView *closestCommonSuperview = nil;
+        UIView *secondViewSuperview = view2;
+        while (!closestCommonSuperview && secondViewSuperview) {
+            UIView *firstViewSuperview = view1;
+            while (!closestCommonSuperview && firstViewSuperview) {
+                if (secondViewSuperview == firstViewSuperview) {
+                    closestCommonSuperview = secondViewSuperview;
+                }
+                firstViewSuperview = firstViewSuperview.superview;
+            }
+            secondViewSuperview = secondViewSuperview.superview;
+        }
+        return closestCommonSuperview;
 }
 @end
 NS_ASSUME_NONNULL_END

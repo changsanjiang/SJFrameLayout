@@ -16,12 +16,6 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, strong, nullable) NSDictionary<SJFLLayoutAttributeKey, SJFLLayoutElement *> *FL_elements;
 - (SJFLLayoutElement *_Nullable)FL_elementForAttributeKey:(SJFLLayoutAttributeKey)attributeKey;
 
-UIKIT_EXTERN
-NSMutableSet<UIView *> *SJFLGetElementsRelatedViews(NSArray<SJFLLayoutElement *> *eles);
-
-UIKIT_EXTERN void
-SJFLRefreshLayoutsForRelatedView(UIView *view);
-
 UIKIT_EXTERN NSDictionary<SJFLLayoutAttributeKey, SJFLLayoutElement *> *_Nullable
 SJFLElements(UIView *view);
 @end

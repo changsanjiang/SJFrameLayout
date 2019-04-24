@@ -21,26 +21,21 @@ SJFLSwizzleMethod(Class cls, SEL originalSelector, SEL swizzledSelector) {
         method_exchangeImplementations(originalMethod, swizzledMethod);
 }
 
-@interface SJFLDependencyObserveTarget : NSObject {
+@interface SJFLWeakTarget : NSObject {
     @public
-    __weak id<SJFLDependencyViewDidLayoutSubviewsProtocol> _Nullable _observer;
+    __weak id _target;
 }
-- (instancetype)initWithTarget:(id<SJFLDependencyViewDidLayoutSubviewsProtocol>)observer;
+- (instancetype)initWithTarget:(id)target;
 @end
 
-@implementation SJFLDependencyObserveTarget
-- (instancetype)initWithTarget:(id<SJFLDependencyViewDidLayoutSubviewsProtocol>)obs {
+@implementation SJFLWeakTarget
+- (instancetype)initWithTarget:(id)target {
     self = [super init];
     if ( self ) {
-        _observer = obs;
+        _target = target;
     }
     return self;
 }
-#ifdef DEBUG
-- (NSString *)description {
-    return [NSString stringWithFormat:@"[observer: %@]", self->_observer];
-}
-#endif
 @end
 
 @implementation UIView (SJFLPrivate)
@@ -52,32 +47,26 @@ SJFLSwizzleMethod(Class cls, SEL originalSelector, SEL swizzledSelector) {
         SJFLSwizzleMethod(UIView.class, originalSelector, swizzledSelector);
     });
 }
-
+static void *FL_kContainer = &FL_kContainer;
 - (void)FL_layoutSubviews {
     [self FL_layoutSubviews];
-    for ( SJFLDependencyObserveTarget *target in SJFLGetObserversContainerIfExists(self).allValues ) {
-        [target->_observer FL_dependencyViewDidLayoutSubviews:self];
+    for ( SJFLWeakTarget *target in ((NSDictionary *)objc_getAssociatedObject(self, FL_kContainer)).allValues ) {
+        [target->_target FL_dependencyViewDidLayoutSubviews:self];
     }
 }
 
 - (void)FL_addObserver:(id<SJFLDependencyViewDidLayoutSubviewsProtocol>)observer {
     if ( observer ) {
         NSNumber *num = @([(id)observer hash]);
-        SJFLObserversContainer(self)[num] = [[SJFLDependencyObserveTarget alloc] initWithTarget:observer];
+        SJFLObserversContainer(self)[num] = [[SJFLWeakTarget alloc] initWithTarget:observer];
     }
 }
 
 - (void)FL_removeObserver:(id<SJFLDependencyViewDidLayoutSubviewsProtocol>)observer {
-    [SJFLGetObserversContainerIfExists(self) removeObjectForKey:@([(id)observer hash])];
+    [((NSMutableDictionary *)objc_getAssociatedObject(self, FL_kContainer)) removeObjectForKey:@([(id)observer hash])];
 }
 
-static void *FL_kContainer = &FL_kContainer;
-UIKIT_STATIC_INLINE NSMutableDictionary<NSNumber *, SJFLDependencyObserveTarget *> *_Nullable
-SJFLGetObserversContainerIfExists(UIView *view) {
-    return objc_getAssociatedObject(view, FL_kContainer);
-}
-
-UIKIT_STATIC_INLINE NSMutableDictionary<NSNumber *, SJFLDependencyObserveTarget *> *
+UIKIT_STATIC_INLINE NSMutableDictionary<NSNumber *, SJFLWeakTarget *> *
 SJFLObserversContainer(UIView *view) {
     void *p = FL_kContainer;
     NSMutableDictionary *_Nullable container = objc_getAssociatedObject(view, p);
@@ -101,9 +90,28 @@ SJFLObserversContainer(UIView *view) {
 
 - (void)FL_layoutSubviews_button {
     [self FL_layoutSubviews_button];
-    for ( SJFLDependencyObserveTarget *target in SJFLGetObserversContainerIfExists(self).allValues ) {
-        [target->_observer FL_dependencyViewDidLayoutSubviews:self];
+    for ( SJFLWeakTarget *target in ((NSDictionary *)objc_getAssociatedObject(self, FL_kContainer)).allValues ) {
+        [target->_target FL_dependencyViewDidLayoutSubviews:self];
     }
+}
+@end
+
+@implementation UIView (SJFLCommonSuperview)
+static void *kCommonSuperview = &kCommonSuperview;
+- (void)setFL_elementsCommonSuperview:(UIView *_Nullable)FL_elementsCommonSuperview {
+    if ( FL_elementsCommonSuperview ) {
+        objc_setAssociatedObject(self, kCommonSuperview, [[SJFLWeakTarget alloc] initWithTarget:FL_elementsCommonSuperview], OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    }
+    else {
+        objc_setAssociatedObject(self, kCommonSuperview, nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    }
+}
+- (UIView *_Nullable)FL_elementsCommonSuperview {
+    SJFLWeakTarget *_Nullable t = objc_getAssociatedObject(self, kCommonSuperview);
+    if ( t ) {
+        return t->_target;
+    }
+    return nil;
 }
 @end
 NS_ASSUME_NONNULL_END

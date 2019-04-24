@@ -88,6 +88,8 @@ static void *kFL_Container = &kFL_Container;
             if ( centerY ) [centerY refreshLayoutIfNeeded:&frame];
             if ( !CGRectEqualToRect(frame, previous) )
                 self.frame = frame;
+            
+            SJFLViewLayoutFixInnerSizeIfNeeded(self);
         }
     }
     
@@ -206,7 +208,7 @@ UIKIT_STATIC_INLINE void SJFLLabelLayoutFixInnerSize(UILabel *view, SJFLLayoutAt
     }
     
     if ( needUpdate ) {
-        SJFLRefreshLayoutsForRelatedView(view);
+        [view.FL_elementsCommonSuperview layoutSubviews];
     }
 }
 
@@ -250,7 +252,7 @@ UIKIT_STATIC_INLINE void SJFLButtonLayoutFixInnerSize(UIButton *view, SJFLLayout
     }
     
     if ( needUpdate ) {
-        SJFLRefreshLayoutsForRelatedView(view);
+        [view.FL_elementsCommonSuperview layoutSubviews];
     }
 }
 
@@ -294,7 +296,7 @@ UIKIT_STATIC_INLINE void SJFLImageViewLayoutFixInnerSize(UIImageView *view, SJFL
     }
     
     if ( needUpdate ) {
-        SJFLRefreshLayoutsForRelatedView(view);
+        [view.FL_elementsCommonSuperview layoutSubviews];
     }
 
 }
@@ -337,7 +339,7 @@ UIKIT_STATIC_INLINE void SJFLViewLayoutFixInnerSize(UIView *view, SJFLLayoutAttr
     }
     
     if ( needRefresh ) {
-        SJFLRefreshLayoutsForRelatedView(view);
+        [view.FL_elementsCommonSuperview layoutSubviews];
     }
     
 //    NSLog(@"maxX: %lf, maxY: %lf", maxX, maxY);
@@ -345,24 +347,6 @@ UIKIT_STATIC_INLINE void SJFLViewLayoutFixInnerSize(UIView *view, SJFLLayoutAttr
 
 UIKIT_STATIC_INLINE BOOL SJFLFloatCompare(CGFloat value1, CGFloat value2) {
     return floor(value1 + 0.5) == floor(value2 + 0.5);
-}
-
-NSMutableSet<UIView *> *SJFLGetElementsRelatedViews(NSArray<SJFLLayoutElement *> *m) {
-    NSMutableSet *set = [NSMutableSet new];
-    for ( SJFLLayoutElement *ele in m ) {
-        UIView *dep_view = ele.dep_view;
-        if ( dep_view ) [set addObject:ele.dep_view];
-    }
-    return set;
-}
-
-void SJFLRefreshLayoutsForRelatedView(UIView *view) {
-    NSMutableSet *set = SJFLGetElementsRelatedViews(view.FL_elements.allValues);
-    if ( view.superview ) [set addObject:view.superview];
-
-    for ( UIView *view in set ) {
-        [view layoutSubviews];
-    }
 }
 
 NSDictionary<SJFLLayoutAttributeKey, SJFLLayoutElement *> *_Nullable

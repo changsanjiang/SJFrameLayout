@@ -17,4 +17,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)FL_addObserver:(id<SJFLDependencyViewDidLayoutSubviewsProtocol>)observer;
 - (void)FL_removeObserver:(id<SJFLDependencyViewDidLayoutSubviewsProtocol>)observer;
 @end
+
+@interface UIView (SJFLCommonSuperview)
+@property (nonatomic, weak, nullable) UIView *FL_elementsCommonSuperview;
+@end
 NS_ASSUME_NONNULL_END
