@@ -7,8 +7,20 @@
 //
 
 #import "SJDemo2ViewController.h"
+#if __has_include(<SJFrameLayout/SJFrameLayout.h>)
 #import <SJFrameLayout/SJFrameLayout.h>
+#endif
+
+#if __has_include(<Masonry/Masonry.h>)
 #import <Masonry/Masonry.h>
+#endif
+
+#if __has_include(<SDAutoLayout/SDAutoLayout.h>)
+#import <SDAutoLayout/SDAutoLayout.h>
+#endif
+
+#import "SJTestView.h"
+#import "SJTestSubView.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -22,7 +34,8 @@ NS_ASSUME_NONNULL_BEGIN
 @implementation SJDemo2ViewController
 
 - (IBAction)test:(id)sender {
-    UIView *root = [UIView new];
+#if __has_include(<SJFrameLayout/SJFrameLayout.h>)
+    UIView *root = [SJTestView new];
     root.backgroundColor =  [UIColor colorWithRed:arc4random() % 256 / 255.0
                                             green:arc4random() % 256 / 255.0
                                              blue:arc4random() % 256 / 255.0
@@ -33,7 +46,7 @@ NS_ASSUME_NONNULL_BEGIN
     }];
     
     
-    UIView *container = [UIView new];
+    UIView *container = [SJTestSubView new];
     container.backgroundColor =  [UIColor colorWithRed:arc4random() % 256 / 255.0
                                                  green:arc4random() % 256 / 255.0
                                                   blue:arc4random() % 256 / 255.0
@@ -44,6 +57,8 @@ NS_ASSUME_NONNULL_BEGIN
         make.width.equalTo(self.view).multipliedBy(Multiplier);
         make.height.equalTo(container.FL_width);
     }];
+    
+//    NSLog(@"%@ - %@", root, container);
     
     for ( int i = 0 ; i < SubviewCount ; ++ i ) {
         UIView *sub = [UIView new];
@@ -57,9 +72,11 @@ NS_ASSUME_NONNULL_BEGIN
             make.edges.box_equalTo(UIEdgeInsetsMake(inset, inset, inset, inset));
         }];
     }
+#endif
 }
 
 - (IBAction)testMas:(id)sender {
+#if __has_include(<Masonry/Masonry.h>)
     UIView *root = [UIView new];
     root.backgroundColor =  [UIColor colorWithRed:arc4random() % 256 / 255.0
                                             green:arc4random() % 256 / 255.0
@@ -95,7 +112,50 @@ NS_ASSUME_NONNULL_BEGIN
             make.edges.mas_equalTo(UIEdgeInsetsMake(inset, inset, inset, inset));
         }];
     }
+#endif
+}
 
+- (IBAction)testsd:(id)sender {
+#if __has_include(<SDAutoLayout/SDAutoLayout.h>)
+    UIView *root = [UIView new];
+    root.backgroundColor =  [UIColor colorWithRed:arc4random() % 256 / 255.0
+                                            green:arc4random() % 256 / 255.0
+                                             blue:arc4random() % 256 / 255.0
+                                            alpha:1];
+    [self.view addSubview:root];
+    
+    root.sd_layout
+    .centerXEqualToView(self.view)
+    .centerYEqualToView(self.view)
+    .widthRatioToView(self.view, Multiplier)
+    .heightEqualToWidth();
+    
+    UIView *container = [UIView new];
+    container.backgroundColor =  [UIColor colorWithRed:arc4random() % 256 / 255.0
+                                                 green:arc4random() % 256 / 255.0
+                                                  blue:arc4random() % 256 / 255.0
+                                                 alpha:1];
+    [root addSubview:container];
+
+    container.sd_layout
+    .spaceToSuperView(UIEdgeInsetsMake(8, 8, 8, 8));
+    
+    
+        NSLog(@"%@ - %@", root, container);
+    
+    for ( int i = 0 ; i < SubviewCount ; ++ i ) {
+        UIView *sub = [UIView new];
+        sub.backgroundColor =   [UIColor colorWithRed:arc4random() % 256 / 255.0
+                                                green:arc4random() % 256 / 255.0
+                                                 blue:arc4random() % 256 / 255.0
+                                                alpha:1];
+        [container addSubview:sub];
+        [sub sj_makeFrameLayout:^(SJFLLayoutMaker * _Nonnull make) {
+            CGFloat inset = 8 + i;
+            make.edges.box_equalTo(UIEdgeInsetsMake(inset, inset, inset, inset));
+        }];
+    }
+#endif
 }
 
 

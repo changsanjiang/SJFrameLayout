@@ -58,27 +58,59 @@ static void *kFL_Container = &kFL_Container;
             // centerY 安装之后, 会影响到什么?
             // centerX 安装之后, 会影响到什么?
             
-            [m[SJFLLayoutAttributeKeyWidth] refreshLayoutIfNeeded];
-            [m[SJFLLayoutAttributeKeyHeight] refreshLayoutIfNeeded];
+            SJFLLayoutElement *_Nullable top = m[SJFLLayoutAttributeKeyTop];
+            SJFLLayoutElement *_Nullable left = m[SJFLLayoutAttributeKeyLeft];
+            SJFLLayoutElement *_Nullable bottom = m[SJFLLayoutAttributeKeyBottom];
+            SJFLLayoutElement *_Nullable right = m[SJFLLayoutAttributeKeyRight];
+            SJFLLayoutElement *_Nullable width = m[SJFLLayoutAttributeKeyWidth];
+            SJFLLayoutElement *_Nullable height = m[SJFLLayoutAttributeKeyHeight];
+            SJFLLayoutElement *_Nullable centerX = m[SJFLLayoutAttributeKeyCenterX];
+            SJFLLayoutElement *_Nullable centerY = m[SJFLLayoutAttributeKeyCenterY];
             
-            [m[SJFLLayoutAttributeKeyTop] refreshLayoutIfNeeded];
-            [m[SJFLLayoutAttributeKeyBottom] refreshLayoutIfNeeded];
-            [m[SJFLLayoutAttributeKeyWidth] refreshLayoutIfNeeded];
+            CGRect frame = self.frame;
+            if ( width ) [width refreshLayoutIfNeeded:&frame];
+            if ( height ) [height refreshLayoutIfNeeded:&frame];
             
-            [m[SJFLLayoutAttributeKeyLeft] refreshLayoutIfNeeded];
-            [m[SJFLLayoutAttributeKeyRight] refreshLayoutIfNeeded];
-            [m[SJFLLayoutAttributeKeyHeight] refreshLayoutIfNeeded];
+            if ( top ) [top refreshLayoutIfNeeded:&frame];
+            if ( !height ) [bottom refreshLayoutIfNeeded:&frame];
+            if ( width ) [width refreshLayoutIfNeeded:&frame];
+            
+            if ( left ) [left refreshLayoutIfNeeded:&frame];
+            if ( left && width ) {}
+            else if ( right ) [right refreshLayoutIfNeeded:&frame];
+            if ( height ) [height refreshLayoutIfNeeded:&frame];
 
-            [m[SJFLLayoutAttributeKeyBottom] refreshLayoutIfNeeded];
+            if ( top && height ) {}
+            else if ( bottom ) [bottom refreshLayoutIfNeeded:&frame];
 
-            [m[SJFLLayoutAttributeKeyCenterY] refreshLayoutIfNeeded];
-            [m[SJFLLayoutAttributeKeyCenterX] refreshLayoutIfNeeded];
+            if ( centerX ) [centerX refreshLayoutIfNeeded:&frame];
+            if ( centerY ) [centerY refreshLayoutIfNeeded:&frame];
+            if ( !CGRectEqualToRect(frame, self.frame) )
+                self.frame = frame;
         }
     }
     
     SJFLViewLayoutFixInnerSizeIfNeeded(self);
     SJFLViewLayoutFixInnerSizeIfNeeded(self.superview);
 }
+
+//UIKIT_STATIC_INLINE BOOL SJFLViewBottomCanSettable(UIView *view) {
+//    NSDictionary<SJFLLayoutAttributeKey, SJFLLayoutElement *> *m = SJFLElements(view);
+//    SJFLLayoutElement *_Nullable top = m[SJFLLayoutAttributeKeyTop];
+//    SJFLLayoutElement *_Nullable height = m[SJFLLayoutAttributeKeyHeight];
+//    if ( top != nil  && height != nil ) return NO;
+////    SJFLLayoutSetInfo *info = view.FL_info;
+////    return [info get:SJFLLayoutAttributeTop] || [info get:SJFLLayoutAttributeHeight];
+//}
+//
+//UIKIT_STATIC_INLINE BOOL SJFLViewRightCanSettable(UIView *view) {
+//    NSDictionary<SJFLLayoutAttributeKey, SJFLLayoutElement *> *m = SJFLElements(view);
+//    SJFLLayoutElement *_Nullable left = m[SJFLLayoutAttributeKeyLeft];
+//    SJFLLayoutElement *_Nullable width = m[SJFLLayoutAttributeKeyWidth];
+//    if ( left != nil  && width != nil ) return NO;
+////    SJFLLayoutSetInfo *info = view.FL_info;
+////    return [info get:SJFLLayoutAttributeLeft] || [info get:SJFLLayoutAttributeWidth];
+//}
 
 // fix inner size
 

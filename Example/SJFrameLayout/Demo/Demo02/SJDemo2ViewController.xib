@@ -34,12 +34,21 @@
                         <action selector="testMas:" destination="-1" eventType="touchUpInside" id="yAk-JJ-Odx"/>
                     </connections>
                 </button>
+                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="MhN-lL-yDp">
+                    <rect key="frame" x="180.5" y="521" width="53" height="30"/>
+                    <state key="normal" title="Test SD"/>
+                    <connections>
+                        <action selector="testsd:" destination="-1" eventType="touchUpInside" id="RZc-YG-C7Y"/>
+                    </connections>
+                </button>
             </subviews>
             <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
             <constraints>
+                <constraint firstItem="MhN-lL-yDp" firstAttribute="top" secondItem="48K-Xo-5R9" secondAttribute="bottom" constant="14" id="8ED-ZV-Ajp"/>
                 <constraint firstItem="Qjh-ZZ-BAo" firstAttribute="centerY" secondItem="iN0-l3-epB" secondAttribute="centerY" id="AJ9-cD-bV8"/>
                 <constraint firstItem="Qjh-ZZ-BAo" firstAttribute="centerX" secondItem="iN0-l3-epB" secondAttribute="centerX" id="MMn-wz-pFd"/>
                 <constraint firstItem="48K-Xo-5R9" firstAttribute="centerX" secondItem="Qjh-ZZ-BAo" secondAttribute="centerX" id="QAo-T4-pZG"/>
+                <constraint firstItem="MhN-lL-yDp" firstAttribute="centerX" secondItem="48K-Xo-5R9" secondAttribute="centerX" id="ytW-1G-9Iv"/>
                 <constraint firstItem="48K-Xo-5R9" firstAttribute="top" secondItem="Qjh-ZZ-BAo" secondAttribute="bottom" constant="14" id="yxD-Ry-nOz"/>
             </constraints>
             <viewLayoutGuide key="safeArea" id="vUN-kp-3ea"/>

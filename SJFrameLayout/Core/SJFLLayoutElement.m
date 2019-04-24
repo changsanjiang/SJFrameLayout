@@ -176,17 +176,10 @@ NS_ASSUME_NONNULL_BEGIN
         return;
     }
     
+    CGFloat newValue = self.value;
     SJFLLayoutAttribute tar_attr = _tar_attr;
     
-    if ( !SJFLViewAttributeCanSettable(view, tar_attr) ) {
-        return;
-    }
-    
-    CGFloat newValue = self.value;
-    
-    SJFLLayoutSetInfo *info = [view FL_info];
-    if ( [info get:tar_attr] && SJFLViewLayoutCompare(view, tar_attr, newValue) ) {
-//        SJFLViewUpdateRelatedLayoutIfNeeded(view, tar_attr);
+    if ( [view.FL_info get:tar_attr] && SJFLViewLayoutCompare(view.frame, tar_attr, newValue) ) {
         return;
     }
     
@@ -227,6 +220,207 @@ NS_ASSUME_NONNULL_BEGIN
     printf("\n");
 #endif
 }
+
+- (void)refreshLayoutIfNeeded:(CGRect *)frame {
+    UIView *_Nullable view = _tar_view;
+    if ( !view ) {
+        return;
+    }
+    
+    CGFloat newValue = [self value:*frame];
+    SJFLLayoutAttribute tar_attr = _tar_attr;
+    
+    if ( [view.FL_info get:tar_attr] && SJFLViewLayoutCompare(*frame, tar_attr, newValue) ) {
+        return;
+    }
+    
+    switch ( tar_attr ) {
+        case SJFLLayoutAttributeNone: break; ///< Target does not need to do anything
+        case SJFLLayoutAttributeTop:{
+            frame->origin.x = newValue;
+            [view.FL_info set:SJFLLayoutAttributeTop];
+        }
+            break;
+        case SJFLLayoutAttributeLeft: {
+            frame->origin.y = newValue;
+            [view.FL_info set:SJFLLayoutAttributeLeft];
+        }
+            break;
+        case SJFLLayoutAttributeBottom: {
+            NSDictionary<SJFLLayoutAttributeKey, SJFLLayoutElement *> *m = SJFLElements(view);
+            SJFLLayoutElement *_Nullable heightElement = m[SJFLLayoutAttributeKeyHeight];
+            if ( !heightElement ) {
+                // top + height = bottom
+                // height = bottom - top
+                CGFloat height = newValue - CGRectGetMinY(*frame);
+                if ( height < 0 ) height = 0;
+                frame->size.height = height;
+            }
+            else {
+                // top + height = bottom
+                // top = bottom - height
+                CGFloat top = newValue - CGRectGetHeight(*frame);
+                frame->origin.y = top;
+            }
+            [view.FL_info set:SJFLLayoutAttributeBottom];
+        }
+            break;
+        case SJFLLayoutAttributeRight: {
+            NSDictionary<SJFLLayoutAttributeKey, SJFLLayoutElement *> *m = SJFLElements(view);
+            SJFLLayoutElement *_Nullable widthElement = m[SJFLLayoutAttributeKeyWidth];
+            if ( !widthElement ) {
+                // left + width = right
+                // width = right - left
+                CGFloat width = newValue - CGRectGetMinX(*frame);
+                if ( width < 0 ) width = 0;
+                frame->size.width = width;
+            }
+            else {
+                // left + width = right
+                // left = right - width
+                CGFloat left = newValue - CGRectGetWidth(*frame);
+                frame->origin.x = left;
+            }
+            [view.FL_info set:SJFLLayoutAttributeRight];
+        }
+            break;
+        case SJFLLayoutAttributeWidth: {
+            if ( newValue < 0 ) newValue = 0;
+            frame->size.width = newValue;
+            [view.FL_info set:SJFLLayoutAttributeWidth];
+        }
+            break;
+        case SJFLLayoutAttributeHeight: {
+            if ( newValue < 0 ) newValue = 0;
+            frame->size.height = newValue;
+            [view.FL_info set:SJFLLayoutAttributeHeight];
+        }
+            break;
+        case SJFLLayoutAttributeCenterX: {
+            // newValue = frame.origin.x + frame.origin.width * 0.5
+            CGFloat x = newValue - CGRectGetWidth(*frame) * 0.5;
+            frame->origin.x = x;
+            [view.FL_info set:SJFLLayoutAttributeCenterX];
+        }
+            break;
+        case SJFLLayoutAttributeCenterY: {
+            // centerY = frame.origin.y + frame.origin.height * 0.5
+            CGFloat y = newValue - CGRectGetHeight(*frame) * 0.5;
+            frame->origin.y = y;
+            [view.FL_info set:SJFLLayoutAttributeCenterY];
+        }
+            break;
+    }
+    
+#ifdef SJFLLib
+    printf("\n_tar_view:[%s]", _tar_view.description.UTF8String);
+    printf("\n_tar_attr:[%s]", [SJFLLayoutAttributeUnit debug_attributeToString:tar_attr].UTF8String);
+    printf("\n_dep_view:[%s]", _dep_view.description.UTF8String);
+    printf("\n_dep_attr:[%s]", [SJFLLayoutAttributeUnit debug_attributeToString:_dep_attr].UTF8String);
+    printf("\n");
+    printf("\n");
+#endif
+}
+
+// value = dependency_value * multiplier + offset
+- (CGFloat)value:(CGRect)frame {
+    CGFloat offset = self.offset;
+    CGFloat value = 0;
+    SJFLFrameAttribute dep_attr = _dep_attr;
+    
+    if ( dep_attr != SJFLFrameAttributeNone ) {
+        SJFLLayoutAttribute tar_attr = _tar_attr;
+        UIView *dep_view = _dep_view;
+        CGRect dep_frame = CGRectZero;
+        
+        if ( dep_view != _tar_view )
+            dep_frame = dep_view.frame;
+        else
+            dep_frame = frame; ///< 如果是自己, 就使用计算frame
+        
+        if ( tar_attr == SJFLLayoutAttributeWidth || tar_attr == SJFLLayoutAttributeHeight ) {
+            switch ( dep_attr ) {
+                default: break;
+                case SJFLLayoutAttributeWidth: {
+                    value = CGRectGetWidth(dep_frame);
+                }
+                    break;
+                case SJFLLayoutAttributeHeight: {
+                    value = CGRectGetHeight(dep_frame);
+                }
+                    break;
+            }
+        }
+        else {
+            /**
+             horizontal: left, width, right, centerX
+             vertical: top, height, bottom, centerY
+             
+             top=> top, safeTop, bottom, safeBottom, centerY
+             bottom=> top, safeTop, bottom, safeBottom, centerY
+             centerY=> top, safeTop, bottom, safeBottom, centerY
+             
+             left=> left, safeLeft, right, safeRight, centerX
+             right=> left, safeLeft, right, safeRight, centerX
+             centerX=> left, safeLeft, right, safeRight, centerX
+             */
+            
+            UIEdgeInsets safeAreaInsets = UIEdgeInsetsZero;
+            if (@available(iOS 11.0, *)) {
+                safeAreaInsets = dep_view.safeAreaInsets;
+            }
+            UIView *tar_superview = _tar_superview;
+            CGPoint point = CGPointZero;
+            if ( SJFLVerticalLayoutContains(tar_attr) ) {
+                switch ( dep_attr ) {
+                    case SJFLFrameAttributeTop:
+                        point = CGPointZero;
+                        break;
+                    case SJFLFrameAttributeSafeTop:
+                        point = CGPointMake(0, safeAreaInsets.top);
+                        break;
+                    case SJFLLayoutAttributeCenterY:
+                        point = CGPointMake(0, CGRectGetHeight(dep_frame) * 0.5);
+                        break;
+                    case SJFLLayoutAttributeBottom:
+                        point = CGPointMake(0, CGRectGetHeight(dep_frame));
+                        break;
+                    case SJFLFrameAttributeSafeBottom:
+                        point = CGPointMake(0, CGRectGetHeight(dep_frame) - safeAreaInsets.bottom);
+                        break;
+                    default:break;
+                }
+                
+                value = [dep_view convertPoint:point toView:tar_superview].y;
+            }
+            else {
+                switch ( dep_attr ) {
+                    case SJFLLayoutAttributeLeft:
+                        point = CGPointZero;
+                        break;
+                    case SJFLFrameAttributeSafeLeft:
+                        point = CGPointMake(safeAreaInsets.left, 0);
+                        break;
+                    case SJFLLayoutAttributeCenterX:
+                        point = CGPointMake(CGRectGetWidth(dep_frame) * 0.5, 0);
+                        break;
+                    case SJFLLayoutAttributeRight:
+                        point = CGPointMake(CGRectGetWidth(dep_frame), 0);
+                        break;
+                    case SJFLFrameAttributeSafeRight:
+                        point = CGPointMake(CGRectGetWidth(dep_frame) - safeAreaInsets.right, 0);
+                        break;
+                    default:break;
+                }
+                value = [dep_view convertPoint:point toView:tar_superview].x;
+            }
+        }
+    }
+    // else {  /* none, do nothing */ }
+    
+    return ceil(value * _target->multiplier + offset);
+}
+
 
 // value = dependency_value * multiplier + offset
 - (CGFloat)value {
@@ -387,8 +581,7 @@ UIKIT_STATIC_INLINE BOOL SJFLFloatCompare(CGFloat value1, CGFloat value2) {
     return floor(value1 + 0.5) == floor(value2 + 0.5);
 }
 
-UIKIT_STATIC_INLINE BOOL SJFLViewLayoutCompare(UIView *view, SJFLLayoutAttribute attr, CGFloat value) {
-    CGRect frame = view.frame;
+UIKIT_STATIC_INLINE BOOL SJFLViewLayoutCompare(CGRect frame, SJFLLayoutAttribute attr, CGFloat value) {
     switch ( attr ) {
         case SJFLLayoutAttributeNone:
             return NO;
@@ -410,74 +603,6 @@ UIKIT_STATIC_INLINE BOOL SJFLViewLayoutCompare(UIView *view, SJFLLayoutAttribute
             return SJFLFloatCompare(value, CGRectGetHeight(frame) * 0.5 + CGRectGetMinY(frame));
             break;
     }
-}
-
-UIKIT_STATIC_INLINE BOOL SJFLViewAttributeCanSettable(UIView *view, SJFLLayoutAttribute attr) {
-    switch ( attr ) {
-        case SJFLLayoutAttributeNone:
-        case SJFLLayoutAttributeWidth:
-        case SJFLLayoutAttributeHeight:
-            return YES;
-        case SJFLLayoutAttributeTop:
-            return SJFLViewTopCanSettable(view);
-        case SJFLLayoutAttributeLeft:
-            return SJFLViewLeftCanSettable(view);
-        case SJFLLayoutAttributeBottom:
-            return SJFLViewBottomCanSettable(view);
-        case SJFLLayoutAttributeRight:
-            return SJFLViewRightCanSettable(view);
-        case SJFLLayoutAttributeCenterX:
-            return SJFLViewCenterXCanSettable(view);
-        case SJFLLayoutAttributeCenterY:
-            return SJFLViewCenterYCanSettable(view);
-    }
-    return NO;
-}
-
-UIKIT_STATIC_INLINE BOOL SJFLViewCenterXCanSettable(UIView *view) {
-    SJFLLayoutSetInfo *info = view.FL_info;
-    return [info get:SJFLLayoutAttributeWidth] || [info get:SJFLLayoutAttributeTop] || [info get:SJFLLayoutAttributeBottom];
-}
-
-UIKIT_STATIC_INLINE BOOL SJFLViewCenterYCanSettable(UIView *view) {
-    SJFLLayoutSetInfo *info = view.FL_info;
-    return [info get:SJFLLayoutAttributeHeight] || [info get:SJFLLayoutAttributeLeft] || [info get:SJFLLayoutAttributeRight];
-}
-
-UIKIT_STATIC_INLINE BOOL SJFLViewBottomCanSettable(UIView *view) {
-    NSDictionary<SJFLLayoutAttributeKey, SJFLLayoutElement *> *m = SJFLElements(view);
-    SJFLLayoutElement *_Nullable top = m[SJFLLayoutAttributeKeyTop];
-    SJFLLayoutElement *_Nullable height = m[SJFLLayoutAttributeKeyHeight];
-    if ( top != nil  && height != nil ) return NO;
-    SJFLLayoutSetInfo *info = view.FL_info;
-    return [info get:SJFLLayoutAttributeTop] || [info get:SJFLLayoutAttributeHeight];
-}
-
-UIKIT_STATIC_INLINE BOOL SJFLViewRightCanSettable(UIView *view) {
-    NSDictionary<SJFLLayoutAttributeKey, SJFLLayoutElement *> *m = SJFLElements(view);
-    SJFLLayoutElement *_Nullable left = m[SJFLLayoutAttributeKeyLeft];
-    SJFLLayoutElement *_Nullable width = m[SJFLLayoutAttributeKeyWidth];
-    if ( left != nil  && width != nil ) return NO;
-    SJFLLayoutSetInfo *info = view.FL_info;
-    return [info get:SJFLLayoutAttributeLeft] || [info get:SJFLLayoutAttributeWidth];
-}
-
-UIKIT_STATIC_INLINE BOOL SJFLViewTopCanSettable(UIView *view) {
-    SJFLLayoutElement *_Nullable height = view.FL_elements[SJFLLayoutAttributeKeyHeight];
-    if ( height ) {
-        SJFLLayoutSetInfo *info = view.FL_info;
-        return [info get:SJFLLayoutAttributeHeight];
-    }
-    return YES;
-}
-
-UIKIT_STATIC_INLINE BOOL SJFLViewLeftCanSettable(UIView *view) {
-    SJFLLayoutElement *_Nullable width = view.FL_elements[SJFLLayoutAttributeKeyWidth];
-    if ( width ) {
-        SJFLLayoutSetInfo *info = view.FL_info;
-        return [info get:SJFLLayoutAttributeWidth];
-    }
-    return YES;
 }
 
 // - setter -

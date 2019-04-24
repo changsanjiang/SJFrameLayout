@@ -6,7 +6,7 @@ target 'SJFrameLayout_Example' do
   pod 'SJFrameLayout', :path => '../'
   pod 'SJRouter'
   #pod 'SJUIKit/Queue'
-  pod 'Masonry'
+  #pod 'Masonry'
 #pod 'MMPlaceHolder', :inhibit_warnings => true
 #pod 'SDAutoLayout'
 #pod 'MTHawkeye'
