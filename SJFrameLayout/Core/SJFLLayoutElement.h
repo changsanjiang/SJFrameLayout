@@ -18,7 +18,6 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, weak, readonly, nullable) UIView *tar_superview;
 @property (nonatomic, weak, readonly, nullable) UIView *dep_view;
 - (CGFloat)offset;
-- (void)refreshLayoutIfNeeded;
 - (void)refreshLayoutIfNeeded:(CGRect *)frame;
 @end
 NS_ASSUME_NONNULL_END

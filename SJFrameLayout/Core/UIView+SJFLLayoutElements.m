@@ -67,7 +67,8 @@ static void *kFL_Container = &kFL_Container;
             SJFLLayoutElement *_Nullable centerX = m[SJFLLayoutAttributeKeyCenterX];
             SJFLLayoutElement *_Nullable centerY = m[SJFLLayoutAttributeKeyCenterY];
             
-            CGRect frame = self.frame;
+            CGRect previous = self.frame;
+            CGRect frame = previous;
             if ( width ) [width refreshLayoutIfNeeded:&frame];
             if ( height ) [height refreshLayoutIfNeeded:&frame];
             
@@ -85,7 +86,7 @@ static void *kFL_Container = &kFL_Container;
 
             if ( centerX ) [centerX refreshLayoutIfNeeded:&frame];
             if ( centerY ) [centerY refreshLayoutIfNeeded:&frame];
-            if ( !CGRectEqualToRect(frame, self.frame) )
+            if ( !CGRectEqualToRect(frame, previous) )
                 self.frame = frame;
         }
     }
