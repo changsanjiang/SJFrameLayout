@@ -32,68 +32,66 @@ static void *kFL_Container = &kFL_Container;
 // -
 
 - (void)FL_dependencyViewDidLayoutSubviews:(UIView *)view {
-    if ( view != self ) {
-        NSDictionary<SJFLLayoutAttributeKey, SJFLLayoutElement *> *_Nullable
-        m = objc_getAssociatedObject(self, kFL_Container);
-        if ( m ) {
-            // 布局应该从width和height优先安装
-            
-            // top 安装好之后, 会影响到什么, 或者什么可以定位到了 ?
-            // - bottom
-            // 当 top 和 bottom 同时安装之后, 会生成 height. 当width依赖height时, 此时可以刷新width
-            
-            // left 安装好之后, 会影响到什么, 或者什么可以定位到了 ?
-            // - right
-            // 当 left 和 right 同时安装之后, 会生成 width. 当height依赖width时, 此时可以刷新height
+    NSMutableDictionary<SJFLLayoutAttributeKey, SJFLLayoutElement *> *_Nullable
+    m = objc_getAssociatedObject(self, kFL_Container);
+    if ( m ) {
+        // 布局应该从width和height优先安装
         
-            // height 改变之后, 会影响到什么?
-            // - centerY
-            // - bottom
-            
-            // width 改变之后, 会影响到什么?
-            // - centerX
-            // - right
-            
-            // bottom 安装之后, 会影响到什么?
-            // centerY 安装之后, 会影响到什么?
-            // centerX 安装之后, 会影响到什么?
-            
-            SJFLLayoutElement *_Nullable top = m[SJFLLayoutAttributeKeyTop];
-            SJFLLayoutElement *_Nullable left = m[SJFLLayoutAttributeKeyLeft];
-            SJFLLayoutElement *_Nullable bottom = m[SJFLLayoutAttributeKeyBottom];
-            SJFLLayoutElement *_Nullable right = m[SJFLLayoutAttributeKeyRight];
-            SJFLLayoutElement *_Nullable width = m[SJFLLayoutAttributeKeyWidth];
-            SJFLLayoutElement *_Nullable height = m[SJFLLayoutAttributeKeyHeight];
-            SJFLLayoutElement *_Nullable centerX = m[SJFLLayoutAttributeKeyCenterX];
-            SJFLLayoutElement *_Nullable centerY = m[SJFLLayoutAttributeKeyCenterY];
-            
-            CGRect previous = self.frame;
-            CGRect frame = previous;
-            if ( width ) [width refreshLayoutIfNeeded:&frame];
-            if ( height ) [height refreshLayoutIfNeeded:&frame];
-            
-            if ( top ) [top refreshLayoutIfNeeded:&frame];
-            if ( !height ) [bottom refreshLayoutIfNeeded:&frame];
-            if ( width ) [width refreshLayoutIfNeeded:&frame];
-            
-            if ( left ) [left refreshLayoutIfNeeded:&frame];
-            if ( left && width ) {}
-            else if ( right ) [right refreshLayoutIfNeeded:&frame];
-            if ( height ) [height refreshLayoutIfNeeded:&frame];
-
-            if ( top && height ) {}
-            else if ( bottom ) [bottom refreshLayoutIfNeeded:&frame];
-
-            if ( centerX ) [centerX refreshLayoutIfNeeded:&frame];
-            if ( centerY ) [centerY refreshLayoutIfNeeded:&frame];
-            if ( !CGRectEqualToRect(frame, previous) )
-                self.frame = frame;
-            
-            SJFLViewLayoutFixInnerSizeIfNeeded(self);
-        }
+        // top 安装好之后, 会影响到什么, 或者什么可以定位到了 ?
+        // - bottom
+        // 当 top 和 bottom 同时安装之后, 会生成 height. 当width依赖height时, 此时可以刷新width
+        
+        // left 安装好之后, 会影响到什么, 或者什么可以定位到了 ?
+        // - right
+        // 当 left 和 right 同时安装之后, 会生成 width. 当height依赖width时, 此时可以刷新height
+        
+        // height 改变之后, 会影响到什么?
+        // - centerY
+        // - bottom
+        
+        // width 改变之后, 会影响到什么?
+        // - centerX
+        // - right
+        
+        // bottom 安装之后, 会影响到什么?
+        // centerY 安装之后, 会影响到什么?
+        // centerX 安装之后, 会影响到什么?
+        
+        SJFLLayoutElement *_Nullable top = m[SJFLLayoutAttributeKeyTop];
+        SJFLLayoutElement *_Nullable left = m[SJFLLayoutAttributeKeyLeft];
+        SJFLLayoutElement *_Nullable bottom = m[SJFLLayoutAttributeKeyBottom];
+        SJFLLayoutElement *_Nullable right = m[SJFLLayoutAttributeKeyRight];
+        SJFLLayoutElement *_Nullable width = m[SJFLLayoutAttributeKeyWidth];
+        SJFLLayoutElement *_Nullable height = m[SJFLLayoutAttributeKeyHeight];
+        SJFLLayoutElement *_Nullable centerX = m[SJFLLayoutAttributeKeyCenterX];
+        SJFLLayoutElement *_Nullable centerY = m[SJFLLayoutAttributeKeyCenterY];
+        
+        CGRect previous = self.frame;
+        CGRect frame = previous;
+        if ( width ) [width refreshLayoutIfNeeded:&frame];
+        if ( height ) [height refreshLayoutIfNeeded:&frame];
+        
+        if ( top ) [top refreshLayoutIfNeeded:&frame];
+        if ( !height ) [bottom refreshLayoutIfNeeded:&frame];
+        if ( width ) [width refreshLayoutIfNeeded:&frame];
+        
+        if ( left ) [left refreshLayoutIfNeeded:&frame];
+        if ( left && width ) {}
+        else if ( right ) [right refreshLayoutIfNeeded:&frame];
+        if ( height ) [height refreshLayoutIfNeeded:&frame];
+        
+        if ( top && height ) {}
+        else if ( bottom ) [bottom refreshLayoutIfNeeded:&frame];
+        
+        if ( centerX ) [centerX refreshLayoutIfNeeded:&frame];
+        if ( centerY ) [centerY refreshLayoutIfNeeded:&frame];
+        if ( !CGRectEqualToRect(frame, previous) )
+            self.frame = frame;
+        
+        SJFLViewLayoutFixInnerSizeIfNeeded(self, m);
     }
     
-    SJFLViewLayoutFixInnerSizeIfNeeded(view);
+    SJFLViewLayoutFixInnerSizeIfNeeded(view, nil);
 }
 
 //UIKIT_STATIC_INLINE BOOL SJFLViewBottomCanSettable(UIView *view) {
@@ -116,10 +114,9 @@ static void *kFL_Container = &kFL_Container;
 
 // fix inner size
 
-UIKIT_STATIC_INLINE void SJFLViewLayoutFixInnerSizeIfNeeded(UIView *view) {
-    NSMutableDictionary<SJFLLayoutAttributeKey, SJFLLayoutElement *> *_Nullable m = objc_getAssociatedObject(view, kFL_Container);
-    if ( !m )
-        return;
+UIKIT_STATIC_INLINE void SJFLViewLayoutFixInnerSizeIfNeeded(UIView *view, NSMutableDictionary<SJFLLayoutAttributeKey, SJFLLayoutElement *> *_Nullable m) {
+    if ( !m ) m = objc_getAssociatedObject(view, kFL_Container);
+    if ( !m ) return;
     static Class FL_UILabelClass;
     static Class FL_UIButtonClass;
     static Class FL_UIImageViewClass;
@@ -173,6 +170,13 @@ UIKIT_STATIC_INLINE void SJFLLabelAdjustBoxIfNeeded(UILabel *label, NSMutableDic
 }
 
 UIKIT_STATIC_INLINE void SJFLLabelLayoutFixInnerSize(UILabel *view, SJFLLayoutAttributeUnit *_Nullable fit_width, SJFLLayoutAttributeUnit *_Nullable fit_height) {
+    static void *kBefore = &kBefore;
+    id _Nullable beforeValue = objc_getAssociatedObject(view, kBefore);
+    id _Nullable nowValue = [NSNumber numberWithLongLong:(long long)(__bridge void *)(view.attributedText?:view.text)]; // [NSString stringWithFormat:@"%p", view.attributedText?:view.text];
+    if ( [beforeValue isEqual:nowValue] )
+        return;
+    objc_setAssociatedObject(view, kBefore, nowValue, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+
     CGRect frame = view.frame;
     CGSize box = CGSizeMake(CGFLOAT_MAX, CGFLOAT_MAX);
     
@@ -213,6 +217,13 @@ UIKIT_STATIC_INLINE void SJFLLabelLayoutFixInnerSize(UILabel *view, SJFLLayoutAt
 }
 
 UIKIT_STATIC_INLINE void SJFLButtonLayoutFixInnerSize(UIButton *view, SJFLLayoutAttributeUnit *_Nullable fit_width, SJFLLayoutAttributeUnit *_Nullable fit_height) {
+    static void *kBefore = &kBefore;
+    id _Nullable beforeValue = objc_getAssociatedObject(view, kBefore);
+    id _Nullable nowValue = [NSString stringWithFormat:@"%p, %p, %p", view.currentAttributedTitle?:view.currentTitle, view.currentImage, view.currentBackgroundImage];
+    if ( [nowValue isEqual:beforeValue] )
+        return;
+    objc_setAssociatedObject(view, kBefore, nowValue, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    
     CGRect frame = view.frame;
     CGSize box = CGSizeMake(CGFLOAT_MAX, CGFLOAT_MAX);
     
@@ -231,10 +242,6 @@ UIKIT_STATIC_INLINE void SJFLButtonLayoutFixInnerSize(UIButton *view, SJFLLayout
     
     CGSize result = [view sizeThatFits:box];
     CGSize fit = CGSizeMake(ceil(result.width), ceil(result.height));
-    
-#ifdef DEBUG
-    NSLog(@"%@", NSStringFromCGSize(result));
-#endif
     
     BOOL needUpdate = NO;
     if ( fit_width != nil ) {
@@ -257,6 +264,13 @@ UIKIT_STATIC_INLINE void SJFLButtonLayoutFixInnerSize(UIButton *view, SJFLLayout
 }
 
 UIKIT_STATIC_INLINE void SJFLImageViewLayoutFixInnerSize(UIImageView *view, SJFLLayoutAttributeUnit *_Nullable fit_width, SJFLLayoutAttributeUnit *_Nullable fit_height) {
+    static void *kBefore = &kBefore;
+    id _Nullable beforeValue = objc_getAssociatedObject(view, kBefore);
+    id _Nullable nowValue = [NSString stringWithFormat:@"%p - %ld", view.image, (long)view.contentMode];
+    if ( [beforeValue isEqual:nowValue] )
+        return;
+    objc_setAssociatedObject(view, kBefore, nowValue, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    
     CGRect frame = view.frame;
     CGSize box = CGSizeMake(CGFLOAT_MAX, CGFLOAT_MAX);
     
@@ -275,10 +289,6 @@ UIKIT_STATIC_INLINE void SJFLImageViewLayoutFixInnerSize(UIImageView *view, SJFL
     
     CGSize result = [view sizeThatFits:box];
     CGSize fit = CGSizeMake(ceil(result.width), ceil(result.height));
-    
-#ifdef DEBUG
-    NSLog(@"%@", NSStringFromCGSize(result));
-#endif
     
     BOOL needUpdate = NO;
     if ( fit_width != nil ) {
