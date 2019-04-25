@@ -10,8 +10,8 @@
 NS_ASSUME_NONNULL_BEGIN
 @interface SJFLNotificationCenter : NSObject
 + (instancetype)defaultCenter;
-- (void)addObserver:(id)observer selector:(SEL)aSelector name:(nullable NSNotificationName)aName object:(nullable id)anObject;
-- (void)postNotificationName:(NSNotificationName)aName object:(nullable id)anObject;
+- (void)addObserver:(id)observer selector:(SEL)aSelector name:(nullable NSNotificationName)aName object:(id)anObject;
+- (void)postNotificationName:(NSNotificationName)aName object:(id)anObject;
 - (void)removeObserver:(id)observer;
 @end
 NS_ASSUME_NONNULL_END

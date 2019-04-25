@@ -12,13 +12,11 @@
 #import "SJFLNotificationCenter.h"
 
 NS_ASSUME_NONNULL_BEGIN
-#if 1
-#ifdef DEBUG
-#undef DEBUG
-#endif
-#endif
 
-static NSNotificationName const SJFLViewFinishedLayoutNotification = @"SJFLViewFinishedLayoutNotification";
+#define FL_log_layout (0)
+
+static NSNotificationName const SJFLViewFinishedLayoutNotification    = @"SJFL_V_F_L";
+static NSNotificationName const SJFLViewDidLayoutSubviewsNotification = @"SJFL_V_D_L_S";
 
 UIKIT_STATIC_INLINE void
 SJFLSwizzleMethod(Class cls, SEL originalSelector, SEL swizzledSelector) {
@@ -32,32 +30,6 @@ SJFLSwizzleMethod(Class cls, SEL originalSelector, SEL swizzledSelector) {
         method_exchangeImplementations(originalMethod, swizzledMethod);
 }
 
-@interface SJFLWeakTarget : NSObject {
-    @public
-    __weak id _Nullable _target;
-}
-- (instancetype)initWithTarget:(id)target;
-@end
-
-@implementation SJFLWeakTarget
-- (instancetype)initWithTarget:(id)target {
-    self = [super init];
-    if ( self ) {
-        _target = target;
-    }
-    return self;
-}
-@end
-
-@protocol SJFLLayoutObserverDelegate;
-@interface SJFLLayoutObserver : NSObject
-- (instancetype)initWithView:(UIView *)view elements:(NSDictionary<SJFLLayoutAttributeKey, SJFLLayoutElement *> *)elements;
-- (void)FL_superviewDidFinishedLayout:(UIView *)superview;
-@property (nonatomic, weak, nullable) id<SJFLLayoutObserverDelegate> delegate;
-- (instancetype)init NS_UNAVAILABLE;
-+ (instancetype)new NS_UNAVAILABLE;
-@end
-
 @implementation UIView (SJFLPrivate)
 + (void)load {
     static dispatch_once_t onceToken;
@@ -70,22 +42,7 @@ SJFLSwizzleMethod(Class cls, SEL originalSelector, SEL swizzledSelector) {
 static void *kSuperviewFinishedLayoutObservers = &kSuperviewFinishedLayoutObservers;
 - (void)FL_layoutSubviews {
     [self FL_layoutSubviews];
-    [self FL_layoutIfNeeded];
-    
-    NSMutableArray<SJFLWeakTarget *> *_Nullable
-    obs = objc_getAssociatedObject(self, kSuperviewFinishedLayoutObservers);
-    for ( SJFLWeakTarget *weak in obs ) {
-        [weak->_target FL_superviewDidFinishedLayout:self];
-    }
-}
-- (void)FL_addLayoutSubviewsObserver:(SJFLLayoutObserver *)observer {
-    NSMutableArray<SJFLWeakTarget *> *_Nullable
-    obs = objc_getAssociatedObject(self, kSuperviewFinishedLayoutObservers);
-    if ( !obs ) {
-        obs = NSMutableArray.new;
-        objc_setAssociatedObject(self, kSuperviewFinishedLayoutObservers, obs, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-    }
-    if ( observer ) [obs addObject:[[SJFLWeakTarget alloc] initWithTarget:observer]];
+    [SJFLNotificationCenter.defaultCenter postNotificationName:SJFLViewDidLayoutSubviewsNotification object:self];
 }
 @end
 
@@ -100,30 +57,34 @@ static void *kSuperviewFinishedLayoutObservers = &kSuperviewFinishedLayoutObserv
 }
 - (void)FL_layoutSubviews_button {
     [self FL_layoutSubviews_button];
-    [self FL_layoutIfNeeded];
-    
-    NSMutableDictionary<NSNumber *, SJFLWeakTarget *> *_Nullable
-    m = objc_getAssociatedObject(self, kSuperviewFinishedLayoutObservers);
-    
-    [m enumerateKeysAndObjectsUsingBlock:^(NSNumber * _Nonnull key, SJFLWeakTarget * _Nonnull obj, BOOL * _Nonnull stop) {
-        [obj->_target FL_superviewDidFinishedLayout:self];
-    }];
+    [SJFLNotificationCenter.defaultCenter postNotificationName:SJFLViewDidLayoutSubviewsNotification object:self];
 }
+@end
+
+@protocol SJFLLayoutObserverDelegate;
+@interface SJFLLayoutObserver : NSObject
+- (instancetype)initWithView:(UIView *)view elements:(NSDictionary<SJFLLayoutAttributeKey, SJFLLayoutElement *> *)elements;
+@property (nonatomic, weak, nullable) id<SJFLLayoutObserverDelegate> delegate;
+- (instancetype)init NS_UNAVAILABLE;
++ (instancetype)new NS_UNAVAILABLE;
 @end
 
 @protocol SJFLLayoutObserverDelegate <NSObject>
 - (void)FL_obsever:(SJFLLayoutObserver *)observer viewFinishedLayout:(UIView *)view;
-- (void)FL_superviewDidFinishedLayoutForObsever:(SJFLLayoutObserver *)observer;
+- (void)FL_observer:(SJFLLayoutObserver *)observer viewDidLayoutSubviews:(UIView *)view;
 @end
-
 @implementation SJFLLayoutObserver
 - (instancetype)initWithView:(UIView *)view elements:(NSDictionary<SJFLLayoutAttributeKey, SJFLLayoutElement *> *)elements {
     self = [super init];
     if ( !self ) return nil;
-    [view.superview FL_addLayoutSubviewsObserver:self];
+    UIView *superview = view.superview;
+    SJFLNotificationCenter *noteCenter = SJFLNotificationCenter.defaultCenter;
+    [noteCenter addObserver:self selector:@selector(FL_viewDidLayoutSubviews:) name:SJFLViewDidLayoutSubviewsNotification object:view];
+    [noteCenter addObserver:self selector:@selector(FL_viewDidLayoutSubviews:) name:SJFLViewDidLayoutSubviewsNotification object:superview];
     [elements enumerateKeysAndObjectsUsingBlock:^(SJFLLayoutAttributeKey  _Nonnull key, SJFLLayoutElement * _Nonnull obj, BOOL * _Nonnull stop) {
-        UIView *view = obj.dep_view;
-        [SJFLNotificationCenter.defaultCenter addObserver:self selector:@selector(FL_viewFinishedLayout:) name:SJFLViewFinishedLayoutNotification object:view];
+        UIView *dep_view = obj.dep_view;
+        if ( dep_view != view )
+            [noteCenter addObserver:self selector:@selector(FL_viewFinishedLayout:) name:SJFLViewFinishedLayoutNotification object:dep_view];
     }];
     return self;
 }
@@ -132,15 +93,13 @@ static void *kSuperviewFinishedLayoutObservers = &kSuperviewFinishedLayoutObserv
 }
 - (void)FL_viewFinishedLayout:(NSNotification *)note {
     [self.delegate FL_obsever:self viewFinishedLayout:note.object];
-}
-- (void)FL_superviewDidFinishedLayout:(UIView *)superview {
-    static void *kPreviousFrame = &kPreviousFrame;
-    CGRect previous = [(NSValue *)objc_getAssociatedObject(superview, kPreviousFrame) CGRectValue];
-    CGRect frame = superview.frame;
-    if ( !CGRectEqualToRect(previous, frame) ) {
-        objc_setAssociatedObject(superview, kPreviousFrame, [NSValue valueWithCGRect:frame], OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-        [self.delegate FL_superviewDidFinishedLayoutForObsever:self];
-    }
+} 
+- (void)FL_viewDidLayoutSubviews:(NSNotification *)note {
+#if FL_log_layout
+    UIView *v = note.object;
+    printf("\n V_D_L_S: \t [%p \t %s \t %s]", self, NSStringFromClass(v.class).UTF8String, NSStringFromCGRect(v.frame).UTF8String);
+#endif
+    [self.delegate FL_observer:self viewDidLayoutSubviews:note.object];
 }
 @end
 
@@ -160,14 +119,9 @@ static void *kObserver = &kObserver;
 }
 // dependency view has finished layout
 - (void)FL_obsever:(SJFLLayoutObserver *)observer viewFinishedLayout:(UIView *)view {
-    if ( view != self ) {
-        [self FL_layoutIfNeeded];
-        for ( UIView *sub in self.subviews ) {
-            [sub FL_layoutIfNeeded];
-        }
-    }
+    [self FL_layoutIfNeeded];
 }
-- (void)FL_superviewDidFinishedLayoutForObsever:(SJFLLayoutObserver *)observer {
+- (void)FL_observer:(SJFLLayoutObserver *)observer viewDidLayoutSubviews:(UIView *)view {
     [self FL_layoutIfNeeded];
 }
 @end
@@ -185,6 +139,10 @@ static void *kFL_Container = &kFL_Container;
     return objc_getAssociatedObject(self, kFL_Container);
 }
 - (void)FL_layoutIfNeeded {
+#if FL_log_layout
+    printf("\n before: \t [%p \t %s \t %s]", self, NSStringFromClass(self.class).UTF8String, NSStringFromCGRect(self.frame).UTF8String);
+#endif
+    
     NSMutableDictionary<SJFLLayoutAttributeKey, SJFLLayoutElement *> *_Nullable
     m = objc_getAssociatedObject(self, kFL_Container);
     if ( m ) {
@@ -253,6 +211,10 @@ static void *kFL_Container = &kFL_Container;
         else if ( finished )
             [SJFLNotificationCenter.defaultCenter postNotificationName:SJFLViewFinishedLayoutNotification object:self];
     }
+    
+#if FL_log_layout
+    printf("\n end: \t\t [%p \t %s \t %s]\n", self, NSStringFromClass(self.class).UTF8String, NSStringFromCGRect(self.frame).UTF8String);
+#endif
 }
 
 // fix inner size
@@ -312,12 +274,12 @@ UIKIT_STATIC_INLINE BOOL SJFLViewLayoutFixInnerSizeIfNeeded(__kindof UIView *vie
 }
 
 UIKIT_STATIC_INLINE BOOL SJFLFixLabelFittingSizeIfNeeded(UILabel *view, SJFLLayoutAttributeUnit *_Nullable fit_width, SJFLLayoutAttributeUnit *_Nullable fit_height) {
-    static void *kPrevious = &kPrevious;
-    id _Nullable previousValue = objc_getAssociatedObject(view, kPrevious);
-    id _Nullable nowValue = [NSNumber numberWithLongLong:(long long)(__bridge void *)(view.attributedText?:view.text)];
-    if ( [previousValue isEqual:nowValue] )
-        return NO;
-    objc_setAssociatedObject(view, kPrevious, nowValue, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+//    static void *kPrevious = &kPrevious;
+//    id _Nullable previousValue = objc_getAssociatedObject(view, kPrevious);
+//    id _Nullable nowValue = [NSNumber numberWithLongLong:(long long)(__bridge void *)(view.attributedText?:view.text)];
+//    if ( [previousValue isEqual:nowValue] )
+//        return NO;
+//    objc_setAssociatedObject(view, kPrevious, nowValue, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 
     CGRect frame = view.frame;
     CGSize box = CGSizeMake(CGFLOAT_MAX, CGFLOAT_MAX);
@@ -356,12 +318,12 @@ UIKIT_STATIC_INLINE BOOL SJFLFixLabelFittingSizeIfNeeded(UILabel *view, SJFLLayo
 }
 
 UIKIT_STATIC_INLINE BOOL SJFLFixButtonFittingSizeIfNeeded(UIButton *view, SJFLLayoutAttributeUnit *_Nullable fit_width, SJFLLayoutAttributeUnit *_Nullable fit_height) {
-    static void *kPrevious = &kPrevious;
-    id _Nullable previousValue = objc_getAssociatedObject(view, kPrevious);
-    id _Nullable nowValue = [NSString stringWithFormat:@"%p, %p, %p", view.currentAttributedTitle?:view.currentTitle, view.currentImage, view.currentBackgroundImage];
-    if ( [nowValue isEqual:previousValue] )
-        return NO;
-    objc_setAssociatedObject(view, kPrevious, nowValue, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+//    static void *kPrevious = &kPrevious;
+//    id _Nullable previousValue = objc_getAssociatedObject(view, kPrevious);
+//    id _Nullable nowValue = [NSString stringWithFormat:@"%p, %p, %p", view.currentAttributedTitle?:view.currentTitle, view.currentImage, view.currentBackgroundImage];
+//    if ( [nowValue isEqual:previousValue] )
+//        return NO;
+//    objc_setAssociatedObject(view, kPrevious, nowValue, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
     
     CGRect frame = view.frame;
     CGSize box = CGSizeMake(CGFLOAT_MAX, CGFLOAT_MAX);
@@ -400,12 +362,12 @@ UIKIT_STATIC_INLINE BOOL SJFLFixButtonFittingSizeIfNeeded(UIButton *view, SJFLLa
 }
 
 UIKIT_STATIC_INLINE BOOL SJFLFixImageViewFittingSizeIfNeeded(UIImageView *view, SJFLLayoutAttributeUnit *_Nullable fit_width, SJFLLayoutAttributeUnit *_Nullable fit_height) {
-    static void *kPrevious = &kPrevious;
-    id _Nullable previousValue = objc_getAssociatedObject(view, kPrevious);
-    id _Nullable nowValue = [NSString stringWithFormat:@"%p - %ld", view.image, (long)view.contentMode];
-    if ( [previousValue isEqual:nowValue] )
-        return NO;
-    objc_setAssociatedObject(view, kPrevious, nowValue, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+//    static void *kPrevious = &kPrevious;
+//    id _Nullable previousValue = objc_getAssociatedObject(view, kPrevious);
+//    id _Nullable nowValue = [NSString stringWithFormat:@"%p - %ld", view.image, (long)view.contentMode];
+//    if ( [previousValue isEqual:nowValue] )
+//        return NO;
+//    objc_setAssociatedObject(view, kPrevious, nowValue, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
     
     CGRect frame = view.frame;
     CGSize box = CGSizeMake(CGFLOAT_MAX, CGFLOAT_MAX);

@@ -28,7 +28,7 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 @interface SJFLNotificationCenter ()
-@property (nonatomic, strong, readonly) NSMutableDictionary<NSNotificationName, NSMutableArray<SJFLNotificationObserver *> *> *container;
+@property (nonatomic, strong, readonly) NSMutableDictionary<NSString *, NSMutableDictionary<NSString *, SJFLNotificationObserver *> *> *container;
 @end
 
 @implementation SJFLNotificationCenter
@@ -46,33 +46,44 @@ NS_ASSUME_NONNULL_BEGIN
     _container = NSMutableDictionary.dictionary;
     return self;
 }
-- (void)addObserver:(id)observer selector:(SEL)aSelector name:(nullable NSNotificationName)aName object:(nullable id)target {
-    NSString *key = [NSString stringWithFormat:@"%p:%p", aName, target];
-    __auto_type _Nullable m = _container[key];
-    if ( !m )  {
-        m = [NSMutableArray array];
-        _container[key] = m;
-    }
-    [m addObject:[[SJFLNotificationObserver alloc] initWithObserver:observer target:target selector:aSelector]];
+
+- (id)getNotifyKey:(NSNotificationName)aName target:(id)target {
+    return [NSString stringWithFormat:@"%p:%p", aName, target];
 }
-- (void)postNotificationName:(NSNotificationName)aName object:(nullable id)anObject {
-    NSString *key = [NSString stringWithFormat:@"%p:%p", aName, anObject];
-    __auto_type _Nullable obs = _container[key];
-    for ( SJFLNotificationObserver * _Nonnull ob in obs ) {
+
+- (id)getObserverKey:(id)notifyKey observer:(id)observer {
+    return [NSString stringWithFormat:@"%@:%p", notifyKey, observer];
+}
+
+- (void)addObserver:(id)observer selector:(SEL)aSelector name:(nullable NSNotificationName)aName object:(id)target {
+    id notifyKey = [self getNotifyKey:aName target:target];
+    __auto_type _Nullable m = _container[notifyKey];
+    if ( !m )  {
+        m = NSMutableDictionary.new;
+        _container[notifyKey] = m;
+    }
+    
+    id obKey = [self getObserverKey:notifyKey observer:observer];
+    if ( !m[obKey] )
+        m[obKey] = [[SJFLNotificationObserver alloc] initWithObserver:observer target:target selector:aSelector];
+}
+- (void)postNotificationName:(NSNotificationName)aName object:(id)target {
+    id notifyKey = [self getNotifyKey:aName target:target];
+    __auto_type _Nullable obs = _container[notifyKey];
+
+    for ( SJFLNotificationObserver *ob in obs.allValues ) {
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Warc-performSelector-leaks"
         [ob->_observer performSelector:ob->_selector
-                            withObject:[[NSNotification alloc] initWithName:aName object:anObject userInfo:nil]];
+                            withObject:[[NSNotification alloc] initWithName:aName object:target userInfo:nil]];
 #pragma clang diagnostic pop
     }
 }
 - (void)removeObserver:(id)observer {
-    [_container enumerateKeysAndObjectsUsingBlock:^(NSNotificationName  _Nonnull key, NSMutableArray<SJFLNotificationObserver *> * _Nonnull obs, BOOL * _Nonnull stop) {
-        [obs enumerateObjectsWithOptions:NSEnumerationReverse usingBlock:^(SJFLNotificationObserver * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
-            if ( obj->_observer == observer ) {
-                [obs removeObjectAtIndex:idx];
-            }
-        }];
+    [_container enumerateKeysAndObjectsWithOptions:NSEnumerationReverse usingBlock:^(NSString * _Nonnull key, NSMutableDictionary<NSString *,SJFLNotificationObserver *> * _Nonnull obj, BOOL * _Nonnull stop) {
+        NSString *obKey = [self getObserverKey:key observer:observer];
+        obj[obKey] = nil;
+        if ( obj.count == 0 ) self->_container[key] = nil;
     }];
 }
 @end
