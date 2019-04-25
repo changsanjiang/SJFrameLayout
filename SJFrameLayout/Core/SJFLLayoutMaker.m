@@ -68,11 +68,12 @@ RETURN_FL_MAKER_LAYOUT_MASK(center, SJFLLayoutAttributeMaskCenter);
 
 - (void)install {
     [self _removeObserver];
-    NSMutableDictionary<SJFLLayoutAttributeKey, SJFLLayoutElement *> *m = SJFLCreateElementsForAttributeUnits(_view, _superview);
+    __auto_type m = SJFLCreateElementsForAttributeUnits(_view, _superview);
+    [_view FL_resetAttributeUnits];
     SJFLAddFittingSizeUnitsIfNeeded(_view, m);
     _view.FL_elements = m;
-    [_view FL_resetAttributeUnits];
     [self _observeDependencyViewDidLayoutSubviews:m];
+    [_view FL_layoutIfNeeded];
     
 #ifdef DEBUG
     for ( SJFLLayoutElement *ele in m ) {
@@ -82,6 +83,39 @@ RETURN_FL_MAKER_LAYOUT_MASK(center, SJFLLayoutAttributeMaskCenter);
     printf("\n");
 #endif
 }
+- (void)update {
+    [self _removeObserver];
+    // - elements
+    NSMutableDictionary<SJFLLayoutAttributeKey, SJFLLayoutElement *> *
+    m = _view.FL_elements?:@{}.mutableCopy;
+    __auto_type update = SJFLCreateElementsForAttributeUnits(_view, _superview);
+    [_view FL_resetAttributeUnits];
+    [m setDictionary:update];
+    SJFLAddFittingSizeUnitsIfNeeded(_view, m);
+    _view.FL_elements = m;
+    
+    // - observe
+    [self _observeDependencyViewDidLayoutSubviews:m];
+    
+    // - update
+    [_view FL_layoutIfNeeded];
+}
+
++ (void)removeAllLayouts:(UIView *)view {
+    [view FL_removeObserver:view];
+
+    UIView *_Nullable commonSuperview = view.FL_elementsCommonSuperview;
+    [commonSuperview FL_removeObserver:view];
+    view.FL_elementsCommonSuperview = nil;
+    
+    [view.FL_elements enumerateKeysAndObjectsUsingBlock:^(SJFLLayoutAttributeKey  _Nonnull key, SJFLLayoutElement * _Nonnull obj, BOOL * _Nonnull stop) {
+        UIView *dep_view = obj.dep_view;
+        [dep_view FL_removeObserver:view];
+    }];
+    view.FL_elements = nil;
+}
+
+#pragma mark -
 
 UIKIT_STATIC_INLINE
 NSMutableDictionary<SJFLLayoutAttributeKey, SJFLLayoutElement *> *SJFLCreateElementsForAttributeUnits(UIView *view, UIView *superview) {
@@ -112,7 +146,7 @@ SJFLAddFittingSizeUnitsIfNeeded(UIView *view, NSMutableDictionary<SJFLLayoutAttr
     SJFLLayoutElement *_Nullable top = m[SJFLLayoutAttributeKeyTop];
     SJFLLayoutElement *_Nullable bottom = m[SJFLLayoutAttributeKeyBottom];
     SJFLLayoutElement *_Nullable height = m[SJFLLayoutAttributeKeyHeight];
-
+    
     SJFLLayoutElement *_Nullable left = m[SJFLLayoutAttributeKeyLeft];
     SJFLLayoutElement *_Nullable right = m[SJFLLayoutAttributeKeyRight];
     SJFLLayoutElement *_Nullable width = m[SJFLLayoutAttributeKeyWidth];
@@ -128,7 +162,7 @@ SJFLAddFittingSizeUnitsIfNeeded(UIView *view, NSMutableDictionary<SJFLLayoutAttr
         // Will be added when the view itself has no width condition
         m[SJFLLayoutAttributeKeyWidth] = [[SJFLLayoutElement alloc] initWithTarget:widthUnit];
     }
-
+    
     if ( height != nil || (top != nil && bottom != nil) )
     { /* nothing */ }
     else {
@@ -142,38 +176,6 @@ SJFLAddFittingSizeUnitsIfNeeded(UIView *view, NSMutableDictionary<SJFLLayoutAttr
     return m;
 }
 
-- (void)update {
-    [self _removeObserver];
-    // - elements
-    NSMutableDictionary<SJFLLayoutAttributeKey, SJFLLayoutElement *> *m = _view.FL_elements?:@{}.mutableCopy;
-    NSMutableDictionary<SJFLLayoutAttributeKey, SJFLLayoutElement *> *update = SJFLCreateElementsForAttributeUnits(_view, _superview);
-    [m setDictionary:update];
-    SJFLAddFittingSizeUnitsIfNeeded(_view, m);
-    _view.FL_elements = m;
-    [_view FL_resetAttributeUnits];
-    
-    // - observe
-    [self _observeDependencyViewDidLayoutSubviews:m];
-    
-    // - update
-    [_view.FL_elementsCommonSuperview layoutSubviews];
-}
-
-+ (void)removeAllLayouts:(UIView *)view {
-    [view FL_removeObserver:view];
-
-    UIView *_Nullable commonSuperview = view.FL_elementsCommonSuperview;
-    [commonSuperview FL_removeObserver:view];
-    view.FL_elementsCommonSuperview = nil;
-    
-    [view.FL_elements enumerateKeysAndObjectsUsingBlock:^(SJFLLayoutAttributeKey  _Nonnull key, SJFLLayoutElement * _Nonnull obj, BOOL * _Nonnull stop) {
-        UIView *dep_view = obj.dep_view;
-        [dep_view FL_removeObserver:view];
-    }];
-    view.FL_elements = nil;
-}
-
-#pragma mark -
 - (void)_observeDependencyViewDidLayoutSubviews:(NSDictionary<SJFLLayoutAttributeKey, SJFLLayoutElement *> *)m {
     UIView *_Nullable commonSuperview = SJFLCommonSuperviewOfElements(_view, m);
     NSAssert(commonSuperview, @"Can't constrain views that do not share a common superview. Make sure that all the views in this array have been added into the same view hierarchy.");
@@ -204,19 +206,19 @@ static UIView *_Nullable SJFLCommonSuperviewOfElements(UIView *view, NSDictionar
 }
 
 static UIView *SJFLClosestCommonSuperView(UIView *view1, UIView *view2) {
-        UIView *closestCommonSuperview = nil;
-        UIView *secondViewSuperview = view2;
-        while (!closestCommonSuperview && secondViewSuperview) {
-            UIView *firstViewSuperview = view1;
-            while (!closestCommonSuperview && firstViewSuperview) {
-                if (secondViewSuperview == firstViewSuperview) {
-                    closestCommonSuperview = secondViewSuperview;
-                }
-                firstViewSuperview = firstViewSuperview.superview;
+    UIView *closestCommonSuperview = nil;
+    UIView *secondViewSuperview = view2;
+    while (!closestCommonSuperview && secondViewSuperview) {
+        UIView *firstViewSuperview = view1;
+        while (!closestCommonSuperview && firstViewSuperview) {
+            if (secondViewSuperview == firstViewSuperview) {
+                closestCommonSuperview = secondViewSuperview;
             }
-            secondViewSuperview = secondViewSuperview.superview;
+            firstViewSuperview = firstViewSuperview.superview;
         }
-        return closestCommonSuperview;
+        secondViewSuperview = secondViewSuperview.superview;
+    }
+    return closestCommonSuperview;
 }
 @end
 NS_ASSUME_NONNULL_END

@@ -23,7 +23,7 @@ SJFLSwizzleMethod(Class cls, SEL originalSelector, SEL swizzledSelector) {
 
 @interface SJFLWeakTarget : NSObject {
     @public
-    __weak id _target;
+    __weak id _Nullable _target;
 }
 - (instancetype)initWithTarget:(id)target;
 @end
@@ -50,9 +50,10 @@ SJFLSwizzleMethod(Class cls, SEL originalSelector, SEL swizzledSelector) {
 static void *FL_kContainer = &FL_kContainer;
 - (void)FL_layoutSubviews {
     [self FL_layoutSubviews];
-    for ( SJFLWeakTarget *target in ((NSDictionary *)objc_getAssociatedObject(self, FL_kContainer)).allValues ) {
-        [target->_target FL_dependencyViewDidLayoutSubviews:self];
-    }
+    
+    [((NSDictionary<NSNumber *, SJFLWeakTarget *> *)objc_getAssociatedObject(self, FL_kContainer)) enumerateKeysAndObjectsUsingBlock:^(NSNumber * _Nonnull key, SJFLWeakTarget * _Nonnull obj, BOOL * _Nonnull stop) {
+        [obj->_target FL_dependencyViewDidLayoutSubviews:self];
+    }];
 }
 
 - (void)FL_addObserver:(id<SJFLDependencyViewDidLayoutSubviewsProtocol>)observer {

@@ -17,6 +17,13 @@
 //#endif
 //}
 
+- (void)layoutSubviews {
+    printf("\n %s: \t %p \t ==> Begin \t {%s}", NSStringFromClass(self.class).UTF8String, self, NSStringFromCGRect(self.frame).UTF8String);
+    [super layoutSubviews];
+    printf("\n %s: \t %p \t ==> End \t {%s}", NSStringFromClass(self.class).UTF8String, self, NSStringFromCGRect(self.frame).UTF8String);
+}
+
+
 - (void)dealloc {
 #ifdef DEBUG
     NSLog(@"%d - %s", (int)__LINE__, __func__);
