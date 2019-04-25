@@ -160,6 +160,16 @@ SJFLAddFittingSizeUnitsIfNeeded(UIView *view, NSMutableDictionary<SJFLLayoutAttr
 }
 
 + (void)removeAllLayouts:(UIView *)view {
+    [view FL_removeObserver:view];
+
+    UIView *_Nullable commonSuperview = view.FL_elementsCommonSuperview;
+    [commonSuperview FL_removeObserver:view];
+    view.FL_elementsCommonSuperview = nil;
+    
+    [view.FL_elements enumerateKeysAndObjectsUsingBlock:^(SJFLLayoutAttributeKey  _Nonnull key, SJFLLayoutElement * _Nonnull obj, BOOL * _Nonnull stop) {
+        UIView *dep_view = obj.dep_view;
+        [dep_view FL_removeObserver:view];
+    }];
     view.FL_elements = nil;
 }
 
@@ -179,12 +189,7 @@ SJFLAddFittingSizeUnitsIfNeeded(UIView *view, NSMutableDictionary<SJFLLayoutAttr
 }
 
 - (void)_removeObserver {
-    [_view FL_removeObserver:_view];
-    [_view.FL_elementsCommonSuperview FL_removeObserver:_view];
-    [_view.FL_elements enumerateKeysAndObjectsUsingBlock:^(SJFLLayoutAttributeKey  _Nonnull key, SJFLLayoutElement * _Nonnull obj, BOOL * _Nonnull stop) {
-        UIView *view = obj.dep_view;
-        [view FL_removeObserver:self->_view];
-    }];
+    [SJFLLayoutMaker removeAllLayouts:_view];
 }
 
 static UIView *_Nullable SJFLCommonSuperviewOfElements(UIView *view, NSDictionary<SJFLLayoutAttributeKey, SJFLLayoutElement *> *m) {

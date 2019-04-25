@@ -110,14 +110,14 @@ NS_ASSUME_NONNULL_BEGIN
             if ( !heightElement ) {
                 // top + height = bottom
                 // height = bottom - top
-                CGFloat height = newValue - CGRectGetMinY(*frame);
+                CGFloat height = newValue - frame->origin.y;
                 if ( height < 0 ) height = 0;
                 frame->size.height = height;
             }
             else {
                 // top + height = bottom
                 // top = bottom - height
-                CGFloat top = newValue - CGRectGetHeight(*frame);
+                CGFloat top = newValue - frame->size.height;
                 frame->origin.y = top;
             }
         }
@@ -128,14 +128,14 @@ NS_ASSUME_NONNULL_BEGIN
             if ( !widthElement ) {
                 // left + width = right
                 // width = right - left
-                CGFloat width = newValue - CGRectGetMinX(*frame);
+                CGFloat width = newValue - frame->origin.x;
                 if ( width < 0 ) width = 0;
                 frame->size.width = width;
             }
             else {
                 // left + width = right
                 // left = right - width
-                CGFloat left = newValue - CGRectGetWidth(*frame);
+                CGFloat left = newValue - frame->size.width;
                 frame->origin.x = left;
             }
         }
@@ -151,13 +151,13 @@ NS_ASSUME_NONNULL_BEGIN
             break;
         case SJFLLayoutAttributeCenterX: {
             // newValue = frame.origin.x + frame.origin.width * 0.5
-            CGFloat x = newValue - CGRectGetWidth(*frame) * 0.5;
+            CGFloat x = newValue - frame->size.width * 0.5;
             frame->origin.x = x;
         }
             break;
         case SJFLLayoutAttributeCenterY: {
             // centerY = frame.origin.y + frame.origin.height * 0.5
-            CGFloat y = newValue - CGRectGetHeight(*frame) * 0.5;
+            CGFloat y = newValue - frame->size.height * 0.5;
             frame->origin.y = y;
         }
             break;
@@ -193,11 +193,11 @@ NS_ASSUME_NONNULL_BEGIN
             switch ( dep_attr ) {
                 default: break;
                 case SJFLLayoutAttributeWidth: {
-                    value = CGRectGetWidth(dep_frame);
+                    value = dep_frame.size.width;
                 }
                     break;
                 case SJFLLayoutAttributeHeight: {
-                    value = CGRectGetHeight(dep_frame);
+                    value = dep_frame.size.height;
                 }
                     break;
             }
@@ -231,13 +231,13 @@ NS_ASSUME_NONNULL_BEGIN
                         point = CGPointMake(0, safeAreaInsets.top);
                         break;
                     case SJFLLayoutAttributeCenterY:
-                        point = CGPointMake(0, CGRectGetHeight(dep_frame) * 0.5);
+                        point = CGPointMake(0, dep_frame.size.height * 0.5);
                         break;
                     case SJFLLayoutAttributeBottom:
-                        point = CGPointMake(0, CGRectGetHeight(dep_frame));
+                        point = CGPointMake(0, dep_frame.size.height);
                         break;
                     case SJFLFrameAttributeSafeBottom:
-                        point = CGPointMake(0, CGRectGetHeight(dep_frame) - safeAreaInsets.bottom);
+                        point = CGPointMake(0, dep_frame.size.height - safeAreaInsets.bottom);
                         break;
                     default:break;
                 }
@@ -253,13 +253,13 @@ NS_ASSUME_NONNULL_BEGIN
                         point = CGPointMake(safeAreaInsets.left, 0);
                         break;
                     case SJFLLayoutAttributeCenterX:
-                        point = CGPointMake(CGRectGetWidth(dep_frame) * 0.5, 0);
+                        point = CGPointMake(dep_frame.size.width * 0.5, 0);
                         break;
                     case SJFLLayoutAttributeRight:
-                        point = CGPointMake(CGRectGetWidth(dep_frame), 0);
+                        point = CGPointMake(dep_frame.size.width, 0);
                         break;
                     case SJFLFrameAttributeSafeRight:
-                        point = CGPointMake(CGRectGetWidth(dep_frame) - safeAreaInsets.right, 0);
+                        point = CGPointMake(dep_frame.size.width - safeAreaInsets.right, 0);
                         break;
                     default:break;
                 }
