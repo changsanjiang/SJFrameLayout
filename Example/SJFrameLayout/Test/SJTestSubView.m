@@ -17,11 +17,13 @@
 //#endif
 //}
 
+#if 0
 - (void)layoutSubviews {
     printf("\n %s: \t %p \t ==> Begin \t {%s}", NSStringFromClass(self.class).UTF8String, self, NSStringFromCGRect(self.frame).UTF8String);
     [super layoutSubviews];
     printf("\n %s: \t %p \t ==> End \t {%s}", NSStringFromClass(self.class).UTF8String, self, NSStringFromCGRect(self.frame).UTF8String);
 }
+#endif
 
 
 - (void)dealloc {

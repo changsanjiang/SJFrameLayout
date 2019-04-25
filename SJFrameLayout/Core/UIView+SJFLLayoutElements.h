@@ -11,8 +11,6 @@
 @class SJFLLayoutElement;
 
 NS_ASSUME_NONNULL_BEGIN
-UIKIT_EXTERN NSNotificationName const SJFLViewFinishedLayoutNotification;
-
 @interface UIView (SJFLLayoutElements)
 UIKIT_EXTERN NSDictionary<SJFLLayoutAttributeKey, SJFLLayoutElement *> *_Nullable
 SJFLGetElements(UIView *view);

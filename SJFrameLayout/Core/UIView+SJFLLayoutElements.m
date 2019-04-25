@@ -9,6 +9,7 @@
 #import "SJFLLayoutElement.h"
 #import "UIView+SJFLLayoutAttributeUnits.h"
 #import <objc/message.h>
+#import "SJFLNotificationCenter.h"
 
 NS_ASSUME_NONNULL_BEGIN
 #if 1
@@ -17,7 +18,8 @@ NS_ASSUME_NONNULL_BEGIN
 #endif
 #endif
 
-NSNotificationName const SJFLViewFinishedLayoutNotification = @"SJFLViewFinishedLayoutNotification";
+static NSNotificationName const SJFLViewFinishedLayoutNotification = @"SJFLViewFinishedLayoutNotification";
+
 UIKIT_STATIC_INLINE void
 SJFLSwizzleMethod(Class cls, SEL originalSelector, SEL swizzledSelector) {
     Method originalMethod = class_getInstanceMethod(cls, originalSelector);
@@ -30,6 +32,32 @@ SJFLSwizzleMethod(Class cls, SEL originalSelector, SEL swizzledSelector) {
         method_exchangeImplementations(originalMethod, swizzledMethod);
 }
 
+@interface SJFLWeakTarget : NSObject {
+    @public
+    __weak id _Nullable _target;
+}
+- (instancetype)initWithTarget:(id)target;
+@end
+
+@implementation SJFLWeakTarget
+- (instancetype)initWithTarget:(id)target {
+    self = [super init];
+    if ( self ) {
+        _target = target;
+    }
+    return self;
+}
+@end
+
+@protocol SJFLLayoutObserverDelegate;
+@interface SJFLLayoutObserver : NSObject
+- (instancetype)initWithView:(UIView *)view elements:(NSDictionary<SJFLLayoutAttributeKey, SJFLLayoutElement *> *)elements;
+- (void)FL_superviewDidFinishedLayout:(UIView *)superview;
+@property (nonatomic, weak, nullable) id<SJFLLayoutObserverDelegate> delegate;
+- (instancetype)init NS_UNAVAILABLE;
++ (instancetype)new NS_UNAVAILABLE;
+@end
+
 @implementation UIView (SJFLPrivate)
 + (void)load {
     static dispatch_once_t onceToken;
@@ -39,9 +67,25 @@ SJFLSwizzleMethod(Class cls, SEL originalSelector, SEL swizzledSelector) {
         SJFLSwizzleMethod(UIView.class, originalSelector, swizzledSelector);
     });
 }
+static void *kSuperviewFinishedLayoutObservers = &kSuperviewFinishedLayoutObservers;
 - (void)FL_layoutSubviews {
     [self FL_layoutSubviews];
     [self FL_layoutIfNeeded];
+    
+    NSMutableArray<SJFLWeakTarget *> *_Nullable
+    obs = objc_getAssociatedObject(self, kSuperviewFinishedLayoutObservers);
+    for ( SJFLWeakTarget *weak in obs ) {
+        [weak->_target FL_superviewDidFinishedLayout:self];
+    }
+}
+- (void)FL_addLayoutSubviewsObserver:(SJFLLayoutObserver *)observer {
+    NSMutableArray<SJFLWeakTarget *> *_Nullable
+    obs = objc_getAssociatedObject(self, kSuperviewFinishedLayoutObservers);
+    if ( !obs ) {
+        obs = NSMutableArray.new;
+        objc_setAssociatedObject(self, kSuperviewFinishedLayoutObservers, obs, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    }
+    if ( observer ) [obs addObject:[[SJFLWeakTarget alloc] initWithTarget:observer]];
 }
 @end
 
@@ -57,40 +101,54 @@ SJFLSwizzleMethod(Class cls, SEL originalSelector, SEL swizzledSelector) {
 - (void)FL_layoutSubviews_button {
     [self FL_layoutSubviews_button];
     [self FL_layoutIfNeeded];
+    
+    NSMutableDictionary<NSNumber *, SJFLWeakTarget *> *_Nullable
+    m = objc_getAssociatedObject(self, kSuperviewFinishedLayoutObservers);
+    
+    [m enumerateKeysAndObjectsUsingBlock:^(NSNumber * _Nonnull key, SJFLWeakTarget * _Nonnull obj, BOOL * _Nonnull stop) {
+        [obj->_target FL_superviewDidFinishedLayout:self];
+    }];
 }
 @end
 
-@protocol SJFLLayoutObserverDelegate;
-@interface SJFLLayoutObserver : NSObject
-- (instancetype)initWithElements:(NSDictionary<SJFLLayoutAttributeKey, SJFLLayoutElement *> *)elements;
-@property (nonatomic, weak, nullable) id<SJFLLayoutObserverDelegate> delegate;
-- (instancetype)init NS_UNAVAILABLE;
-+ (instancetype)new NS_UNAVAILABLE;
-@end
 @protocol SJFLLayoutObserverDelegate <NSObject>
 - (void)FL_obsever:(SJFLLayoutObserver *)observer viewFinishedLayout:(UIView *)view;
+- (void)FL_superviewDidFinishedLayoutForObsever:(SJFLLayoutObserver *)observer;
 @end
+
 @implementation SJFLLayoutObserver
-- (instancetype)initWithElements:(NSDictionary<SJFLLayoutAttributeKey,SJFLLayoutElement *> *)elements {
+- (instancetype)initWithView:(UIView *)view elements:(NSDictionary<SJFLLayoutAttributeKey, SJFLLayoutElement *> *)elements {
     self = [super init];
     if ( !self ) return nil;
+    [view.superview FL_addLayoutSubviewsObserver:self];
     [elements enumerateKeysAndObjectsUsingBlock:^(SJFLLayoutAttributeKey  _Nonnull key, SJFLLayoutElement * _Nonnull obj, BOOL * _Nonnull stop) {
         UIView *view = obj.dep_view;
-        [NSNotificationCenter.defaultCenter addObserver:self selector:@selector(FL_viewFinishedLayout:) name:SJFLViewFinishedLayoutNotification object:view];
+        [SJFLNotificationCenter.defaultCenter addObserver:self selector:@selector(FL_viewFinishedLayout:) name:SJFLViewFinishedLayoutNotification object:view];
     }];
     return self;
 }
 - (void)dealloc {
-    [NSNotificationCenter.defaultCenter removeObserver:self];
+    [SJFLNotificationCenter.defaultCenter removeObserver:self];
 }
 - (void)FL_viewFinishedLayout:(NSNotification *)note {
     [self.delegate FL_obsever:self viewFinishedLayout:note.object];
 }
+- (void)FL_superviewDidFinishedLayout:(UIView *)superview {
+    static void *kPreviousFrame = &kPreviousFrame;
+    CGRect previous = [(NSValue *)objc_getAssociatedObject(superview, kPreviousFrame) CGRectValue];
+    CGRect frame = superview.frame;
+    if ( !CGRectEqualToRect(previous, frame) ) {
+        objc_setAssociatedObject(superview, kPreviousFrame, [NSValue valueWithCGRect:frame], OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+        [self.delegate FL_superviewDidFinishedLayoutForObsever:self];
+    }
+}
 @end
+
 
 @interface UIView (SJFLLayoutObserver)<SJFLLayoutObserverDelegate>
 @property (nonatomic, strong, nullable) SJFLLayoutObserver *FL_layoutObserver;
 @end
+
 @implementation UIView (SJFLLayoutObserver)
 static void *kObserver = &kObserver;
 - (void)setFL_layoutObserver:(SJFLLayoutObserver *_Nullable)FL_layoutObserver {
@@ -102,8 +160,15 @@ static void *kObserver = &kObserver;
 }
 // dependency view has finished layout
 - (void)FL_obsever:(SJFLLayoutObserver *)observer viewFinishedLayout:(UIView *)view {
-    if ( view != self )
+    if ( view != self ) {
         [self FL_layoutIfNeeded];
+        for ( UIView *sub in self.subviews ) {
+            [sub FL_layoutIfNeeded];
+        }
+    }
+}
+- (void)FL_superviewDidFinishedLayoutForObsever:(SJFLLayoutObserver *)observer {
+    [self FL_layoutIfNeeded];
 }
 @end
 
@@ -113,13 +178,12 @@ static void *kFL_Container = &kFL_Container;
     return [objc_getAssociatedObject(self, kFL_Container) valueForKey:attributeKey];
 }
 - (void)setFL_elements:(NSDictionary<SJFLLayoutAttributeKey, SJFLLayoutElement *> * _Nullable)FL_elements {
-    self.FL_layoutObserver = [[SJFLLayoutObserver alloc] initWithElements:FL_elements];
+    self.FL_layoutObserver = [[SJFLLayoutObserver alloc] initWithView:self elements:FL_elements];
     objc_setAssociatedObject(self, kFL_Container, [FL_elements mutableCopy], OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
 - (NSDictionary<SJFLLayoutAttributeKey, SJFLLayoutElement *> *_Nullable)FL_elements {
     return objc_getAssociatedObject(self, kFL_Container);
 }
-
 - (void)FL_layoutIfNeeded {
     NSMutableDictionary<SJFLLayoutAttributeKey, SJFLLayoutElement *> *_Nullable
     m = objc_getAssociatedObject(self, kFL_Container);
@@ -178,14 +242,16 @@ static void *kFL_Container = &kFL_Container;
         if ( centerX ) [centerX refreshLayoutIfNeeded:&frame];
         if ( centerY ) [centerY refreshLayoutIfNeeded:&frame];
         
+        BOOL finished = NO;
         if ( !CGRectEqualToRect(frame, previous) ) {
             self.frame = frame;
+            finished = YES;
         }
 
         if ( SJFLViewLayoutFixInnerSizeIfNeeded(self, m) )
             goto handle_elements;
-        
-        [NSNotificationCenter.defaultCenter postNotificationName:SJFLViewFinishedLayoutNotification object:self];
+        else if ( finished )
+            [SJFLNotificationCenter.defaultCenter postNotificationName:SJFLViewFinishedLayoutNotification object:self];
     }
 }
 
