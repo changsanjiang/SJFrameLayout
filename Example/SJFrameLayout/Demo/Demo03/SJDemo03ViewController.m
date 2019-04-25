@@ -177,15 +177,22 @@ NS_ASSUME_NONNULL_END
  整改:
     - 布局的起点, 应该从当前视图开始
     - 监测依赖视图的layout时机
-        - 依赖视图layout时, 更新自身依赖人家的属性(或者直接全部更新)
-        - 监测必须到位
+        - 对应的依赖视图FL_layoutIfNeeded时, 更新自身依赖人家的属性(处理先: 直接全部更新, 后期优化更新对应属性)
+        - 监测
+            - 必须到位
             - FL_layoutIfNeeded 调用完之后, 通知观察者? 或者无需观察者?
                 - 使用`无需观察者`方案. 依赖视图布局更新后, 当前视图应自动维护自己的布局.
                     - 当前视图如何知道, 依赖视图正在更新布局或者已更新完毕呢?
-                        - KVO? or Notification? or ...
- 
- 
- 
-            - name is `依赖链` or `布局链`. 方法监听从 `layoutSubviews` 改为 `FL_layoutIfNeeded`
-                -
+                        - KVO? or Notification? or mgr?
+                            - Notification, 暂时先用通知来实现
+                            - 使用 mgr. KVO和Notification 貌似会有很大的性能消耗.
+                                - mgr 监听所有依赖视图的FL_layoutSubviews, 或者frame发生变化的时机. 由此更新当前视图
+
+    - 当需自适应自身大小时
+        - 如果存在子视图
+            - 如果存在 elements, 则子视图设置完frame后, 会触发父视图自己的layoutSubviews, 此时可以修复父视图自身大小(需注意循环调用).
+            - 如果不存在 elements, 要么使用inSize(>MaxX, MaxY), 要么使用所有子视图maxX, maxY(>inSize).
+        - 如果不存在子视图, 使用inSize大小(>0). 否则为Zero.
+        - 特殊自撑满视图的处理. (UILabel, UIButton, UIImageView)
+        - 其他视图的统一处理.
  */

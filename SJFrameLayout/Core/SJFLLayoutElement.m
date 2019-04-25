@@ -105,7 +105,7 @@ NS_ASSUME_NONNULL_BEGIN
         }
             break;
         case SJFLLayoutAttributeBottom: {
-            NSDictionary<SJFLLayoutAttributeKey, SJFLLayoutElement *> *m = SJFLElements(view);
+            NSDictionary<SJFLLayoutAttributeKey, SJFLLayoutElement *> *m = SJFLGetElements(view);
             SJFLLayoutElement *_Nullable heightElement = m[SJFLLayoutAttributeKeyHeight];
             if ( !heightElement ) {
                 // top + height = bottom
@@ -123,7 +123,7 @@ NS_ASSUME_NONNULL_BEGIN
         }
             break;
         case SJFLLayoutAttributeRight: {
-            NSDictionary<SJFLLayoutAttributeKey, SJFLLayoutElement *> *m = SJFLElements(view);
+            NSDictionary<SJFLLayoutAttributeKey, SJFLLayoutElement *> *m = SJFLGetElements(view);
             SJFLLayoutElement *_Nullable widthElement = m[SJFLLayoutAttributeKeyWidth];
             if ( !widthElement ) {
                 // left + width = right

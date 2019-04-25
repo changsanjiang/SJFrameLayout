@@ -16,27 +16,108 @@ NS_ASSUME_NONNULL_BEGIN
 #undef DEBUG
 #endif
 #endif
+
+NSNotificationName const SJFLViewFinishedLayoutNotification = @"SJFLViewFinishedLayoutNotification";
+UIKIT_STATIC_INLINE void
+SJFLSwizzleMethod(Class cls, SEL originalSelector, SEL swizzledSelector) {
+    Method originalMethod = class_getInstanceMethod(cls, originalSelector);
+    Method swizzledMethod = class_getInstanceMethod(cls, swizzledSelector);
+    
+    BOOL added = class_addMethod(cls, originalSelector, method_getImplementation(swizzledMethod), method_getTypeEncoding(swizzledMethod));
+    if ( added )
+        class_replaceMethod(cls, swizzledSelector, method_getImplementation(originalMethod), method_getTypeEncoding(originalMethod));
+    else
+        method_exchangeImplementations(originalMethod, swizzledMethod);
+}
+
+@implementation UIView (SJFLPrivate)
++ (void)load {
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        SEL originalSelector = @selector(layoutSubviews);
+        SEL swizzledSelector = @selector(FL_layoutSubviews);
+        SJFLSwizzleMethod(UIView.class, originalSelector, swizzledSelector);
+    });
+}
+- (void)FL_layoutSubviews {
+    [self FL_layoutSubviews];
+    [self FL_layoutIfNeeded];
+}
+@end
+
+@implementation UIButton (SJFLPrivate)
++ (void)load {
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        SEL originalSelector = @selector(layoutSubviews);
+        SEL swizzledSelector = @selector(FL_layoutSubviews_button);
+        SJFLSwizzleMethod(UIButton.class, originalSelector, swizzledSelector);
+    });
+}
+- (void)FL_layoutSubviews_button {
+    [self FL_layoutSubviews_button];
+    [self FL_layoutIfNeeded];
+}
+@end
+
+@protocol SJFLLayoutObserverDelegate;
+@interface SJFLLayoutObserver : NSObject
+- (instancetype)initWithElements:(NSDictionary<SJFLLayoutAttributeKey, SJFLLayoutElement *> *)elements;
+@property (nonatomic, weak, nullable) id<SJFLLayoutObserverDelegate> delegate;
+- (instancetype)init NS_UNAVAILABLE;
++ (instancetype)new NS_UNAVAILABLE;
+@end
+@protocol SJFLLayoutObserverDelegate <NSObject>
+- (void)FL_obsever:(SJFLLayoutObserver *)observer viewFinishedLayout:(UIView *)view;
+@end
+@implementation SJFLLayoutObserver
+- (instancetype)initWithElements:(NSDictionary<SJFLLayoutAttributeKey,SJFLLayoutElement *> *)elements {
+    self = [super init];
+    if ( !self ) return nil;
+    [elements enumerateKeysAndObjectsUsingBlock:^(SJFLLayoutAttributeKey  _Nonnull key, SJFLLayoutElement * _Nonnull obj, BOOL * _Nonnull stop) {
+        UIView *view = obj.dep_view;
+        [NSNotificationCenter.defaultCenter addObserver:self selector:@selector(FL_viewFinishedLayout:) name:SJFLViewFinishedLayoutNotification object:view];
+    }];
+    return self;
+}
+- (void)dealloc {
+    [NSNotificationCenter.defaultCenter removeObserver:self];
+}
+- (void)FL_viewFinishedLayout:(NSNotification *)note {
+    [self.delegate FL_obsever:self viewFinishedLayout:note.object];
+}
+@end
+
+@interface UIView (SJFLLayoutObserver)<SJFLLayoutObserverDelegate>
+@property (nonatomic, strong, nullable) SJFLLayoutObserver *FL_layoutObserver;
+@end
+@implementation UIView (SJFLLayoutObserver)
+static void *kObserver = &kObserver;
+- (void)setFL_layoutObserver:(SJFLLayoutObserver *_Nullable)FL_layoutObserver {
+    FL_layoutObserver.delegate = self;
+    objc_setAssociatedObject(self, kObserver, FL_layoutObserver, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+}
+- (SJFLLayoutObserver *_Nullable)FL_layoutObserver {
+    return objc_getAssociatedObject(self, kObserver);
+}
+// dependency view has finished layout
+- (void)FL_obsever:(SJFLLayoutObserver *)observer viewFinishedLayout:(UIView *)view {
+    if ( view != self )
+        [self FL_layoutIfNeeded];
+}
+@end
+
 @implementation UIView (SJFLLayoutElements)
 static void *kFL_Container = &kFL_Container;
+- (SJFLLayoutElement *_Nullable)FL_elementForAttributeKey:(SJFLLayoutAttributeKey)attributeKey {
+    return [objc_getAssociatedObject(self, kFL_Container) valueForKey:attributeKey];
+}
 - (void)setFL_elements:(NSDictionary<SJFLLayoutAttributeKey, SJFLLayoutElement *> * _Nullable)FL_elements {
+    self.FL_layoutObserver = [[SJFLLayoutObserver alloc] initWithElements:FL_elements];
     objc_setAssociatedObject(self, kFL_Container, [FL_elements mutableCopy], OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
 - (NSDictionary<SJFLLayoutAttributeKey, SJFLLayoutElement *> *_Nullable)FL_elements {
     return objc_getAssociatedObject(self, kFL_Container);
-}
-
-- (SJFLLayoutElement *_Nullable)FL_elementForAttributeKey:(SJFLLayoutAttributeKey)attributeKey {
-    return [objc_getAssociatedObject(self, kFL_Container) valueForKey:attributeKey];
-}
-
-// -
-
-- (void)FL_dependencyViewDidLayoutSubviews:(UIView *)view {
-    if ( view != self ) {
-        [self FL_layoutIfNeeded];
-    }
-    
-    SJFLViewLayoutFixInnerSizeIfNeeded(view, nil);
 }
 
 - (void)FL_layoutIfNeeded {
@@ -65,6 +146,8 @@ static void *kFL_Container = &kFL_Container;
         // centerY 安装之后, 会影响到什么?
         // centerX 安装之后, 会影响到什么?
         
+        SJFLFixLabelFittingWidthIfNeeded(self, m);
+        
         SJFLLayoutElement *_Nullable top = m[SJFLLayoutAttributeKeyTop];
         SJFLLayoutElement *_Nullable left = m[SJFLLayoutAttributeKeyLeft];
         SJFLLayoutElement *_Nullable bottom = m[SJFLLayoutAttributeKeyBottom];
@@ -74,6 +157,7 @@ static void *kFL_Container = &kFL_Container;
         SJFLLayoutElement *_Nullable centerX = m[SJFLLayoutAttributeKeyCenterX];
         SJFLLayoutElement *_Nullable centerY = m[SJFLLayoutAttributeKeyCenterY];
         
+    handle_elements:;
         CGRect previous = self.frame;
         CGRect frame = previous;
         if ( width ) [width refreshLayoutIfNeeded:&frame];
@@ -97,34 +181,37 @@ static void *kFL_Container = &kFL_Container;
         if ( !CGRectEqualToRect(frame, previous) ) {
             self.frame = frame;
         }
+
+        if ( SJFLViewLayoutFixInnerSizeIfNeeded(self, m) )
+            goto handle_elements;
         
-        SJFLViewLayoutFixInnerSizeIfNeeded(self, m);
+        [NSNotificationCenter.defaultCenter postNotificationName:SJFLViewFinishedLayoutNotification object:self];
     }
 }
 
-//UIKIT_STATIC_INLINE BOOL SJFLViewBottomCanSettable(UIView *view) {
-//    NSDictionary<SJFLLayoutAttributeKey, SJFLLayoutElement *> *m = SJFLElements(view);
-//    SJFLLayoutElement *_Nullable top = m[SJFLLayoutAttributeKeyTop];
-//    SJFLLayoutElement *_Nullable height = m[SJFLLayoutAttributeKeyHeight];
-//    if ( top != nil  && height != nil ) return NO;
-////    SJFLLayoutSetInfo *info = view.FL_info;
-////    return [info get:SJFLLayoutAttributeTop] || [info get:SJFLLayoutAttributeHeight];
-//}
-//
-//UIKIT_STATIC_INLINE BOOL SJFLViewRightCanSettable(UIView *view) {
-//    NSDictionary<SJFLLayoutAttributeKey, SJFLLayoutElement *> *m = SJFLElements(view);
-//    SJFLLayoutElement *_Nullable left = m[SJFLLayoutAttributeKeyLeft];
-//    SJFLLayoutElement *_Nullable width = m[SJFLLayoutAttributeKeyWidth];
-//    if ( left != nil  && width != nil ) return NO;
-////    SJFLLayoutSetInfo *info = view.FL_info;
-////    return [info get:SJFLLayoutAttributeLeft] || [info get:SJFLLayoutAttributeWidth];
-//}
-
 // fix inner size
 
-UIKIT_STATIC_INLINE void SJFLViewLayoutFixInnerSizeIfNeeded(UIView *view, NSMutableDictionary<SJFLLayoutAttributeKey, SJFLLayoutElement *> *_Nullable m) {
-    if ( !m ) m = objc_getAssociatedObject(view, kFL_Container);
-    if ( !m ) return;
+UIKIT_STATIC_INLINE void SJFLFixLabelFittingWidthIfNeeded(UIView *view, NSMutableDictionary<SJFLLayoutAttributeKey, SJFLLayoutElement *> *m ) {
+    if ( [view isKindOfClass:UILabel.class] ) {
+        UILabel *label = (id)view;
+        CGFloat preferredMaxLayoutWidth = label.preferredMaxLayoutWidth;
+        if ( preferredMaxLayoutWidth > 0 ) {
+            SJFLLayoutAttributeUnit *_Nullable widthUnit = m[SJFLLayoutAttributeKeyWidth].target;
+            if ( (widthUnit && widthUnit->priority == 1) || !widthUnit ) {
+                widthUnit = [[SJFLLayoutAttributeUnit alloc] initWithView:view attribute:SJFLLayoutAttributeWidth];
+                m[SJFLLayoutAttributeKeyWidth] = [[SJFLLayoutElement alloc] initWithTarget:widthUnit];
+            }
+            widthUnit->offset_t = SJFLCGFloatValue;
+            widthUnit->offset.value = preferredMaxLayoutWidth;
+        }
+    }
+}
+
+
+UIKIT_STATIC_INLINE BOOL SJFLViewLayoutFixInnerSizeIfNeeded(__kindof UIView *view, NSMutableDictionary<SJFLLayoutAttributeKey, SJFLLayoutElement *> *_Nullable m) {
+    if ( !m )
+        return NO;
+    
     static Class FL_UILabelClass;
     static Class FL_UIButtonClass;
     static Class FL_UIImageViewClass;
@@ -134,10 +221,6 @@ UIKIT_STATIC_INLINE void SJFLViewLayoutFixInnerSizeIfNeeded(UIView *view, NSMuta
         FL_UIButtonClass = [UIButton class];
         FL_UIImageViewClass = [UIImageView class];
     });
-    
-    if ( [view isKindOfClass:FL_UILabelClass] ) {
-        SJFLLabelAdjustBoxIfNeeded((id)view, m);
-    }
     
     // - fitting size -
     SJFLLayoutAttributeUnit *_Nullable fit_width = nil;
@@ -149,40 +232,25 @@ UIKIT_STATIC_INLINE void SJFLViewLayoutFixInnerSizeIfNeeded(UIView *view, NSMuta
     if ( heightElement && heightElement->priority == 1 ) fit_height = heightElement;
     
     if ( fit_width != nil || fit_height != nil ) {
-        if ( [view isKindOfClass:FL_UILabelClass] ) {
-            SJFLLabelLayoutFixInnerSize((id)view, fit_width, fit_height);
-        }
-        else if ( [view isKindOfClass:FL_UIButtonClass] ) {
-            SJFLButtonLayoutFixInnerSize((id)view, fit_width, fit_height);
-        }
-        else if ( [view isKindOfClass:FL_UIImageViewClass] ) {
-            SJFLImageViewLayoutFixInnerSize((id)view, fit_width, fit_height);
-        }
-        else {
-            SJFLViewLayoutFixInnerSize(view, fit_width, fit_height);
-        }
+        if ( [view isKindOfClass:FL_UILabelClass] )
+            return SJFLFixLabelFittingSizeIfNeeded(view, fit_width, fit_height);
+        else if ( [view isKindOfClass:FL_UIButtonClass] )
+            return SJFLFixButtonFittingSizeIfNeeded(view, fit_width, fit_height);
+        else if ( [view isKindOfClass:FL_UIImageViewClass] )
+            return SJFLFixImageViewFittingSizeIfNeeded(view, fit_width, fit_height);
+        else
+            return SJFLFixViewFittingSizeIfNeeded(view, fit_width, fit_height);
     }
+    
+    return NO;
 }
 
-UIKIT_STATIC_INLINE void SJFLLabelAdjustBoxIfNeeded(UILabel *label, NSMutableDictionary<SJFLLayoutAttributeKey, SJFLLayoutElement *> *m ) {
-    CGFloat preferredMaxLayoutWidth = label.preferredMaxLayoutWidth;
-    if ( !SJFLFloatCompare(0, preferredMaxLayoutWidth) ) {
-        SJFLLayoutAttributeUnit *_Nullable widthUnit = m[SJFLLayoutAttributeKeyWidth].target;
-        if ( (widthUnit && widthUnit->priority == 1) || !widthUnit ) {
-            widthUnit = [[SJFLLayoutAttributeUnit alloc] initWithView:label attribute:SJFLLayoutAttributeWidth];
-            m[SJFLLayoutAttributeKeyWidth] = [[SJFLLayoutElement alloc] initWithTarget:widthUnit];
-        }
-        widthUnit->offset_t = SJFLCGFloatValue;
-        widthUnit->offset.value = preferredMaxLayoutWidth;
-    }
-}
-
-UIKIT_STATIC_INLINE void SJFLLabelLayoutFixInnerSize(UILabel *view, SJFLLayoutAttributeUnit *_Nullable fit_width, SJFLLayoutAttributeUnit *_Nullable fit_height) {
+UIKIT_STATIC_INLINE BOOL SJFLFixLabelFittingSizeIfNeeded(UILabel *view, SJFLLayoutAttributeUnit *_Nullable fit_width, SJFLLayoutAttributeUnit *_Nullable fit_height) {
     static void *kPrevious = &kPrevious;
     id _Nullable previousValue = objc_getAssociatedObject(view, kPrevious);
     id _Nullable nowValue = [NSNumber numberWithLongLong:(long long)(__bridge void *)(view.attributedText?:view.text)];
     if ( [previousValue isEqual:nowValue] )
-        return;
+        return NO;
     objc_setAssociatedObject(view, kPrevious, nowValue, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 
     CGRect frame = view.frame;
@@ -191,45 +259,42 @@ UIKIT_STATIC_INLINE void SJFLLabelLayoutFixInnerSize(UILabel *view, SJFLLayoutAt
     // 具有宽度约束
     if ( fit_width == nil ) {
         box.width = CGRectGetWidth(frame);
-        if ( SJFLFloatCompare(0, box.width) )
-            return;
+        if ( box.width <= 0 )
+            return NO;
     }
     // 具有高度约束
     else if ( fit_height == nil ) {
         box.height = CGRectGetHeight(frame);
-        if ( SJFLFloatCompare(0, box.height) )
-            return;
+        if ( box.height <= 0 )
+            return NO;
     }
     
     CGRect rect = [view textRectForBounds:CGRectMake(0, 0, box.width, box.height) limitedToNumberOfLines:view.numberOfLines];
     CGSize fit = CGSizeMake(ceil(rect.size.width), ceil(rect.size.height));
     
-    BOOL needUpdate = NO;
+    BOOL fixed = NO;
     if ( fit_width != nil ) {
-        if ( !SJFLFloatCompare(fit_width->offset.value, fit.width) ) {
+        if ( fit_width->offset.value != fit.width ) {
             fit_width->offset.value = fit.width;
-            needUpdate = YES;
+            fixed = YES;
         }
     }
     
     if ( fit_height != nil ) {
-        if ( !SJFLFloatCompare(fit_height->offset.value, fit.height) ) {
+        if ( fit_height->offset.value != fit.height ) {
             fit_height->offset.value = fit.height;
-            needUpdate = YES;
+            fixed = YES;
         }
     }
-    
-    if ( needUpdate ) {
-        [view.FL_elementsCommonSuperview layoutSubviews];
-    }
+    return fixed;
 }
 
-UIKIT_STATIC_INLINE void SJFLButtonLayoutFixInnerSize(UIButton *view, SJFLLayoutAttributeUnit *_Nullable fit_width, SJFLLayoutAttributeUnit *_Nullable fit_height) {
+UIKIT_STATIC_INLINE BOOL SJFLFixButtonFittingSizeIfNeeded(UIButton *view, SJFLLayoutAttributeUnit *_Nullable fit_width, SJFLLayoutAttributeUnit *_Nullable fit_height) {
     static void *kPrevious = &kPrevious;
     id _Nullable previousValue = objc_getAssociatedObject(view, kPrevious);
     id _Nullable nowValue = [NSString stringWithFormat:@"%p, %p, %p", view.currentAttributedTitle?:view.currentTitle, view.currentImage, view.currentBackgroundImage];
     if ( [nowValue isEqual:previousValue] )
-        return;
+        return NO;
     objc_setAssociatedObject(view, kPrevious, nowValue, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
     
     CGRect frame = view.frame;
@@ -238,45 +303,42 @@ UIKIT_STATIC_INLINE void SJFLButtonLayoutFixInnerSize(UIButton *view, SJFLLayout
     // 具有宽度约束
     if ( fit_width == nil ) {
         box.width = CGRectGetWidth(frame);
-        if ( SJFLFloatCompare(0, box.width) )
-            return;
+        if ( box.width <= 0 )
+            return NO;
     }
     // 具有高度约束
     else if ( fit_height == nil ) {
         box.height = CGRectGetHeight(frame);
-        if ( SJFLFloatCompare(0, box.height) )
-            return;
+        if ( box.height <= 0 )
+            return NO;
     }
     
     CGSize result = [view sizeThatFits:box];
     CGSize fit = CGSizeMake(ceil(result.width), ceil(result.height));
     
-    BOOL needUpdate = NO;
+    BOOL fixed = NO;
     if ( fit_width != nil ) {
-        if ( !SJFLFloatCompare(fit_width->offset.value, fit.width) ) {
+        if ( fit_width->offset.value != fit.width ) {
             fit_width->offset.value = fit.width;
-            needUpdate = YES;
+            fixed = YES;
         }
     }
     
     if ( fit_height != nil ) {
-        if ( !SJFLFloatCompare(fit_height->offset.value, fit.height) ) {
+        if ( fit_height->offset.value != fit.height ) {
             fit_height->offset.value = fit.height;
-            needUpdate = YES;
+            fixed = YES;
         }
     }
-    
-    if ( needUpdate ) {
-        [view.FL_elementsCommonSuperview layoutSubviews];
-    }
+    return fixed;
 }
 
-UIKIT_STATIC_INLINE void SJFLImageViewLayoutFixInnerSize(UIImageView *view, SJFLLayoutAttributeUnit *_Nullable fit_width, SJFLLayoutAttributeUnit *_Nullable fit_height) {
+UIKIT_STATIC_INLINE BOOL SJFLFixImageViewFittingSizeIfNeeded(UIImageView *view, SJFLLayoutAttributeUnit *_Nullable fit_width, SJFLLayoutAttributeUnit *_Nullable fit_height) {
     static void *kPrevious = &kPrevious;
     id _Nullable previousValue = objc_getAssociatedObject(view, kPrevious);
     id _Nullable nowValue = [NSString stringWithFormat:@"%p - %ld", view.image, (long)view.contentMode];
     if ( [previousValue isEqual:nowValue] )
-        return;
+        return NO;
     objc_setAssociatedObject(view, kPrevious, nowValue, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
     
     CGRect frame = view.frame;
@@ -285,42 +347,37 @@ UIKIT_STATIC_INLINE void SJFLImageViewLayoutFixInnerSize(UIImageView *view, SJFL
     // 具有宽度约束
     if ( fit_width == nil ) {
         box.width = CGRectGetWidth(frame);
-        if ( SJFLFloatCompare(0, box.width) )
-            return;
+        if ( box.width <= 0 )
+            return NO;
     }
     // 具有高度约束
     else if ( fit_height == nil ) {
         box.height = CGRectGetHeight(frame);
-        if ( SJFLFloatCompare(0, box.height) )
-            return;
+        if ( box.height <= 0 )
+            return NO;
     }
     
     CGSize result = [view sizeThatFits:box];
     CGSize fit = CGSizeMake(ceil(result.width), ceil(result.height));
     
-    BOOL needUpdate = NO;
+    BOOL fixed = NO;
     if ( fit_width != nil ) {
-        if ( !SJFLFloatCompare(fit_width->offset.value, fit.width) ) {
+        if ( fit_width->offset.value != fit.width ) {
             fit_width->offset.value = fit.width;
-            needUpdate = YES;
+            fixed = YES;
         }
     }
     
     if ( fit_height != nil ) {
-        if ( !SJFLFloatCompare(fit_height->offset.value, fit.height) ) {
+        if ( fit_height->offset.value != fit.height ) {
             fit_height->offset.value = fit.height;
-            needUpdate = YES;
+            fixed = YES;
         }
     }
-    
-    if ( needUpdate ) {
-        [view.FL_elementsCommonSuperview layoutSubviews];
-    }
-
+    return fixed;
 }
 
-UIKIT_STATIC_INLINE void SJFLViewLayoutFixInnerSize(UIView *view, SJFLLayoutAttributeUnit *_Nullable fit_width, SJFLLayoutAttributeUnit *_Nullable fit_height) {
-    
+UIKIT_STATIC_INLINE BOOL SJFLFixViewFittingSizeIfNeeded(UIView *view, SJFLLayoutAttributeUnit *_Nullable fit_width, SJFLLayoutAttributeUnit *_Nullable fit_height) {
     CGFloat maxX = 0;
     for ( UIView *sub in view.subviews ) {
         SJFLLayoutElement *_Nullable right = [sub FL_elementForAttributeKey:SJFLLayoutAttributeKeyRight];;
@@ -336,39 +393,31 @@ UIKIT_STATIC_INLINE void SJFLViewLayoutFixInnerSize(UIView *view, SJFLLayoutAttr
     }
     
     CGSize intrinsicContentSize = view.intrinsicContentSize;
-    if ( SJFLFloatCompare(0, maxX) ) {
+    if ( 0 == maxX ) {
         if ( intrinsicContentSize.width != UIViewNoIntrinsicMetric )
             maxX = intrinsicContentSize.width;
     }
-    if ( SJFLFloatCompare(0, maxY) ) {
+    if ( 0 == maxY ) {
         if ( intrinsicContentSize.height != UIViewNoIntrinsicMetric )
             maxY = intrinsicContentSize.height;
     }
     
-    BOOL needRefresh = NO;
-    if ( !SJFLFloatCompare(maxX, fit_width->offset.value) ) {
+    BOOL fixed = NO;
+    if ( maxX != fit_width->offset.value ) {
         fit_width->offset.value = maxX;
-        needRefresh = YES;
+        fixed = YES;
     }
     
-    if ( !SJFLFloatCompare(maxY, fit_height->offset.value) ) {
+    if ( maxY != fit_height->offset.value ) {
         fit_height->offset.value = maxY;
-        needRefresh = YES;
+        fixed = YES;
     }
-    
-    if ( needRefresh ) {
-        [view.FL_elementsCommonSuperview layoutSubviews];
-    }
-    
+    return fixed;
 //    NSLog(@"maxX: %lf, maxY: %lf", maxX, maxY);
 }
 
-UIKIT_STATIC_INLINE BOOL SJFLFloatCompare(CGFloat value1, CGFloat value2) {
-    return floor(value1 + 0.5) == floor(value2 + 0.5);
-}
-
 NSDictionary<SJFLLayoutAttributeKey, SJFLLayoutElement *> *_Nullable
-SJFLElements(UIView *view) {
+SJFLGetElements(UIView *view) {
     return objc_getAssociatedObject(view, kFL_Container);
 }
 @end

@@ -8,13 +8,14 @@
 #import <UIKit/UIKit.h>
 #import "SJFLAttributesDefines.h"
 #import "SJFLLayoutAttributeUnit.h"
-#import "UIView+SJFLPrivate.h"
 @class SJFLLayoutElement;
 
 NS_ASSUME_NONNULL_BEGIN
-@interface UIView (SJFLLayoutElements)<SJFLDependencyViewDidLayoutSubviewsProtocol>
+UIKIT_EXTERN NSNotificationName const SJFLViewFinishedLayoutNotification;
+
+@interface UIView (SJFLLayoutElements)
 UIKIT_EXTERN NSDictionary<SJFLLayoutAttributeKey, SJFLLayoutElement *> *_Nullable
-SJFLElements(UIView *view);
+SJFLGetElements(UIView *view);
 - (SJFLLayoutElement *_Nullable)FL_elementForAttributeKey:(SJFLLayoutAttributeKey)attributeKey;
 
 @property (nonatomic, strong, nullable) NSDictionary<SJFLLayoutAttributeKey, SJFLLayoutElement *> *FL_elements;
