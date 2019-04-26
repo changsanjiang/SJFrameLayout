@@ -8,6 +8,7 @@
 
 #import "SJDemo1ViewController.h"
 #import <SJFrameLayout/SJFrameLayout.h>
+#import "SJTestView.h"
 
 NS_ASSUME_NONNULL_BEGIN
 @interface SJDemo1ViewController ()
@@ -26,7 +27,7 @@ NS_ASSUME_NONNULL_BEGIN
     self.view.backgroundColor = [UIColor whiteColor];
     
     // - top -
-    _topView = [[UIView alloc] initWithFrame:CGRectZero];
+    _topView = [[SJTestView alloc] initWithFrame:CGRectZero];
     _topView.backgroundColor = [UIColor blackColor];
     [self.view addSubview:_topView];
     [_topView sj_makeFrameLayout:^(SJFLLayoutMaker * _Nonnull make) {

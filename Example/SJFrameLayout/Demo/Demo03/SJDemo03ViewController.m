@@ -195,4 +195,13 @@ NS_ASSUME_NONNULL_END
         - 如果不存在子视图, 使用inSize大小(>0). 否则为Zero.
         - 特殊自撑满视图的处理. (UILabel, UIButton, UIImageView)
         - 其他视图的统一处理.
+ 
+ 
+    - 什么情况下需要更新自身的frame?
+        - 依赖的视图发生变更时
+            - 可能的依赖有:
+                - 父视图
+                - 其他子视图
+        - 自撑满时, 需依赖子视图的情况
+        - 自撑满时, 依赖自身内容的情况(Text, Image, inSize)
  */

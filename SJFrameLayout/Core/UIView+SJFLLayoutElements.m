@@ -9,14 +9,17 @@
 #import "SJFLLayoutElement.h"
 #import "UIView+SJFLLayoutAttributeUnits.h"
 #import <objc/message.h>
-#import "SJFLNotificationCenter.h"
+#import "SJFLLayoutWeakTarget.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
 #define FL_log_layout (0)
 
-static NSNotificationName const SJFLViewFinishedLayoutNotification    = @"SJFL_V_F_L";
-static NSNotificationName const SJFLViewDidLayoutSubviewsNotification = @"SJFL_V_D_L_S";
+#ifdef DEBUG
+static int call_cout01 = 0;
+static int call_cout02 = 0;
+static int call_cout03 = 0;
+#endif
 
 UIKIT_STATIC_INLINE void
 SJFLSwizzleMethod(Class cls, SEL originalSelector, SEL swizzledSelector) {
@@ -30,6 +33,103 @@ SJFLSwizzleMethod(Class cls, SEL originalSelector, SEL swizzledSelector) {
         method_exchangeImplementations(originalMethod, swizzledMethod);
 }
 
+static Class FL_UILabelClass;
+static Class FL_UIButtonClass;
+static Class FL_UIImageViewClass;
+
+// - 存储依赖父视图布局的视图
+typedef NSNumber *SJFLLayoutSuperviewKey;
+typedef NSNumber *SJFLLayoutTargetViewKey;
+static NSMutableDictionary<SJFLLayoutSuperviewKey, NSMutableDictionary<SJFLLayoutTargetViewKey, SJFLLayoutWeakTarget *> *> *
+FL_ViewMapLayoutSuperviews;
+UIKIT_STATIC_INLINE void
+SJFLViewMapAddOrRemoveLayoutViewToSuperview(UIView *layoutView, NSDictionary<SJFLLayoutAttributeKey, SJFLLayoutElement *> * _Nullable elements) {
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        FL_ViewMapLayoutSuperviews = NSMutableDictionary.new;
+    });
+    
+    UIView *superview = layoutView.superview;
+    SJFLLayoutSuperviewKey superviewKey = @([superview hash]);
+    __auto_type _Nullable views = FL_ViewMapLayoutSuperviews[superviewKey];
+    if ( !views ) FL_ViewMapLayoutSuperviews[superviewKey] = views = NSMutableDictionary.new;
+    
+    SJFLLayoutTargetViewKey targetViewKey = @([layoutView hash]);
+    if ( elements ) {
+        if ( !views[targetViewKey] ) {
+            views[targetViewKey] = [[SJFLLayoutWeakTarget alloc] initWithWeakTarget:layoutView];
+            SJFLLayoutDeallocCallbackObject *deallocCallbackObject = [[SJFLLayoutDeallocCallbackObject alloc] initWithDeallocCallback:^{
+                views[targetViewKey] = nil;
+                if ( views.count == 0 )
+                    FL_ViewMapLayoutSuperviews[superviewKey] = nil;
+            }];
+            
+            objc_setAssociatedObject(layoutView, (__bridge const void *)(deallocCallbackObject), deallocCallbackObject, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+        }
+    }
+    else {
+        views[targetViewKey] = nil;
+    }
+}
+
+UIKIT_STATIC_INLINE void
+SJFLViewMapLayoutSubviewsIfNeededForSuperview(UIView *superview) {
+    SJFLLayoutSuperviewKey superviewKey = @([superview hash]);
+    __auto_type _Nullable views = FL_ViewMapLayoutSuperviews[superviewKey];
+    if ( views ) {
+        [views enumerateKeysAndObjectsUsingBlock:^(NSNumber * _Nonnull key, SJFLLayoutWeakTarget * _Nonnull obj, BOOL * _Nonnull stop) {
+            [obj->_target FL_layoutIfNeeded];
+        }];
+    }
+}
+
+//UIKIT_STATIC_INLINE BOOL
+//SJFLViewHasFittingSizeUnits(UIView *layoutView, NSDictionary<SJFLLayoutAttributeKey, SJFLLayoutElement *> *elements) {
+//    // - fitting size -
+//    SJFLLayoutAttributeUnit *_Nullable fit_width = nil;
+//    SJFLLayoutAttributeUnit *_Nullable fit_height = nil;
+//
+//    SJFLLayoutAttributeUnit *_Nullable widthUnit = elements[SJFLLayoutAttributeKeyWidth].target;
+//    if ( widthUnit && widthUnit->priority == 1 ) fit_width = widthUnit;
+//    SJFLLayoutAttributeUnit *_Nullable heightUnit = elements[SJFLLayoutAttributeKeyHeight].target;
+//    if ( heightUnit && heightUnit->priority == 1 ) fit_height = heightUnit;
+//
+//    return fit_width != nil || fit_height != nil;
+//}
+//
+
+static NSMutableDictionary<SJFLLayoutTargetViewKey, SJFLLayoutWeakTarget *> *FL_ViewMapLayoutViews;
+UIKIT_STATIC_INLINE void
+SJFLViewMapAddOrRemoveLayoutView(UIView *layoutView, NSDictionary<SJFLLayoutAttributeKey, SJFLLayoutElement *> *elements) {
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        FL_ViewMapLayoutViews = NSMutableDictionary.new;
+    });
+    
+    if ( elements ) {
+        SJFLLayoutTargetViewKey viewKey = @([layoutView hash]);
+        FL_ViewMapLayoutViews[viewKey] = [[SJFLLayoutWeakTarget alloc] initWithWeakTarget:layoutView];
+        
+        SJFLLayoutDeallocCallbackObject *deallocCallbackObject = [[SJFLLayoutDeallocCallbackObject alloc] initWithDeallocCallback:^{
+            FL_ViewMapLayoutViews[viewKey] = nil;
+        }];
+        objc_setAssociatedObject(layoutView, (__bridge const void *)(deallocCallbackObject), deallocCallbackObject, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    }
+    else {
+        SJFLLayoutTargetViewKey viewKey = @([layoutView hash]);
+        FL_ViewMapLayoutViews[viewKey] = nil;
+    }
+}
+
+UIKIT_STATIC_INLINE void
+SJFLViewMapLayoutIfNeededForLayoutView(UIView *layoutView) {
+    SJFLLayoutTargetViewKey viewKey = @([layoutView hash]);
+    SJFLLayoutWeakTarget *_Nullable obj = FL_ViewMapLayoutViews[viewKey];
+    if ( obj ) {
+        [obj->_target FL_layoutIfNeeded];
+    }
+}
+
 @implementation UIView (SJFLPrivate)
 + (void)load {
     static dispatch_once_t onceToken;
@@ -37,12 +137,24 @@ SJFLSwizzleMethod(Class cls, SEL originalSelector, SEL swizzledSelector) {
         SEL originalSelector = @selector(layoutSubviews);
         SEL swizzledSelector = @selector(FL_layoutSubviews);
         SJFLSwizzleMethod(UIView.class, originalSelector, swizzledSelector);
+        
+        FL_UILabelClass = UILabel.class;
+        FL_UIButtonClass = UIButton.class;
+        FL_UIImageViewClass = UIImageView.class;
+        
+#ifdef DEBUG
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(10 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+            NSLog(@":--01 %d", call_cout01);
+            NSLog(@":--02 %d", call_cout02);
+            NSLog(@":--03 %d", call_cout03);
+        });
+#endif
     });
 }
-static void *kSuperviewFinishedLayoutObservers = &kSuperviewFinishedLayoutObservers;
 - (void)FL_layoutSubviews {
     [self FL_layoutSubviews];
-    [SJFLNotificationCenter.defaultCenter postNotificationName:SJFLViewDidLayoutSubviewsNotification object:self];
+    SJFLViewMapLayoutSubviewsIfNeededForSuperview(self);
+    SJFLViewMapLayoutIfNeededForLayoutView(self);
 }
 @end
 
@@ -57,72 +169,8 @@ static void *kSuperviewFinishedLayoutObservers = &kSuperviewFinishedLayoutObserv
 }
 - (void)FL_layoutSubviews_button {
     [self FL_layoutSubviews_button];
-    [SJFLNotificationCenter.defaultCenter postNotificationName:SJFLViewDidLayoutSubviewsNotification object:self];
-}
-@end
-
-@protocol SJFLLayoutObserverDelegate;
-@interface SJFLLayoutObserver : NSObject
-- (instancetype)initWithView:(UIView *)view elements:(NSDictionary<SJFLLayoutAttributeKey, SJFLLayoutElement *> *)elements;
-@property (nonatomic, weak, nullable) id<SJFLLayoutObserverDelegate> delegate;
-- (instancetype)init NS_UNAVAILABLE;
-+ (instancetype)new NS_UNAVAILABLE;
-@end
-
-@protocol SJFLLayoutObserverDelegate <NSObject>
-- (void)FL_obsever:(SJFLLayoutObserver *)observer viewFinishedLayout:(UIView *)view;
-- (void)FL_observer:(SJFLLayoutObserver *)observer viewDidLayoutSubviews:(UIView *)view;
-@end
-@implementation SJFLLayoutObserver
-- (instancetype)initWithView:(UIView *)view elements:(NSDictionary<SJFLLayoutAttributeKey, SJFLLayoutElement *> *)elements {
-    self = [super init];
-    if ( !self ) return nil;
-    UIView *superview = view.superview;
-    SJFLNotificationCenter *noteCenter = SJFLNotificationCenter.defaultCenter;
-    [noteCenter addObserver:self selector:@selector(FL_viewDidLayoutSubviews:) name:SJFLViewDidLayoutSubviewsNotification object:view];
-    [noteCenter addObserver:self selector:@selector(FL_viewDidLayoutSubviews:) name:SJFLViewDidLayoutSubviewsNotification object:superview];
-    [elements enumerateKeysAndObjectsUsingBlock:^(SJFLLayoutAttributeKey  _Nonnull key, SJFLLayoutElement * _Nonnull obj, BOOL * _Nonnull stop) {
-        UIView *dep_view = obj.dep_view;
-        if ( dep_view != view )
-            [noteCenter addObserver:self selector:@selector(FL_viewFinishedLayout:) name:SJFLViewFinishedLayoutNotification object:dep_view];
-    }];
-    return self;
-}
-- (void)dealloc {
-    [SJFLNotificationCenter.defaultCenter removeObserver:self];
-}
-- (void)FL_viewFinishedLayout:(NSNotification *)note {
-    [self.delegate FL_obsever:self viewFinishedLayout:note.object];
-} 
-- (void)FL_viewDidLayoutSubviews:(NSNotification *)note {
-#if FL_log_layout
-    UIView *v = note.object;
-    printf("\n V_D_L_S: \t [%p \t %s \t %s]", self, NSStringFromClass(v.class).UTF8String, NSStringFromCGRect(v.frame).UTF8String);
-#endif
-    [self.delegate FL_observer:self viewDidLayoutSubviews:note.object];
-}
-@end
-
-
-@interface UIView (SJFLLayoutObserver)<SJFLLayoutObserverDelegate>
-@property (nonatomic, strong, nullable) SJFLLayoutObserver *FL_layoutObserver;
-@end
-
-@implementation UIView (SJFLLayoutObserver)
-static void *kObserver = &kObserver;
-- (void)setFL_layoutObserver:(SJFLLayoutObserver *_Nullable)FL_layoutObserver {
-    FL_layoutObserver.delegate = self;
-    objc_setAssociatedObject(self, kObserver, FL_layoutObserver, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-}
-- (SJFLLayoutObserver *_Nullable)FL_layoutObserver {
-    return objc_getAssociatedObject(self, kObserver);
-}
-// dependency view has finished layout
-- (void)FL_obsever:(SJFLLayoutObserver *)observer viewFinishedLayout:(UIView *)view {
-    [self FL_layoutIfNeeded];
-}
-- (void)FL_observer:(SJFLLayoutObserver *)observer viewDidLayoutSubviews:(UIView *)view {
-    [self FL_layoutIfNeeded];
+    SJFLViewMapLayoutSubviewsIfNeededForSuperview(self);
+    SJFLViewMapLayoutIfNeededForLayoutView(self);
 }
 @end
 
@@ -132,7 +180,8 @@ static void *kFL_Container = &kFL_Container;
     return [objc_getAssociatedObject(self, kFL_Container) valueForKey:attributeKey];
 }
 - (void)setFL_elements:(NSDictionary<SJFLLayoutAttributeKey, SJFLLayoutElement *> * _Nullable)FL_elements {
-    self.FL_layoutObserver = [[SJFLLayoutObserver alloc] initWithView:self elements:FL_elements];
+    SJFLViewMapAddOrRemoveLayoutViewToSuperview(self, FL_elements);
+    SJFLViewMapAddOrRemoveLayoutView(self, FL_elements);
     objc_setAssociatedObject(self, kFL_Container, [FL_elements mutableCopy], OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
 - (NSDictionary<SJFLLayoutAttributeKey, SJFLLayoutElement *> *_Nullable)FL_elements {
@@ -143,9 +192,18 @@ static void *kFL_Container = &kFL_Container;
     printf("\n before: \t [%p \t %s \t %s]", self, NSStringFromClass(self.class).UTF8String, NSStringFromCGRect(self.frame).UTF8String);
 #endif
     
+#ifdef DEBUG
+    call_cout01 += 1;
+#endif
+    
     NSMutableDictionary<SJFLLayoutAttributeKey, SJFLLayoutElement *> *_Nullable
     m = objc_getAssociatedObject(self, kFL_Container);
     if ( m ) {
+        
+#if DEBUG
+        call_cout02 += 1;
+#endif
+        
         // 布局应该从width和height优先安装
         
         // top 安装好之后, 会影响到什么, 或者什么可以定位到了 ?
@@ -200,16 +258,15 @@ static void *kFL_Container = &kFL_Container;
         if ( centerX ) [centerX refreshLayoutIfNeeded:&frame];
         if ( centerY ) [centerY refreshLayoutIfNeeded:&frame];
         
-        BOOL finished = NO;
         if ( !CGRectEqualToRect(frame, previous) ) {
             self.frame = frame;
-            finished = YES;
+#ifdef DEBUG
+            call_cout03 += 1;
+#endif
         }
 
         if ( SJFLViewLayoutFixInnerSizeIfNeeded(self, m) )
             goto handle_elements;
-        else if ( finished )
-            [SJFLNotificationCenter.defaultCenter postNotificationName:SJFLViewFinishedLayoutNotification object:self];
     }
     
 #if FL_log_layout
@@ -240,24 +297,14 @@ UIKIT_STATIC_INLINE BOOL SJFLViewLayoutFixInnerSizeIfNeeded(__kindof UIView *vie
     if ( !m )
         return NO;
     
-    static Class FL_UILabelClass;
-    static Class FL_UIButtonClass;
-    static Class FL_UIImageViewClass;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        FL_UILabelClass = [UILabel class];
-        FL_UIButtonClass = [UIButton class];
-        FL_UIImageViewClass = [UIImageView class];
-    });
-    
     // - fitting size -
     SJFLLayoutAttributeUnit *_Nullable fit_width = nil;
     SJFLLayoutAttributeUnit *_Nullable fit_height = nil;
     
-    SJFLLayoutAttributeUnit *_Nullable widthElement = m[SJFLLayoutAttributeKeyWidth].target;
-    if ( widthElement && widthElement->priority == 1 ) fit_width = widthElement;
-    SJFLLayoutAttributeUnit *_Nullable heightElement = m[SJFLLayoutAttributeKeyHeight].target;
-    if ( heightElement && heightElement->priority == 1 ) fit_height = heightElement;
+    SJFLLayoutAttributeUnit *_Nullable widthUnit = m[SJFLLayoutAttributeKeyWidth].target;
+    if ( widthUnit && widthUnit->priority == 1 ) fit_width = widthUnit;
+    SJFLLayoutAttributeUnit *_Nullable heightUnit = m[SJFLLayoutAttributeKeyHeight].target;
+    if ( heightUnit && heightUnit->priority == 1 ) fit_height = heightUnit;
     
     if ( fit_width != nil || fit_height != nil ) {
         if ( [view isKindOfClass:FL_UILabelClass] )
