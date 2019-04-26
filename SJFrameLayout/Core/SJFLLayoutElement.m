@@ -17,6 +17,7 @@ NS_ASSUME_NONNULL_BEGIN
 static int call_count01 = 0;
 static int call_count02 = 0;
 static int call_count03 = 0;
+static int call_count04 = 0;
 #endif
 
 @interface SJFLLayoutElement () {
@@ -28,11 +29,12 @@ static int call_count03 = 0;
 
     __weak UIView *_Nullable _dep_view;
     SJFLFrameAttribute _dep_attr;
-    
+
     // - previous value -
     CGRect _pre_dep_frame;
     CGRect _pre_super_frame;
     CGFloat _pre_value;
+    CGFloat _pre_offset;
 }
 @end
 
@@ -43,6 +45,7 @@ static int call_count03 = 0;
         NSLog(@"E: 01 - %d", call_count01);
         NSLog(@"E: 02 - %d", call_count02);
         NSLog(@"E: 03 - %d", call_count03);
+        NSLog(@"E: 04 - %d", call_count04);
     });
 }
 #endif
@@ -115,7 +118,7 @@ static int call_count03 = 0;
     }
     
 #if SJFLTEST
-    call_count03 += 1;
+    call_count04 += 1;
 #endif
     
     switch ( tar_attr ) {
@@ -203,35 +206,28 @@ static int call_count03 = 0;
     call_count01 += 1;
 #endif
 
-    CGFloat value = 0;
-    SJFLFrameAttribute dep_attr = _dep_attr;
-    
-    SJFLLayoutAttribute tar_attr = _tar_attr;
-    CGRect dep_frame = CGRectZero;
+    CGFloat value = _pre_value;
+    CGFloat offset = self.offset;
+    CGRect dep_frame = (_dep_view != _tar_view)?_dep_view.frame:frame;
     CGRect super_frame = _tar_superview.frame;
     
-    if ( _dep_view != _tar_view )
-        dep_frame = _dep_view.frame;
-    else
-        dep_frame = frame; ///< 如果是自己, 就使用计算frame
-    
-    if ( CGRectEqualToRect(dep_frame, _pre_dep_frame) && CGRectEqualToRect(super_frame, _pre_super_frame) ) {
-        value = _pre_value;
-    }
-    else {
+    if ( !CGRectEqualToRect(dep_frame, _pre_dep_frame) || !CGRectEqualToRect(super_frame, _pre_super_frame) || offset != _pre_offset ) {
 #if SJFLTEST
         call_count02 += 1;
 #endif
+        CGFloat dep_value = 0;
+        SJFLFrameAttribute dep_attr = _dep_attr;
+        SJFLLayoutAttribute tar_attr = _tar_attr;
         if ( dep_attr != SJFLFrameAttributeNone ) {
             if ( tar_attr == SJFLLayoutAttributeWidth || tar_attr == SJFLLayoutAttributeHeight ) {
                 switch ( dep_attr ) {
                     default: break;
                     case SJFLLayoutAttributeWidth: {
-                        value = dep_frame.size.width;
+                        dep_value = dep_frame.size.width;
                     }
                         break;
                     case SJFLLayoutAttributeHeight: {
-                        value = dep_frame.size.height;
+                        dep_value = dep_frame.size.height;
                     }
                         break;
                 }
@@ -275,7 +271,7 @@ static int call_count03 = 0;
                         default:break;
                     }
                     
-                    value = [_dep_view convertPoint:point toView:_tar_superview].y;
+                    dep_value = [_dep_view convertPoint:point toView:_tar_superview].y;
                 }
                 else {
                     switch ( dep_attr ) {
@@ -296,19 +292,26 @@ static int call_count03 = 0;
                             break;
                         default:break;
                     }
-
-                    value = [_dep_view convertPoint:point toView:_tar_superview].x;
+                    
+                    dep_value = [_dep_view convertPoint:point toView:_tar_superview].x;
                 }
             }
         }
         // else {  /* none, do nothing */ }
         
+        value = ceil(dep_value * _target->multiplier + offset);
         _pre_super_frame = super_frame;
         _pre_dep_frame = dep_frame;
         _pre_value = value;
+        _pre_offset = offset;
     }
-    
-    return ceil(value * _target->multiplier + self.offset);
+#if SJFLTEST
+    else {
+        call_count03 += 1;
+    }
+#endif
+
+    return value;
 }
 
 - (CGFloat)offset {

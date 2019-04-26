@@ -7,6 +7,7 @@
 
 #import "SJFLLayoutMaker.h"
 #import <objc/message.h>
+#import "UIView+SJFLFrameAttributeUnits.h"
 #import "UIView+SJFLLayoutAttributeUnits.h"
 #import "UIView+SJFLLayoutElements.h"
 #import "SJFLLayoutElement.h"
