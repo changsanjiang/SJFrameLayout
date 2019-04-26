@@ -12,8 +12,8 @@
 #import "UIView+SJFLLayoutElements.h"
 
 NS_ASSUME_NONNULL_BEGIN
-#define SJFLTEST (1)
-#if SJFLTEST
+#define FL_log_call_count (0)
+#if FL_log_call_count
 static int call_count01 = 0;
 static int call_count02 = 0;
 static int call_count03 = 0;
@@ -39,7 +39,7 @@ static int call_count04 = 0;
 @end
 
 @implementation SJFLLayoutElement
-#if SJFLTEST
+#if FL_log_call_count
 + (void)load {
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(10 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
         NSLog(@"E: 01 - %d", call_count01);
@@ -117,7 +117,7 @@ static int call_count04 = 0;
         return;
     }
     
-#if SJFLTEST
+#if FL_log_call_count
     call_count04 += 1;
 #endif
     
@@ -202,7 +202,7 @@ static int call_count04 = 0;
 
 // value = dependency_value * multiplier + offset
 - (CGFloat)value:(CGRect)frame {
-#if SJFLTEST
+#if FL_log_call_count
     call_count01 += 1;
 #endif
 
@@ -212,7 +212,7 @@ static int call_count04 = 0;
     CGRect super_frame = _tar_superview.frame;
     
     if ( !CGRectEqualToRect(dep_frame, _pre_dep_frame) || !CGRectEqualToRect(super_frame, _pre_super_frame) || offset != _pre_offset ) {
-#if SJFLTEST
+#if FL_log_call_count
         call_count02 += 1;
 #endif
         CGFloat dep_value = 0;
@@ -305,7 +305,7 @@ static int call_count04 = 0;
         _pre_value = value;
         _pre_offset = offset;
     }
-#if SJFLTEST
+#if FL_log_call_count
     else {
         call_count03 += 1;
     }

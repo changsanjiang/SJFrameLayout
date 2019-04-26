@@ -72,7 +72,7 @@ RETURN_FL_MAKER_LAYOUT_MASK(center, SJFLLayoutAttributeMaskCenter);
     [_view FL_resetAttributeUnits];
     SJFLAddFittingSizeUnitsIfNeeded(_view, m);
     _view.FL_elements = m;
-    [_view FL_layoutIfNeeded];
+//    [_view FL_layoutIfNeeded];
     
 #ifdef DEBUG
     for ( SJFLLayoutElement *ele in m ) {
