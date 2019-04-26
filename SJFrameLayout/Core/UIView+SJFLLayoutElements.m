@@ -15,7 +15,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 #define FL_log_layout (0)
 
-#ifdef DEBUG
+#define SJFLTEST    (1)
+
+#if SJFLTEST
 static int call_cout01 = 0;
 static int call_cout02 = 0;
 static int call_cout03 = 0;
@@ -142,7 +144,7 @@ SJFLViewMapLayoutIfNeededForLayoutView(UIView *layoutView) {
         FL_UIButtonClass = UIButton.class;
         FL_UIImageViewClass = UIImageView.class;
         
-#ifdef DEBUG
+#if SJFLTEST
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(10 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
             NSLog(@":--01 %d", call_cout01);
             NSLog(@":--02 %d", call_cout02);
@@ -175,29 +177,29 @@ SJFLViewMapLayoutIfNeededForLayoutView(UIView *layoutView) {
 @end
 
 @implementation UIView (SJFLLayoutElements)
-static void *kFL_Container = &kFL_Container;
+static void *kFL_ElementsContainer = &kFL_ElementsContainer;
 - (SJFLLayoutElement *_Nullable)FL_elementForAttributeKey:(SJFLLayoutAttributeKey)attributeKey {
-    return [objc_getAssociatedObject(self, kFL_Container) valueForKey:attributeKey];
+    return [objc_getAssociatedObject(self, kFL_ElementsContainer) valueForKey:attributeKey];
 }
 - (void)setFL_elements:(NSDictionary<SJFLLayoutAttributeKey, SJFLLayoutElement *> * _Nullable)FL_elements {
     SJFLViewMapAddOrRemoveLayoutViewToSuperview(self, FL_elements);
     SJFLViewMapAddOrRemoveLayoutView(self, FL_elements);
-    objc_setAssociatedObject(self, kFL_Container, [FL_elements mutableCopy], OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    objc_setAssociatedObject(self, kFL_ElementsContainer, [FL_elements mutableCopy], OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
 - (NSDictionary<SJFLLayoutAttributeKey, SJFLLayoutElement *> *_Nullable)FL_elements {
-    return objc_getAssociatedObject(self, kFL_Container);
+    return objc_getAssociatedObject(self, kFL_ElementsContainer);
 }
 - (void)FL_layoutIfNeeded {
 #if FL_log_layout
     printf("\n before: \t [%p \t %s \t %s]", self, NSStringFromClass(self.class).UTF8String, NSStringFromCGRect(self.frame).UTF8String);
 #endif
     
-#ifdef DEBUG
+#if SJFLTEST
     call_cout01 += 1;
 #endif
     
     NSMutableDictionary<SJFLLayoutAttributeKey, SJFLLayoutElement *> *_Nullable
-    m = objc_getAssociatedObject(self, kFL_Container);
+    m = objc_getAssociatedObject(self, kFL_ElementsContainer);
     if ( m ) {
         
 #if DEBUG
@@ -260,7 +262,7 @@ static void *kFL_Container = &kFL_Container;
         
         if ( !CGRectEqualToRect(frame, previous) ) {
             self.frame = frame;
-#ifdef DEBUG
+#if SJFLTEST
             call_cout03 += 1;
 #endif
         }
@@ -493,7 +495,7 @@ UIKIT_STATIC_INLINE BOOL SJFLFixViewFittingSizeIfNeeded(UIView *view, SJFLLayout
 
 NSDictionary<SJFLLayoutAttributeKey, SJFLLayoutElement *> *_Nullable
 SJFLGetElements(UIView *view) {
-    return objc_getAssociatedObject(view, kFL_Container);
+    return objc_getAssociatedObject(view, kFL_ElementsContainer);
 }
 @end
 NS_ASSUME_NONNULL_END
