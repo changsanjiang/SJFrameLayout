@@ -29,6 +29,7 @@ static int call_count04 = 0;
 
     __weak UIView *_Nullable _dep_view;
     SJFLFrameAttribute _dep_attr;
+    BOOL _dep_self;
 
     // - previous value -
     CGRect _pre_dep_frame;
@@ -84,6 +85,7 @@ static int call_count04 = 0;
     }
     _dep_view = dependency.view;
     _dep_attr = dependency.attribute;
+    _dep_self = _dep_view == _tar_view;
     return self;
 }
 
@@ -208,7 +210,7 @@ static int call_count04 = 0;
 
     CGFloat value = _pre_value;
     CGFloat offset = self.offset;
-    CGRect dep_frame = (_dep_view != _tar_view)?_dep_view.frame:frame;
+    CGRect dep_frame = (_dep_self)?frame:_dep_view.frame;
     CGRect super_frame = _tar_superview.frame;
     
     if ( !CGRectEqualToRect(dep_frame, _pre_dep_frame) || !CGRectEqualToRect(super_frame, _pre_super_frame) || offset != _pre_offset ) {

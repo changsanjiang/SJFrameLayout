@@ -146,7 +146,7 @@ SJFLViewMapAddOrRemoveNeededLayoutViewToSelf(UIView *layoutView, NSDictionary<SJ
 }
 
 UIKIT_STATIC_INLINE void
-SJFLViewMapLayoutIfNeeded(UIView *view) {
+SJFLLayoutIfNeeded(UIView *view) {
     NSNumber *key = @([view hash]);
     __auto_type _Nullable spr_views = FL_ViewMapNeedLayoutViewsForSuperview[key];
     __auto_type _Nullable dep_views = FL_ViewMapNeedLayoutViewsForDependencyView[key];
@@ -188,7 +188,7 @@ SJFLViewMapLayoutIfNeeded(UIView *view) {
 }
 - (void)FL_layoutSubviews {
     [self FL_layoutSubviews];
-    SJFLViewMapLayoutIfNeeded(self);
+    SJFLLayoutIfNeeded(self);
 }
 @end
 
@@ -203,7 +203,7 @@ SJFLViewMapLayoutIfNeeded(UIView *view) {
 }
 - (void)FL_layoutSubviews_button {
     [self FL_layoutSubviews_button];
-    SJFLViewMapLayoutIfNeeded(self);
+    SJFLLayoutIfNeeded(self);
 }
 @end
 
@@ -261,8 +261,6 @@ static void *kFL_ElementsContainer = &kFL_ElementsContainer;
         // centerY 安装之后, 会影响到什么?
         // centerX 安装之后, 会影响到什么?
         
-        SJFLFixLabelFittingWidthIfNeeded(self, m);
-        
         SJFLLayoutElement *_Nullable top = m[SJFLLayoutAttributeKeyTop];
         SJFLLayoutElement *_Nullable left = m[SJFLLayoutAttributeKeyLeft];
         SJFLLayoutElement *_Nullable bottom = m[SJFLLayoutAttributeKeyBottom];
@@ -310,23 +308,6 @@ static void *kFL_ElementsContainer = &kFL_ElementsContainer;
 }
 
 // fix inner size
-
-UIKIT_STATIC_INLINE void SJFLFixLabelFittingWidthIfNeeded(UIView *view, NSMutableDictionary<SJFLLayoutAttributeKey, SJFLLayoutElement *> *m ) {
-    if ( [view isKindOfClass:FL_UILabelClass] ) {
-        UILabel *label = (id)view;
-        CGFloat preferredMaxLayoutWidth = label.preferredMaxLayoutWidth;
-        if ( preferredMaxLayoutWidth > 0 ) {
-            SJFLLayoutAttributeUnit *_Nullable widthUnit = m[SJFLLayoutAttributeKeyWidth].target;
-            if ( (widthUnit && widthUnit->priority == 1) || !widthUnit ) {
-                widthUnit = [[SJFLLayoutAttributeUnit alloc] initWithView:view attribute:SJFLLayoutAttributeWidth];
-                m[SJFLLayoutAttributeKeyWidth] = [[SJFLLayoutElement alloc] initWithTarget:widthUnit];
-            }
-            widthUnit->offset_t = SJFLCGFloatValue;
-            widthUnit->offset.value = preferredMaxLayoutWidth;
-        }
-    }
-}
-
 
 UIKIT_STATIC_INLINE BOOL SJFLViewLayoutFixInnerSizeIfNeeded(__kindof UIView *view, NSMutableDictionary<SJFLLayoutAttributeKey, SJFLLayoutElement *> *_Nullable m) {
     if ( !m )
@@ -529,6 +510,33 @@ UIKIT_STATIC_INLINE BOOL SJFLFixViewFittingSizeIfNeeded(UIView *view, SJFLLayout
 NSDictionary<SJFLLayoutAttributeKey, SJFLLayoutElement *> *_Nullable
 SJFLGetElements(UIView *view) {
     return objc_getAssociatedObject(view, kFL_ElementsContainer);
+}
+@end
+
+@implementation UILabel (SJFLLayoutElements)
+- (void)FL_layoutIfNeeded {
+    NSMutableDictionary<SJFLLayoutAttributeKey, SJFLLayoutElement *> *_Nullable
+    m = objc_getAssociatedObject(self, kFL_ElementsContainer);
+    if ( m ) {
+        SJFLFixLabelFittingWidthIfNeeded(self, m);
+        [super FL_layoutIfNeeded];
+    }
+}
+
+UIKIT_STATIC_INLINE void SJFLFixLabelFittingWidthIfNeeded(UIView *view, NSMutableDictionary<SJFLLayoutAttributeKey, SJFLLayoutElement *> *m ) {
+    if ( [view isKindOfClass:FL_UILabelClass] ) {
+        UILabel *label = (id)view;
+        CGFloat preferredMaxLayoutWidth = label.preferredMaxLayoutWidth;
+        if ( preferredMaxLayoutWidth > 0 ) {
+            SJFLLayoutAttributeUnit *_Nullable widthUnit = m[SJFLLayoutAttributeKeyWidth].target;
+            if ( (widthUnit && widthUnit->priority == 1) || !widthUnit ) {
+                widthUnit = [[SJFLLayoutAttributeUnit alloc] initWithView:view attribute:SJFLLayoutAttributeWidth];
+                m[SJFLLayoutAttributeKeyWidth] = [[SJFLLayoutElement alloc] initWithTarget:widthUnit];
+            }
+            widthUnit->offset_t = SJFLCGFloatValue;
+            widthUnit->offset.value = preferredMaxLayoutWidth;
+        }
+    }
 }
 @end
 NS_ASSUME_NONNULL_END
