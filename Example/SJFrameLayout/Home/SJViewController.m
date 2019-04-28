@@ -7,7 +7,9 @@
 //
 
 #import "SJViewController.h"
+#if __has_include(<SJFrameLayout/SJFrameLayout.h>)
 #import <SJFrameLayout/SJFrameLayout.h>
+#endif
 #import "SJHomeTableViewCell.h"
 #import "SJDemoItem.h"
 #import <SJRouter/SJRouter.h>
@@ -46,9 +48,14 @@ static NSString *SJHomeTableViewCellID = @"SJHomeTableViewCell";
     _tableView.backgroundColor = [UIColor whiteColor];
     [_tableView registerClass:SJHomeTableViewCell.class forCellReuseIdentifier:SJHomeTableViewCellID];
     [self.view addSubview:_tableView];
+    
+#if __has_include(<SJFrameLayout/SJFrameLayout.h>)
     [_tableView sj_makeFrameLayout:^(SJFLLayoutMaker * _Nonnull make) {
         make.edges.offset(0);
     }];
+#else
+    _tableView.frame = self.view.bounds;
+#endif
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {

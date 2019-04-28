@@ -45,9 +45,11 @@ static CGFloat inset = 8;
                                             blue:arc4random() % 256 / 255.0
                                            alpha:1];
     [root addSubview:mid];
+#if __has_include(<SJFrameLayout/SJFrameLayout.h>)
     [mid sj_makeFrameLayout:^(SJFLLayoutMaker * _Nonnull make) {
         make.edges.box_offset(UIEdgeInsetsMake(2, 2, 2, 2));
     }];
+#endif
     
     _sub = [SJTestSubView new];
     _sub.backgroundColor =  [UIColor colorWithRed:arc4random() % 256 / 255.0

@@ -7,7 +7,9 @@
 //
 
 #import "SJDemo1ViewController.h"
+#if __has_include(<SJFrameLayout/SJFrameLayout.h>)
 #import <SJFrameLayout/SJFrameLayout.h>
+#endif
 #import "SJTestView.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -30,12 +32,14 @@ NS_ASSUME_NONNULL_BEGIN
     _topView = [[SJTestView alloc] initWithFrame:CGRectZero];
     _topView.backgroundColor = [UIColor blackColor];
     [self.view addSubview:_topView];
+#if __has_include(<SJFrameLayout/SJFrameLayout.h>)
     [_topView sj_makeFrameLayout:^(SJFLLayoutMaker * _Nonnull make) {
         make.top.equalTo(self.view.FL_safeTop).offset(8);
         make.left.equalTo(self.view.FL_safeLeft).offset(8);
         make.right.equalTo(self.view.FL_safeRight).offset(-8);
         make.height.offset(40);
     }];
+#endif
     
     
     // - center -
@@ -43,29 +47,35 @@ NS_ASSUME_NONNULL_BEGIN
     _centerLabel.backgroundColor = [UIColor greenColor];
     [self.view addSubview:_centerLabel];
     _centerLabel.text = @"Hello world!";
+#if __has_include(<SJFrameLayout/SJFrameLayout.h>)
     [_centerLabel sj_makeFrameLayout:^(SJFLLayoutMaker * _Nonnull make) {
         make.center.offset(0);
     }];
+#endif
     
     // - label top view -
     _labelTopView = [[UIView alloc] initWithFrame:CGRectZero];
     _labelTopView.backgroundColor = [UIColor orangeColor];
     [self.view addSubview:_labelTopView];
+#if __has_include(<SJFrameLayout/SJFrameLayout.h>)
     [_labelTopView sj_makeFrameLayout:^(SJFLLayoutMaker * _Nonnull make) {
         make.bottom.equalTo(self.centerLabel.FL_top).offset(-8);
         make.left.equalTo(self.centerLabel);
         make.size.offset(16);
     }];
+#endif
     
     // - label bottom view -
     _labelBottomView = [[UIView alloc] initWithFrame:CGRectZero];
     _labelBottomView.backgroundColor = [UIColor orangeColor];
     [self.view addSubview:_labelBottomView];
+#if __has_include(<SJFrameLayout/SJFrameLayout.h>)
     [_labelBottomView sj_makeFrameLayout:^(SJFLLayoutMaker * _Nonnull make) {
         make.top.equalTo(self.centerLabel.FL_bottom).offset(8);
         make.right.equalTo(self.centerLabel);
         make.size.offset(16);
     }];
+#endif
     
     // - button -
     _button = [UIButton buttonWithType:UIButtonTypeSystem];
@@ -73,21 +83,25 @@ NS_ASSUME_NONNULL_BEGIN
     [_button setTitle:@"change label text(state Highlighted)" forState:UIControlStateHighlighted];
     [_button addTarget:self action:@selector(clickedButton:) forControlEvents:UIControlEventTouchUpInside];
     [self.view addSubview:_button];
+#if __has_include(<SJFrameLayout/SJFrameLayout.h>)
     [_button sj_makeFrameLayout:^(SJFLLayoutMaker * _Nonnull make) {
         make.top.equalTo(self.labelBottomView.FL_bottom).offset(8);
         make.centerX.offset(0);
     }];
+#endif
     
     // - bottom -
     _bottomView = [[UIView alloc] initWithFrame:CGRectZero];
     _bottomView.backgroundColor = [UIColor orangeColor];
     [self.view addSubview:_bottomView];
+#if __has_include(<SJFrameLayout/SJFrameLayout.h>)
     [_bottomView sj_makeFrameLayout:^(SJFLLayoutMaker * _Nonnull make) {
         make.left.equalTo(self.view.FL_safeLeft).offset(8);
         make.bottom.equalTo(self.view.FL_safeBottom).offset(-8);
         make.right.equalTo(self.view.FL_safeRight).offset(-8);
         make.height.offset(40);
     }];
+#endif
 }
 
 - (void)clickedButton:(UIButton *)btn {

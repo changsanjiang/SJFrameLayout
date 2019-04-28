@@ -3,9 +3,9 @@
 platform :ios, '8.0'
 
 target 'SJFrameLayout_Example' do
-  pod 'SJFrameLayout', :path => '../'
   pod 'SJRouter'
   #pod 'SJUIKit/Queue'
+  pod 'SJFrameLayout', :path => '../'
   #pod 'Masonry'
 #pod 'MMPlaceHolder', :inhibit_warnings => true
 #pod 'SDAutoLayout'

@@ -1,6 +1,0 @@
-framework module SJFrameLayout {
-  umbrella header "SJFrameLayout-umbrella.h"
-
-  export *
-  module * { export * }
-}
