@@ -24,8 +24,8 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-#define SubviewCount    (500)
-#define Multiplier      (3)
+#define SubviewCount    (0)
+#define Multiplier      (0.5)
 
 @interface SJDemo2ViewController ()
 
