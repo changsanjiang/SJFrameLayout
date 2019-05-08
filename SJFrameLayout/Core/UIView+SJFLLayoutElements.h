@@ -17,6 +17,6 @@ SJFLGetElements(UIView *view);
 - (SJFLLayoutElement *_Nullable)FL_elementForAttributeKey:(SJFLLayoutAttributeKey)attributeKey;
 
 @property (nonatomic, strong, nullable) NSDictionary<SJFLLayoutAttributeKey, SJFLLayoutElement *> *FL_elements;
-- (void)FL_layoutIfNeeded;
+- (BOOL)FL_layoutIfNeeded;
 @end
 NS_ASSUME_NONNULL_END

@@ -68,7 +68,7 @@ static void *kFL_ElementsContainer = &kFL_ElementsContainer;
         [dep_view sj_addObserver:self forKeyPath:@"center" options:ops context:nil];
     }];
 
-    [self FL_layoutIfNeeded:nil];
+    [self FL_layoutIfNeeded];
 }
 
 - (void)observeValueForKeyPath:(nullable NSString *)keyPath ofObject:(UIView *_Nullable)object change:(nullable NSDictionary<NSKeyValueChangeKey,id> *)change context:(nullable void *)context {
@@ -80,14 +80,22 @@ static void *kFL_ElementsContainer = &kFL_ElementsContainer;
 #if FL_log_call_count
         call_cout00 += 1;
 #endif
-        [self FL_layoutIfNeeded:object];
+        BOOL changed = [self FL_layoutIfNeeded];
+        if ( changed ) {
+            [[self FL_elements] enumerateKeysAndObjectsUsingBlock:^(SJFLLayoutAttributeKey  _Nonnull key, SJFLLayoutElement * _Nonnull obj, BOOL * _Nonnull stop) {
+                UIView *dep_view = obj.dep_view;
+                if ( SJFLViewLayoutNeedFixInnerSize(dep_view) ) {
+                    [dep_view FL_layoutIfNeeded];
+                }
+            }];
+        }
     }
 }
 
 - (NSDictionary<SJFLLayoutAttributeKey, SJFLLayoutElement *> *_Nullable)FL_elements {
     return objc_getAssociatedObject(self, kFL_ElementsContainer);
 }
-- (void)FL_layoutIfNeeded:(nullable UIView *)dep_view {
+- (BOOL)FL_layoutIfNeeded {
 #if FL_log_layout
     printf("\n before: \t [%p \t %s \t %s]", self, NSStringFromClass(self.class).UTF8String, NSStringFromCGRect(self.frame).UTF8String);
 #endif
@@ -95,7 +103,8 @@ static void *kFL_ElementsContainer = &kFL_ElementsContainer;
 #if FL_log_call_count
     call_cout01 += 1;
 #endif
-    
+
+    BOOL changed = NO;
     NSMutableDictionary<SJFLLayoutAttributeKey, SJFLLayoutElement *> *_Nullable
     m = objc_getAssociatedObject(self, kFL_ElementsContainer);
     if ( m ) {
@@ -156,7 +165,6 @@ static void *kFL_ElementsContainer = &kFL_ElementsContainer;
         if ( centerX ) [centerX refreshLayoutIfNeeded:&frame];
         if ( centerY ) [centerY refreshLayoutIfNeeded:&frame];
         
-        BOOL changed = NO;
         if ( !CGRectEqualToRect(frame, previous) ) {
             changed = YES;
             self.frame = frame;
@@ -168,16 +176,13 @@ static void *kFL_ElementsContainer = &kFL_ElementsContainer;
 
         if ( SJFLViewLayoutFixInnerSizeIfNeeded(self, m) )
             goto handle_elements;
-        
-        if ( changed ) {
-            if ( SJFLViewLayoutNeedFixInnerSize(dep_view) )
-                [dep_view FL_layoutIfNeeded:nil];
-        }
     }
     
 #if FL_log_layout
     printf("\n end: \t\t [%p \t %s \t %s]\n", self, NSStringFromClass(self.class).UTF8String, NSStringFromCGRect(self.frame).UTF8String);
 #endif
+    
+    return changed;
 }
 
 // fix inner size
