@@ -17,12 +17,12 @@
 //#endif
 //}
 
-- (void)layoutSubviews {
-    [super layoutSubviews];
-#ifdef DEBUG
-    NSLog(@"%d - %s", (int)__LINE__, __func__);
-#endif
-}
+//- (void)layoutSubviews {
+//    [super layoutSubviews];
+//#ifdef DEBUG
+//    NSLog(@"%d - %s", (int)__LINE__, __func__);
+//#endif
+//}
 
 #if 0
 - (void)layoutSubviews {
