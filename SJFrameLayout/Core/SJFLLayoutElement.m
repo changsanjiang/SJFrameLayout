@@ -114,10 +114,6 @@ NS_ASSUME_NONNULL_BEGIN
     return _tar_view;
 }
 
-- (void)refreshLayoutIfNeeded:(CGRect *)frame {
-   
-}
-
 - (CGFloat)value:(CGRect)frame {
     CGFloat value = _values.value;
     
