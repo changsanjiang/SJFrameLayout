@@ -9,9 +9,9 @@
 #import <objc/message.h>
 #import "UIView+SJFLFrameAttributeUnits.h"
 #import "UIView+SJFLLayoutAttributeUnits.h"
-#import "UIView+SJFLLayoutElements.h"
 #import "SJFLLayoutElement.h"
 #import "SJFLLayoutAttributeUnit.h"
+#import "SJFLLayoutEngine.h"
 
 NS_ASSUME_NONNULL_BEGIN
 #if 1
@@ -71,8 +71,8 @@ RETURN_FL_MAKER_LAYOUT_MASK(center, SJFLLayoutAttributeMaskCenter);
     __auto_type m = SJFLCreateElementsForAttributeUnits(_view, _superview);
     [_view FL_resetAttributeUnits];
     SJFLAddFittingSizeUnitsIfNeeded(_view, m);
-    _view.FL_elements = m;
-//    [_view FL_layoutIfNeeded];
+    SJFL_InstallLayout(_view, m);
+    SJFL_LayoutIfNeeded(_view);
     
 #ifdef DEBUG
     for ( SJFLLayoutElement *ele in m ) {
@@ -83,20 +83,21 @@ RETURN_FL_MAKER_LAYOUT_MASK(center, SJFLLayoutAttributeMaskCenter);
 #endif
 }
 - (void)update {
-    // - elements
-    NSMutableDictionary<SJFLLayoutAttributeKey, SJFLLayoutElement *> *
-    m = _view.FL_elements?:@{}.mutableCopy;
-    __auto_type update = SJFLCreateElementsForAttributeUnits(_view, _superview);
-    [_view FL_resetAttributeUnits];
-    [m setDictionary:update];
-    SJFLAddFittingSizeUnitsIfNeeded(_view, m);
-    _view.FL_elements = m;    
-    // - update
-    [_view FL_layoutIfNeeded_flag];
+#warning next ..
+//    // - elements
+//    NSMutableDictionary<SJFLLayoutAttributeKey, SJFLLayoutElement *> *
+//    m = _view.FL_elements?:@{}.mutableCopy;
+//    __auto_type update = SJFLCreateElementsForAttributeUnits(_view, _superview);
+//    [_view FL_resetAttributeUnits];
+//    [m setDictionary:update];
+//    SJFLAddFittingSizeUnitsIfNeeded(_view, m);
+//    _view.FL_elements = m;
+//    // - update
+//    [_view FL_layoutIfNeeded_flag];
 }
 
 + (void)removeAllLayouts:(UIView *)view {
-    view.FL_elements = nil;
+    SJFL_RemoveLayout(view);
 }
 
 #pragma mark -

@@ -9,28 +9,8 @@
 #import <objc/message.h>
 #import "UIView+SJFLLayoutAttributeUnits.h"
 #import "UIView+SJFLFrameAttributeUnits.h"
-#import "UIView+SJFLLayoutElements.h"
 
 NS_ASSUME_NONNULL_BEGIN
-#define FL_log_call_count (0)
-#if FL_log_call_count
-static int call_count01 = 0;
-static int call_count02 = 0;
-static int call_count03 = 0;
-static int call_count04 = 0;
-
-@implementation SJFLLayoutElementLog
-+ (void)load {
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(10 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-        NSLog(@"E: 01 - %d", call_count01);
-        NSLog(@"E: 02 - %d", call_count02);
-        NSLog(@"E: 03 - %d", call_count03);
-        NSLog(@"E: 04 - %d", call_count04);
-    });
-}
-@end
-#endif
-
 @interface SJFLLayoutElement () {
     SJFLLayoutAttributeUnit *_target;
     __weak UIView *_Nullable _tar_superview;
@@ -118,12 +98,6 @@ static int call_count04 = 0;
     return self;
 }
 
-#ifdef SJFLLib
-- (NSString *)description {
-    return [NSString stringWithFormat:@"[_tar_view:%p,\t _values.tar_attr:%s,\t _dep_view:%p,\t _values.dep_attr:%s,\t _priority:%d]", _tar_view, [SJFLLayoutAttributeUnit debug_attributeToString:_values.tar_attr].UTF8String, _dep_view, [SJFLLayoutAttributeUnit debug_attributeToString:_values.dep_attr].UTF8String, _target->priority];
-}
-#endif
-
 - (UIView *_Nullable)tar_superview {
     return _tar_superview;
 }
@@ -136,102 +110,14 @@ static int call_count04 = 0;
     return _dep_view;
 }
 
-- (void)refreshLayoutIfNeeded:(CGRect *)frame {
-    UIView *_Nullable view = _tar_view;
-    if ( view == nil ) {
-        return;
-    }
-    
-    CGFloat newValue = [self value:*frame];
-    SJFLLayoutAttribute tar_attr = _values.tar_attr;
-    if ( SJFLViewLayoutCompare(*frame, tar_attr, newValue) ) {
-        return;
-    }
-    
-#if FL_log_call_count
-    call_count04 += 1;
-#endif
-    
-    switch ( tar_attr ) {
-        case SJFLLayoutAttributeNone: break; ///< Target does not need to do anything
-        case SJFLLayoutAttributeTop:{
-            frame->origin.y = newValue;
-        }
-            break;
-        case SJFLLayoutAttributeLeft: {
-            frame->origin.x = newValue;
-        }
-            break;
-        case SJFLLayoutAttributeBottom: {
-            NSDictionary<SJFLLayoutAttributeKey, SJFLLayoutElement *> *m = SJFLGetElements(view);
-            SJFLLayoutElement *_Nullable heightElement = m[SJFLLayoutAttributeKeyHeight];
-            if ( heightElement == nil ) {
-                // top + height = bottom
-                // height = bottom - top
-                CGFloat height = newValue - frame->origin.y;
-                if ( height < 0 ) height = 0;
-                frame->size.height = height;
-            }
-            else {
-                // top + height = bottom
-                // top = bottom - height
-                CGFloat top = newValue - frame->size.height;
-                frame->origin.y = top;
-            }
-        }
-            break;
-        case SJFLLayoutAttributeRight: {
-            NSDictionary<SJFLLayoutAttributeKey, SJFLLayoutElement *> *m = SJFLGetElements(view);
-            SJFLLayoutElement *_Nullable widthElement = m[SJFLLayoutAttributeKeyWidth];
-            if ( widthElement == nil ) {
-                // left + width = right
-                // width = right - left
-                CGFloat width = newValue - frame->origin.x;
-                if ( width < 0 ) width = 0;
-                frame->size.width = width;
-            }
-            else {
-                // left + width = right
-                // left = right - width
-                CGFloat left = newValue - frame->size.width;
-                frame->origin.x = left;
-            }
-        }
-            break;
-        case SJFLLayoutAttributeWidth: {
-            if ( newValue < 0 ) newValue = 0;
-            frame->size.width = newValue;        }
-            break;
-        case SJFLLayoutAttributeHeight: {
-            if ( newValue < 0 ) newValue = 0;
-            frame->size.height = newValue;
-        }
-            break;
-        case SJFLLayoutAttributeCenterX: {
-            // newValue = frame.origin.x + frame.origin.width * 0.5
-            CGFloat x = newValue - frame->size.width * 0.5;
-            frame->origin.x = x;
-        }
-            break;
-        case SJFLLayoutAttributeCenterY: {
-            // centerY = frame.origin.y + frame.origin.height * 0.5
-            CGFloat y = newValue - frame->size.height * 0.5;
-            frame->origin.y = y;
-        }
-            break;
-    }
-    
-#ifdef SJFLLib
-    printf("\n_tar_view:[%s]", _tar_view.description.UTF8String);
-    printf("\n_values.tar_attr:[%s]", [SJFLLayoutAttributeUnit debug_attributeToString:tar_attr].UTF8String);
-    printf("\n_dep_view:[%s]", _dep_view.description.UTF8String);
-    printf("\n_values.dep_attr:[%s]", [SJFLLayoutAttributeUnit debug_attributeToString:_values.dep_attr].UTF8String);
-    printf("\n");
-    printf("\n");
-#endif
+- (UIView *_Nullable)tar_view {
+    return _tar_view;
 }
 
-// value = dependent_value * multiplier + offset
+- (void)refreshLayoutIfNeeded:(CGRect *)frame {
+   
+}
+
 - (CGFloat)value:(CGRect)frame {
     CGFloat value = _values.value;
     
@@ -258,6 +144,7 @@ static int call_count04 = 0;
     }
     
     if ( isChanged_depFrame || isChanged_superFrame || isChanged_offset || isChanged_safeArea ) {
+        // value = dependent_value * multiplier + offset
         _values.value = value = ceil(self.dep_value * _target->multiplier + offset);
     }
     return value;
@@ -415,48 +302,6 @@ static int call_count04 = 0;
         }
     }
     return 0;
-}
-
-// - getter -
-
-//UIKIT_STATIC_INLINE BOOL SJFLHorizontalLayoutContains(SJFLLayoutAttribute attr) {
-//// horizontal: left, width, right, centerX
-//    return (attr == SJFLLayoutAttributeLeft) ||
-//            (attr == SJFLLayoutAttributeWidth) ||
-//             (attr == SJFLLayoutAttributeRight) ||
-//              (attr == SJFLLayoutAttributeCenterX);
-//}
-
-//UIKIT_STATIC_INLINE BOOL SJFLVerticalLayoutContains(SJFLLayoutAttribute attr) {
-//// vertical: top, height, bottom, centerY
-//    return (attr == SJFLLayoutAttributeTop) ||
-//            (attr == SJFLLayoutAttributeBottom) ||
-//             (attr == SJFLLayoutAttributeHeight) ||
-//              (attr == SJFLLayoutAttributeCenterY);
-//}
-
-UIKIT_STATIC_INLINE BOOL SJFLViewLayoutCompare(CGRect frame, SJFLLayoutAttribute attr, CGFloat value) {
-    switch ( attr ) {
-        case SJFLLayoutAttributeNone:
-            return NO;
-        case SJFLLayoutAttributeTop:
-            return value == frame.origin.y;
-        case SJFLLayoutAttributeLeft:
-            return value == frame.origin.x;
-        case SJFLLayoutAttributeBottom:
-            return value == frame.origin.y + frame.size.height;
-        case SJFLLayoutAttributeRight:
-            return value == frame.origin.x + frame.size.width;
-        case SJFLLayoutAttributeWidth:
-            return value == frame.size.width;
-        case SJFLLayoutAttributeHeight:
-            return value == frame.size.height;
-        case SJFLLayoutAttributeCenterX:
-            return value == frame.origin.x + frame.size.width * 0.5;
-        case SJFLLayoutAttributeCenterY:
-            return value == frame.origin.y + frame.size.height * 0.5;
-            break;
-    }
 }
 @end
 NS_ASSUME_NONNULL_END
