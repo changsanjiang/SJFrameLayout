@@ -45,7 +45,6 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)sj_addObserver:(NSObject *)observer forKeyPath:(NSString *)keyPath options:(NSKeyValueObservingOptions)options context:(nullable void *)context {
-
     NSParameterAssert(observer);
     NSParameterAssert(keyPath);
     
@@ -53,12 +52,10 @@ NS_ASSUME_NONNULL_BEGIN
     
     NSString *hashstr = [NSString stringWithFormat:@"%lu-%@", (unsigned long)[observer hash], keyPath];
     
-    @synchronized (self) {
-        if ( [[self sj_observerhashSet] containsObject:hashstr] ) return;
-        else [[self sj_observerhashSet] addObject:hashstr];
-    }
+    if ( [[self sj_observerhashSet] containsObject:hashstr] ) return;
+    else [[self sj_observerhashSet] addObject:hashstr];
     
-    [self addObserver:observer forKeyPath:keyPath options:options context:context];
+    [self addObserver:observer forKeyPath:keyPath options:NSKeyValueObservingOptionOld | NSKeyValueObservingOptionNew context:context];
     
     __SJKVOAutoremove *helper = [__SJKVOAutoremove new];
     __SJKVOAutoremove *sub = [__SJKVOAutoremove new];

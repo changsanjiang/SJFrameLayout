@@ -35,13 +35,10 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithView:(UIView *)view attribute:(SJFLLayoutAttribute)attribute {
     self = [super init];
     if ( !self ) return nil;
-    _attribute = attribute;
-    _view = view;
+    self->attribute = attribute;
+    self->view = view;
     self->multiplier = 1.0;
     return self;
-}
-- (void)equalTo:(SJFLFrameAttributeUnit *)viewAttribute {
-    _equalToViewAttribute = viewAttribute;
 }
 @end
 NS_ASSUME_NONNULL_END

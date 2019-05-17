@@ -7,42 +7,69 @@
 
 #import "SJFLLayoutEngine.h"
 #import <objc/message.h>
-#import "LWZCommonWeakProxy.h"
+#import "SJFLWeakProxy.h"
 #import "SJFLLayoutWeakTarget.h"
 
 NS_ASSUME_NONNULL_BEGIN
 @implementation UIView (SJFLWeakProxy)
-- (LWZCommonWeakProxy *)SJFL_weakProxy {
-    LWZCommonWeakProxy *_Nullable proxy = objc_getAssociatedObject(self, _cmd);
+- (SJFLWeakProxy *)SJFL_weakProxy {
+    SJFLWeakProxy *_Nullable proxy = objc_getAssociatedObject(self, _cmd);
     if ( proxy == nil ) {
-        proxy = [LWZCommonWeakProxy weakProxyWithTarget:self];
+        proxy = [SJFLWeakProxy weakProxyWithTarget:self];
         objc_setAssociatedObject(self, _cmd, proxy, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
     }
     return proxy;
 }
 @end
 
+@interface SJFLLayout : NSObject
+- (instancetype)initWithLayoutView:(UIView *)view elements:(SJFL_ElementsMap)elements;
+@property (nonatomic, strong, readonly) SJFL_ElementsMap elements;
+@property (nonatomic, strong, readonly) NSArray<SJFLWeakProxy *> *dependentViews;
+@end
+
+@implementation SJFLLayout
+- (instancetype)initWithLayoutView:(UIView *)view elements:(SJFL_ElementsMap)elements {
+    self = [super init];
+    if ( self ) {
+        _elements = elements;
+        NSMutableArray<SJFLWeakProxy *> *depViews = [NSMutableArray array];
+        [elements enumerateKeysAndObjectsUsingBlock:^(SJFLLayoutAttributeKey  _Nonnull key, SJFLLayoutElement * _Nonnull obj, BOOL * _Nonnull stop) {
+            UIView *dep_view = obj.dep_view;
+            if ( view != dep_view ) [depViews addObject:[dep_view SJFL_weakProxy]];
+        }];
+        _dependentViews = depViews;
+    }
+    return self;
+}
+@end
+
 #pragma mark -
 typedef NSNumber *__SJFL_HashKey_t;
-typedef NSMutableDictionary<__SJFL_HashKey_t, LWZCommonWeakProxy *> *__SJFL_ViewsMap_t;
-static Class SJFL_UILabelClass;
-static Class SJFL_UIButtonClass;
-static Class SJFL_UIImageViewClass;
+typedef NSMutableDictionary<__SJFL_HashKey_t, SJFLWeakProxy *> *__SJFL_ViewsMap_t;
 
-static void *kLayoutViews = &kLayoutViews;
+static __SJFL_ViewsMap_t _Nullable
+__SJFL_GetViewsMap(UIView *dep_view) {
+    if ( dep_view != nil ) {
+        static void *kViews = &kViews;
+        __SJFL_ViewsMap_t _Nullable map = objc_getAssociatedObject(dep_view, kViews);
+        if ( map == nil ) {
+            map = NSMutableDictionary.new;
+            objc_setAssociatedObject(dep_view, kViews, map, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+        }
+        return map;
+    }
+    return nil;
+}
+
 static void
 __SJFL_ViewsMapAdd(UIView *layoutView, SJFL_ElementsMap elements) {
     __SJFL_HashKey_t layoutViewKey = @([layoutView hash]);
-    LWZCommonWeakProxy *weakProxy = layoutView.SJFL_weakProxy;
+    SJFLWeakProxy *weakProxy = layoutView.SJFL_weakProxy;
     [elements enumerateKeysAndObjectsUsingBlock:^(SJFLLayoutAttributeKey  _Nonnull key, SJFLLayoutElement * _Nonnull obj, BOOL * _Nonnull stop) {
         UIView *dep_view = obj.dep_view;
         if ( dep_view != layoutView ) {
-            __SJFL_ViewsMap_t _Nullable layoutViews = objc_getAssociatedObject(dep_view, kLayoutViews);
-            if ( layoutViews == nil ) {
-                layoutViews = NSMutableDictionary.new;
-                objc_setAssociatedObject(dep_view, kLayoutViews, layoutViews, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-            }
-            layoutViews[layoutViewKey] = weakProxy;
+            __SJFL_GetViewsMap(dep_view)[layoutViewKey] = weakProxy;
         }
     }];
 }
@@ -53,9 +80,7 @@ __SJFL_ViewsMapAutoremove(UIView *layoutView, SJFL_ElementsMap elements) {
     __SJFL_HashKey_t layoutViewKey = @([layoutView hash]);
     SJFLLayoutDeallocCallbackObject *weak = [[SJFLLayoutDeallocCallbackObject alloc] initWithDeallocCallback:^{
         [elements enumerateKeysAndObjectsUsingBlock:^(SJFLLayoutAttributeKey  _Nonnull key, SJFLLayoutElement * _Nonnull obj, BOOL * _Nonnull stop) {
-            UIView *dep_view = obj.dep_view;
-            __SJFL_ViewsMap_t _Nullable layoutViews = objc_getAssociatedObject(dep_view, kLayoutViews);
-            layoutViews[layoutViewKey] = nil;
+            __SJFL_GetViewsMap(obj.dep_view)[layoutViewKey] = nil;
         }];
     }];
     objc_setAssociatedObject(layoutView, kAutoremove, weak, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
@@ -68,8 +93,8 @@ __SJFL_ViewsMapRemove(UIView *layoutView) {
 
 UIKIT_STATIC_INLINE void
 __SJFL_ViewsMapUpdate(UIView *dep_view) {
-    __SJFL_ViewsMap_t _Nullable layoutViews = objc_getAssociatedObject(dep_view, kLayoutViews);
-    [layoutViews enumerateKeysAndObjectsUsingBlock:^(__SJFL_HashKey_t  _Nonnull key, LWZCommonWeakProxy * _Nonnull proxy, BOOL * _Nonnull stop) {
+    __SJFL_ViewsMap_t _Nullable map = __SJFL_GetViewsMap(dep_view);
+    [map enumerateKeysAndObjectsUsingBlock:^(__SJFL_HashKey_t  _Nonnull key, SJFLWeakProxy * _Nonnull proxy, BOOL * _Nonnull stop) {
         SJFL_LayoutIfNeeded(proxy.target);
     }];
 }
@@ -291,6 +316,10 @@ __SJFL_FixViewFittingSizeIfNeeded(UIView *view, SJFLLayoutAttributeUnit *_Nullab
     return fixed;
     //    NSLog(@"maxX: %lf, maxY: %lf", maxX, maxY);
 }
+
+static Class SJFL_UILabelClass;
+static Class SJFL_UIButtonClass;
+static Class SJFL_UIImageViewClass;
 
 UIKIT_STATIC_INLINE BOOL
 __SJFL_FixInnerSizeIfNeeded(__kindof UIView *view) {

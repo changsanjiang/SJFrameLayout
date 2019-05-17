@@ -102,8 +102,8 @@ RETURN_FL_MAKER_LAYOUT_MASK(center, SJFLLayoutAttributeMaskCenter);
 
 #pragma mark -
 
-UIKIT_STATIC_INLINE
-NSMutableDictionary<SJFLLayoutAttributeKey, SJFLLayoutElement *> *SJFLCreateElementsForAttributeUnits(UIView *view, UIView *superview) {
+UIKIT_STATIC_INLINE NSMutableDictionary<SJFLLayoutAttributeKey, SJFLLayoutElement *> *
+SJFLCreateElementsForAttributeUnits(UIView *view, UIView *superview) {
     NSMutableDictionary<SJFLLayoutAttributeKey, SJFLLayoutElement *> *m = [NSMutableDictionary dictionaryWithCapacity:8];
     SJFLLayoutAttributeUnit *_Nullable top = [view FL_attributeUnitForAttribute:SJFLLayoutAttributeTop];
     SJFLLayoutAttributeUnit *_Nullable left = [view FL_attributeUnitForAttribute:SJFLLayoutAttributeLeft];

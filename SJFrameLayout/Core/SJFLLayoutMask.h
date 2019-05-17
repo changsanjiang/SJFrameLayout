@@ -13,6 +13,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface SJFLLayoutMask : NSObject<SJFLLayoutProtocol, SJFLLayoutUpdaterProtocol>
 - (instancetype)initWithView:(UIView *)view attributes:(SJFLLayoutAttributeMask)attrs;
 - (instancetype)initWithView:(UIView *)view attribute:(SJFLLayoutAttribute)attr;
+@property (nonatomic, readonly) SJFLLayoutAttributeMask attrs;
 - (instancetype)init NS_UNAVAILABLE;
 + (instancetype)new NS_UNAVAILABLE;
 @end

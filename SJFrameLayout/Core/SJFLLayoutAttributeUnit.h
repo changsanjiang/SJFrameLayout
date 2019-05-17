@@ -12,6 +12,10 @@
 NS_ASSUME_NONNULL_BEGIN
 @interface SJFLLayoutAttributeUnit : NSObject {
     @public
+    SJFLLayoutAttribute attribute;
+    __weak UIView *_Nullable view;
+    SJFLFrameAttributeUnit *_Nullable equalToViewAttribute; /* dependent */
+    
     union {
         CGFloat value;
         CGPoint point;
@@ -34,10 +38,6 @@ NS_ASSUME_NONNULL_BEGIN
     } priority;
 }
 - (instancetype)initWithView:(UIView *)view attribute:(SJFLLayoutAttribute)attribute;
-@property (nonatomic, readonly) SJFLLayoutAttribute attribute;
-@property (nonatomic, weak, readonly, nullable) UIView *view;
-@property (nonatomic, strong, readonly, nullable) SJFLFrameAttributeUnit *equalToViewAttribute;
-- (void)equalTo:(SJFLFrameAttributeUnit *)viewAttribute;
 - (instancetype)init NS_UNAVAILABLE;
 + (instancetype)new NS_UNAVAILABLE;
 + (NSString *)debug_attributeToString:(SJFLLayoutAttribute)attribute;

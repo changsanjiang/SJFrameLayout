@@ -43,13 +43,13 @@ NS_ASSUME_NONNULL_BEGIN
     self = [super init];
     if ( self ) {
         _target = target;
-        _tar_view = target.view;
+        _tar_view = target->view;
         _tar_superview = superview?:_tar_view.superview;
-        _values.tar_attr = target.attribute;
+        _values.tar_attr = target->attribute;
         
-        SJFLFrameAttributeUnit *_Nullable dependent = target.equalToViewAttribute;
+        SJFLFrameAttributeUnit *_Nullable dependent = target->equalToViewAttribute;
         if ( !dependent ) {
-            switch ( target.attribute ) {
+            switch ( target->attribute ) {
                 case SJFLLayoutAttributeNone:
                 case SJFLLayoutAttributeWidth:
                 case SJFLLayoutAttributeHeight:
@@ -65,7 +65,7 @@ NS_ASSUME_NONNULL_BEGIN
                 }
                     break;
             }
-            [target equalTo:dependent];
+            target->equalToViewAttribute = dependent;
         }
         
         _dep_view = dependent.view;

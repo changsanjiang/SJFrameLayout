@@ -5,8 +5,8 @@ PODS:
   - SJRouter (0.0.11):
     - SJRouter/Core (= 0.0.11)
   - SJRouter/Core (0.0.11)
-  - SJUIKit/ObserverHelper (0.0.0.25)
-  - SJUIKit/Queues (0.0.0.25)
+  - SJUIKit/ObserverHelper (0.0.0.23)
+  - SJUIKit/Queues (0.0.0.23)
 
 DEPENDENCIES:
   - SJFrameLayout (from `../`)
@@ -26,7 +26,7 @@ EXTERNAL SOURCES:
 SPEC CHECKSUMS:
   SJFrameLayout: 5fdd26af53edd5aca6c6a8cbca112610d5c536c8
   SJRouter: 62dd20b18a199ca9d251817449b901f9228daad1
-  SJUIKit: 1b7b0606cfcbd06a547a02139f85f1ac775c7775
+  SJUIKit: d97d9b7b37313b004ec44452a137821f18fdf39e
 
 PODFILE CHECKSUM: e409c9bc97a26036ba3c0b790dca68195dd4bde4
 

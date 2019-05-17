@@ -13,7 +13,7 @@
 NS_ASSUME_NONNULL_BEGIN
 @implementation SJFLLayoutMask {
     SJFLLayoutAttributeMask _attrs;
-    __weak UIView *_view;
+    __weak UIView *_Nullable _view;
 }
 
 static Class SJFLFrameAttributeUnitClass;
@@ -98,31 +98,31 @@ static Class SJFLViewClass;
         UIView *view = self->_view;
         if      ( [box isKindOfClass:SJFLFrameAttributeUnitClass] ) {
             SJFLFrameAttributeUnit *unit = box;
-            if ( SJFLLayoutContainsAttribute(attributes, SJFLLayoutAttributeTop) ) [view.FL_topUnit equalTo:unit];
-            if ( SJFLLayoutContainsAttribute(attributes, SJFLLayoutAttributeLeft) ) [view.FL_leftUnit equalTo:unit];
-            if ( SJFLLayoutContainsAttribute(attributes, SJFLLayoutAttributeBottom) ) [view.FL_bottomUnit equalTo:unit];
-            if ( SJFLLayoutContainsAttribute(attributes, SJFLLayoutAttributeRight) ) [view.FL_rightUnit equalTo:unit];
-            if ( SJFLLayoutContainsAttribute(attributes, SJFLLayoutAttributeWidth) ) [view.FL_widthUnit equalTo:unit];
-            if ( SJFLLayoutContainsAttribute(attributes, SJFLLayoutAttributeHeight) ) [view.FL_heightUnit equalTo:unit];
-            if ( SJFLLayoutContainsAttribute(attributes, SJFLLayoutAttributeCenterX) ) [view.FL_centerXUnit equalTo:unit];
-            if ( SJFLLayoutContainsAttribute(attributes, SJFLLayoutAttributeCenterY) ) [view.FL_centerYUnit equalTo:unit];
+            if ( SJFLLayoutContainsAttribute(attributes, SJFLLayoutAttributeTop) ) view.FL_topUnit->equalToViewAttribute = unit;
+            if ( SJFLLayoutContainsAttribute(attributes, SJFLLayoutAttributeLeft) ) view.FL_leftUnit->equalToViewAttribute = unit;
+            if ( SJFLLayoutContainsAttribute(attributes, SJFLLayoutAttributeBottom) ) view.FL_bottomUnit->equalToViewAttribute = unit;
+            if ( SJFLLayoutContainsAttribute(attributes, SJFLLayoutAttributeRight) ) view.FL_rightUnit->equalToViewAttribute = unit;
+            if ( SJFLLayoutContainsAttribute(attributes, SJFLLayoutAttributeWidth) ) view.FL_widthUnit->equalToViewAttribute = unit;
+            if ( SJFLLayoutContainsAttribute(attributes, SJFLLayoutAttributeHeight) ) view.FL_heightUnit->equalToViewAttribute = unit;
+            if ( SJFLLayoutContainsAttribute(attributes, SJFLLayoutAttributeCenterX) ) view.FL_centerXUnit->equalToViewAttribute = unit;
+            if ( SJFLLayoutContainsAttribute(attributes, SJFLLayoutAttributeCenterY) ) view.FL_centerYUnit->equalToViewAttribute = unit;
         }
         else if ( [box isKindOfClass:SJFLViewClass] ) {
             UIView *dep_view = box;
-            if ( SJFLLayoutContainsAttribute(attributes, SJFLLayoutAttributeTop) ) [view.FL_topUnit equalTo:dep_view.FL_top];
-            if ( SJFLLayoutContainsAttribute(attributes, SJFLLayoutAttributeLeft) ) [view.FL_leftUnit equalTo:dep_view.FL_left];
-            if ( SJFLLayoutContainsAttribute(attributes, SJFLLayoutAttributeBottom) ) [view.FL_bottomUnit equalTo:dep_view.FL_bottom];
-            if ( SJFLLayoutContainsAttribute(attributes, SJFLLayoutAttributeRight) ) [view.FL_rightUnit equalTo:dep_view.FL_right];
-            if ( SJFLLayoutContainsAttribute(attributes, SJFLLayoutAttributeWidth) ) [view.FL_widthUnit equalTo:dep_view.FL_width];
-            if ( SJFLLayoutContainsAttribute(attributes, SJFLLayoutAttributeHeight) ) [view.FL_heightUnit equalTo:dep_view.FL_height];
-            if ( SJFLLayoutContainsAttribute(attributes, SJFLLayoutAttributeCenterX) ) [view.FL_centerXUnit equalTo:dep_view.FL_centerX];
-            if ( SJFLLayoutContainsAttribute(attributes, SJFLLayoutAttributeCenterY) ) [view.FL_centerYUnit equalTo:dep_view.FL_centerY];
+            if ( SJFLLayoutContainsAttribute(attributes, SJFLLayoutAttributeTop) ) view.FL_topUnit->equalToViewAttribute = dep_view.FL_top;
+            if ( SJFLLayoutContainsAttribute(attributes, SJFLLayoutAttributeLeft) ) view.FL_leftUnit->equalToViewAttribute = dep_view.FL_left;
+            if ( SJFLLayoutContainsAttribute(attributes, SJFLLayoutAttributeBottom) ) view.FL_bottomUnit->equalToViewAttribute = dep_view.FL_bottom;
+            if ( SJFLLayoutContainsAttribute(attributes, SJFLLayoutAttributeRight) ) view.FL_rightUnit->equalToViewAttribute = dep_view.FL_right;
+            if ( SJFLLayoutContainsAttribute(attributes, SJFLLayoutAttributeWidth) ) view.FL_widthUnit->equalToViewAttribute = dep_view.FL_width;
+            if ( SJFLLayoutContainsAttribute(attributes, SJFLLayoutAttributeHeight) ) view.FL_heightUnit->equalToViewAttribute = dep_view.FL_height;
+            if ( SJFLLayoutContainsAttribute(attributes, SJFLLayoutAttributeCenterX) ) view.FL_centerXUnit->equalToViewAttribute = dep_view.FL_centerX;
+            if ( SJFLLayoutContainsAttribute(attributes, SJFLLayoutAttributeCenterY) ) view.FL_centerYUnit->equalToViewAttribute = dep_view.FL_centerY;
         }
         else if ( [box isKindOfClass:SJFLArrayClass] ) {
             for ( SJFLFrameAttributeUnit *unit in (NSArray *)box ) {
                 SJFLLayoutAttribute layoutAttribute = SJFLLayoutAttributeForFrameAttribute(unit.attribute);
                 SJFLLayoutAttributeUnit *layoutUnit = [view FL_requestAttributeUnitForAttribute:layoutAttribute];
-                if ( layoutUnit ) [layoutUnit equalTo:unit];
+                if ( layoutUnit != nil )  layoutUnit->equalToViewAttribute = unit;
             }
         }
         else {
