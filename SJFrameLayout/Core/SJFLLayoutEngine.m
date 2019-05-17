@@ -64,7 +64,7 @@ __SJFL_ViewsMapAutoremove(UIView *layoutView, SJFL_ElementsMap elements) {
         if ( elements != nil ) {
             [elements enumerateKeysAndObjectsUsingBlock:^(SJFLLayoutAttributeKey  _Nonnull key, SJFLLayoutElement * _Nonnull obj, BOOL * _Nonnull stop) {
                 
-#warning next ... autoremove 
+#warning next ... autoremove
                 UIView *dep_view = obj.dep_view;
                 __SJFL_HashKey dep_key = @([dep_view hash]);
                 __auto_type _Nullable subitems = __SJFL_ViewsMap[dep_key];
