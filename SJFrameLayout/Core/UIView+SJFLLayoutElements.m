@@ -12,11 +12,12 @@
 #import "SJFLLayoutWeakTarget.h"
 #import <SJUIKit/NSObject+SJObserverHelper.h>
 #import <SJUIKit/SJRunLoopTaskQueue.h>
+#import "LWZCommonWeakProxy.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
 #define FL_log_layout (0)
-#define FL_log_call_count    (1)
+#define FL_log_call_count    (0)
 
 #if FL_log_call_count
 static int call_cout00 = 0;
@@ -30,13 +31,112 @@ static Class FL_UILabelClass;
 static Class FL_UIButtonClass;
 static Class FL_UIImageViewClass;
 
+@interface UIView (SJFLWeakProxy)
+@property (nonatomic, strong, readonly) LWZCommonWeakProxy *SJFL_weakProxy;
+@end
+
+@implementation UIView (SJFLWeakProxy)
+- (LWZCommonWeakProxy *)SJFL_weakProxy {
+    LWZCommonWeakProxy *_Nullable proxy = objc_getAssociatedObject(self, _cmd);
+    if ( proxy == nil ) {
+        proxy = [LWZCommonWeakProxy weakProxyWithTarget:self];
+        objc_setAssociatedObject(self, _cmd, proxy, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    }
+    return proxy;
+}
+@end
+
 @implementation UIView (SJFLPrivate)
+typedef NSNumber *SJFLHashKey;
+
+static NSMutableDictionary<SJFLHashKey, NSMutableDictionary<SJFLHashKey, LWZCommonWeakProxy *> *> *__SJFL_ViewsMap;
+
+UIKIT_STATIC_INLINE void
+SJFL_ViewsMapInitialize(void) {
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        __SJFL_ViewsMap = NSMutableDictionary.new;
+    });
+}
+
+static void
+SJFL_ViewsMapAddView(UIView *layoutView) {
+    NSNumber *layoutViewKey = @([layoutView hash]);
+    [layoutView.FL_elements enumerateKeysAndObjectsUsingBlock:^(SJFLLayoutAttributeKey  _Nonnull key, SJFLLayoutElement * _Nonnull obj, BOOL * _Nonnull stop) {
+        UIView *dep_view = obj.dep_view;
+        if ( dep_view != layoutView ) {
+            NSNumber *key = @([dep_view hash]);
+            __auto_type _Nullable subitems = __SJFL_ViewsMap[key];
+            if ( subitems == nil ) {
+                __SJFL_ViewsMap[key] = subitems = NSMutableDictionary.new;
+            }
+            
+            __auto_type _Nullable layoutItem = subitems[layoutViewKey];
+            if ( layoutItem == nil ) {
+                subitems[layoutViewKey] = layoutView.SJFL_weakProxy;
+            }
+        }
+    }];
+}
+
+static void
+SJFL_ViewsMapRemoveView(UIView *layoutView) {
+    NSNumber *layoutViewKey = @([layoutView hash]);
+    [layoutView.FL_elements enumerateKeysAndObjectsWithOptions:NSEnumerationReverse usingBlock:^(SJFLLayoutAttributeKey  _Nonnull key, SJFLLayoutElement * _Nonnull obj, BOOL * _Nonnull stop) {
+        UIView *dep_view = obj.dep_view;
+        if ( dep_view != layoutView ) {
+            NSNumber *key = @([dep_view hash]);
+            __auto_type _Nullable subitems = __SJFL_ViewsMap[key];
+            if ( subitems != nil ) {
+                subitems[layoutViewKey] = nil;
+                if ( subitems.count == 0 ) {
+                    __SJFL_ViewsMap[key] = nil;
+                }
+            }
+        }
+    }];
+}
+
+static void
+SJFL_ViewsMapUpdateSubitems(UIView *dep_view) {
+    NSNumber *key = @([dep_view hash]);
+    __auto_type _Nullable subitems = __SJFL_ViewsMap[key];
+    if ( subitems.count != 0 ) {
+        [subitems enumerateKeysAndObjectsUsingBlock:^(NSNumber * _Nonnull key, LWZCommonWeakProxy * _Nonnull proxy, BOOL * _Nonnull stop) {
+            if ( proxy.target != nil ) {
+                [proxy.target FL_layoutIfNeeded_flag];
+            }
+        }];
+    }
+}
+
+static void
+SJFLSwizzleMethod(Class cls, SEL originalSelector, SEL swizzledSelector) {
+    Method originalMethod = class_getInstanceMethod(cls, originalSelector);
+    Method swizzledMethod = class_getInstanceMethod(cls, swizzledSelector);
+    
+    BOOL added = class_addMethod(cls, originalSelector, method_getImplementation(swizzledMethod), method_getTypeEncoding(swizzledMethod));
+    if ( added )
+        class_replaceMethod(cls, swizzledSelector, method_getImplementation(originalMethod), method_getTypeEncoding(originalMethod));
+    else
+        method_exchangeImplementations(originalMethod, swizzledMethod);
+}
+
+
 + (void)load {
+    SJFL_ViewsMapInitialize();
+    
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
         FL_UILabelClass = UILabel.class;
         FL_UIButtonClass = UIButton.class;
         FL_UIImageViewClass = UIImageView.class;
+
+        Class cls = UIView.class;
+        SJFLSwizzleMethod(cls, @selector(FL_setFrame:), @selector(setFrame:));
+        SJFLSwizzleMethod(cls, @selector(FL_setCenter:), @selector(setCenter:));
+        SJFLSwizzleMethod(cls, @selector(FL_setBounds:), @selector(setBounds:));
+        SJFLSwizzleMethod(cls, @selector(FL_safeAreaInsetsDidChange), @selector(safeAreaInsetsDidChange));
         
 #if FL_log_call_count
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(10 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
@@ -49,7 +149,29 @@ static Class FL_UIImageViewClass;
 #endif
     });
 }
+
+- (void)FL_setFrame:(CGRect)frame {
+    [self FL_setFrame:frame];
+    SJFL_ViewsMapUpdateSubitems(self);
+}
+
+- (void)FL_setBounds:(CGRect)bounds {
+    [self FL_setBounds:bounds];
+    SJFL_ViewsMapUpdateSubitems(self);
+}
+
+- (void)FL_setCenter:(CGPoint)center {
+    [self FL_setCenter:center];
+    SJFL_ViewsMapUpdateSubitems(self);
+}
+
+- (void)FL_safeAreaInsetsDidChange {
+    [self FL_safeAreaInsetsDidChange];
+    SJFL_ViewsMapUpdateSubitems(self);
+}
 @end
+
+
 
 @implementation UIView (SJFLLayoutElements)
 static void *kFL_ElementsContainer = &kFL_ElementsContainer;
@@ -57,45 +179,18 @@ static void *kFL_ElementsContainer = &kFL_ElementsContainer;
 - (SJFLLayoutElement *_Nullable)FL_elementForAttributeKey:(SJFLLayoutAttributeKey)attributeKey {
     return [objc_getAssociatedObject(self, kFL_ElementsContainer) valueForKey:attributeKey];
 }
+
 - (void)setFL_elements:(NSDictionary<SJFLLayoutAttributeKey, SJFLLayoutElement *> * _Nullable)FL_elements {
     objc_setAssociatedObject(self, kFL_ElementsContainer, [FL_elements mutableCopy], OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-    
-    [FL_elements enumerateKeysAndObjectsUsingBlock:^(SJFLLayoutAttributeKey  _Nonnull key, SJFLLayoutElement * _Nonnull obj, BOOL * _Nonnull stop) {
-        UIView *dep_view = obj.dep_view;
-        NSKeyValueObservingOptions ops = NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld;
-        [dep_view sj_addObserver:self forKeyPath:@"frame" options:ops context:nil];
-        [dep_view sj_addObserver:self forKeyPath:@"bounds" options:ops context:nil];
-        [dep_view sj_addObserver:self forKeyPath:@"center" options:ops context:nil];
-    }];
-
-    [self FL_layoutIfNeeded];
-}
-
-- (void)observeValueForKeyPath:(nullable NSString *)keyPath ofObject:(UIView *_Nullable)object change:(nullable NSDictionary<NSKeyValueChangeKey,id> *)change context:(nullable void *)context {
-    if ( ![change[NSKeyValueChangeOldKey] isEqual:change[NSKeyValueChangeNewKey]] ) {
-        
-        printf("\n%s - %s - %s\n", keyPath.UTF8String, object.description.UTF8String, change.description.UTF8String);
-        printf("\n====================\n");
-        
-#if FL_log_call_count
-        call_cout00 += 1;
-#endif
-        BOOL changed = [self FL_layoutIfNeeded];
-        if ( changed ) {
-            [[self FL_elements] enumerateKeysAndObjectsUsingBlock:^(SJFLLayoutAttributeKey  _Nonnull key, SJFLLayoutElement * _Nonnull obj, BOOL * _Nonnull stop) {
-                UIView *dep_view = obj.dep_view;
-                if ( SJFLViewLayoutNeedFixInnerSize(dep_view) ) {
-                    [dep_view FL_layoutIfNeeded];
-                }
-            }];
-        }
-    }
+    SJFL_ViewsMapAddView(self);
+    [self FL_layoutIfNeeded_flag];
 }
 
 - (NSDictionary<SJFLLayoutAttributeKey, SJFLLayoutElement *> *_Nullable)FL_elements {
     return objc_getAssociatedObject(self, kFL_ElementsContainer);
 }
-- (BOOL)FL_layoutIfNeeded {
+
+- (void)FL_layoutIfNeeded_flag {
 #if FL_log_layout
     printf("\n before: \t [%p \t %s \t %s]", self, NSStringFromClass(self.class).UTF8String, NSStringFromCGRect(self.frame).UTF8String);
 #endif
@@ -103,8 +198,7 @@ static void *kFL_ElementsContainer = &kFL_ElementsContainer;
 #if FL_log_call_count
     call_cout01 += 1;
 #endif
-
-    BOOL changed = NO;
+    
     NSMutableDictionary<SJFLLayoutAttributeKey, SJFLLayoutElement *> *_Nullable
     m = objc_getAssociatedObject(self, kFL_ElementsContainer);
     if ( m ) {
@@ -165,24 +259,33 @@ static void *kFL_ElementsContainer = &kFL_ElementsContainer;
         if ( centerX ) [centerX refreshLayoutIfNeeded:&frame];
         if ( centerY ) [centerY refreshLayoutIfNeeded:&frame];
         
+        BOOL changed = NO;
         if ( !CGRectEqualToRect(frame, previous) ) {
             changed = YES;
+            
             self.frame = frame;
 //            printf("\n%p ==> %s", self, NSStringFromCGRect(frame).UTF8String);
 #if FL_log_call_count
             call_cout03 += 1;
 #endif
         }
-
+        
         if ( SJFLViewLayoutFixInnerSizeIfNeeded(self, m) )
             goto handle_elements;
+        
+        if ( changed ) {
+            [m enumerateKeysAndObjectsUsingBlock:^(SJFLLayoutAttributeKey  _Nonnull key, SJFLLayoutElement * _Nonnull obj, BOOL * _Nonnull stop) {
+                UIView *dep_view = obj.dep_view;
+                if ( SJFLViewLayoutNeedFixInnerSize(dep_view) ) {
+                    [dep_view FL_layoutIfNeeded_flag];
+                }
+            }];
+        }
     }
     
 #if FL_log_layout
     printf("\n end: \t\t [%p \t %s \t %s]\n", self, NSStringFromClass(self.class).UTF8String, NSStringFromCGRect(self.frame).UTF8String);
 #endif
-    
-    return changed;
 }
 
 // fix inner size
@@ -412,7 +515,8 @@ SJFLGetElements(UIView *view) {
     m = objc_getAssociatedObject(self, kFL_ElementsContainer);
     if ( m ) {
         SJFLFixLabelFittingWidthIfNeeded(self, m);
-        [super FL_layoutIfNeeded];
+#warning next ...
+//        [super FL_layoutIfNeeded:self];
     }
 }
 

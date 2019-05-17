@@ -14,9 +14,8 @@ NS_ASSUME_NONNULL_BEGIN
 @interface UIView (SJFLLayoutElements)
 UIKIT_EXTERN NSDictionary<SJFLLayoutAttributeKey, SJFLLayoutElement *> *_Nullable
 SJFLGetElements(UIView *view);
-- (SJFLLayoutElement *_Nullable)FL_elementForAttributeKey:(SJFLLayoutAttributeKey)attributeKey;
 
 @property (nonatomic, strong, nullable) NSDictionary<SJFLLayoutAttributeKey, SJFLLayoutElement *> *FL_elements;
-- (BOOL)FL_layoutIfNeeded;
+- (void)FL_layoutIfNeeded_flag;
 @end
 NS_ASSUME_NONNULL_END

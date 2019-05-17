@@ -8,6 +8,7 @@ target 'SJFrameLayout_Example' do
   pod 'SJUIKit/ObserverHelper'
   pod 'SJFrameLayout', :path => '../'
   #pod 'Masonry'
+  #pod 'MyLayout'
 #pod 'MMPlaceHolder', :inhibit_warnings => true
 #pod 'SDAutoLayout'
 #pod 'MTHawkeye'

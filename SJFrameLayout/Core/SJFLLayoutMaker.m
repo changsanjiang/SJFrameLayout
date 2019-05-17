@@ -92,7 +92,7 @@ RETURN_FL_MAKER_LAYOUT_MASK(center, SJFLLayoutAttributeMaskCenter);
     SJFLAddFittingSizeUnitsIfNeeded(_view, m);
     _view.FL_elements = m;    
     // - update
-    [_view FL_layoutIfNeeded];
+    [_view FL_layoutIfNeeded_flag];
 }
 
 + (void)removeAllLayouts:(UIView *)view {
