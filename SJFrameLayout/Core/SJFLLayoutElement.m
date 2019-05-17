@@ -61,57 +61,58 @@ static int call_count04 = 0;
 
 - (instancetype)initWithTarget:(SJFLLayoutAttributeUnit *)target superview:(nullable UIView *)superview {
     self = [super init];
-    if ( !self ) return nil;
-    _target = target;
-    _tar_view = target.view;
-    _tar_superview = superview?:_tar_view.superview;
-    _values.tar_attr = target.attribute;
-    
-    SJFLFrameAttributeUnit *_Nullable dependent = target.equalToViewAttribute;
-    if ( !dependent ) {
-        switch ( target.attribute ) {
-            case SJFLLayoutAttributeNone:
-            case SJFLLayoutAttributeWidth:
-            case SJFLLayoutAttributeHeight:
-                dependent = [[SJFLFrameAttributeUnit alloc] initWithView:_tar_superview attribute:SJFLFrameAttributeNone];
-                break;
-            case SJFLLayoutAttributeTop:
-            case SJFLLayoutAttributeLeft:
-            case SJFLLayoutAttributeBottom:
-            case SJFLLayoutAttributeRight:
-            case SJFLLayoutAttributeCenterX:
-            case SJFLLayoutAttributeCenterY: {
-                dependent = SJFLFrameAtrributeUnitForAttribute(_tar_superview, (SJFLFrameAttribute)_values.tar_attr);
+    if ( self ) {
+        _target = target;
+        _tar_view = target.view;
+        _tar_superview = superview?:_tar_view.superview;
+        _values.tar_attr = target.attribute;
+        
+        SJFLFrameAttributeUnit *_Nullable dependent = target.equalToViewAttribute;
+        if ( !dependent ) {
+            switch ( target.attribute ) {
+                case SJFLLayoutAttributeNone:
+                case SJFLLayoutAttributeWidth:
+                case SJFLLayoutAttributeHeight:
+                    dependent = [[SJFLFrameAttributeUnit alloc] initWithView:_tar_superview attribute:SJFLFrameAttributeNone];
+                    break;
+                case SJFLLayoutAttributeTop:
+                case SJFLLayoutAttributeLeft:
+                case SJFLLayoutAttributeBottom:
+                case SJFLLayoutAttributeRight:
+                case SJFLLayoutAttributeCenterX:
+                case SJFLLayoutAttributeCenterY: {
+                    dependent = SJFLFrameAtrributeUnitForAttribute(_tar_superview, (SJFLFrameAttribute)_values.tar_attr);
+                }
+                    break;
             }
-                break;
+            [target equalTo:dependent];
         }
-        [target equalTo:dependent];
-    }
-    
-    _dep_view = dependent.view;
-    _values.dep_attr = dependent.attribute;
-    _values.is_dep_self = (_dep_view == _tar_view);
-    
-    if ( @available(iOS 11.0, *) ) {
-        switch ( _values.dep_attr ) {
-            case SJFLFrameAttributeSafeTop:
-            case SJFLFrameAttributeSafeLeft:
-            case SJFLFrameAttributeSafeBottom:
-            case SJFLFrameAttributeSafeRight: {
-                _values.safeAreaInsets = _dep_view.safeAreaInsets;
-                _values.has_safe_attr = YES;
+        
+        _dep_view = dependent.view;
+        _values.dep_attr = dependent.attribute;
+        _values.is_dep_self = (_dep_view == _tar_view);
+        
+        if ( @available(iOS 11.0, *) ) {
+            switch ( _values.dep_attr ) {
+                case SJFLFrameAttributeSafeTop:
+                case SJFLFrameAttributeSafeLeft:
+                case SJFLFrameAttributeSafeBottom:
+                case SJFLFrameAttributeSafeRight: {
+                    _values.safeAreaInsets = _dep_view.safeAreaInsets;
+                    _values.has_safe_attr = YES;
+                }
+                    break;
+                case SJFLFrameAttributeNone:
+                case SJFLFrameAttributeTop:
+                case SJFLFrameAttributeLeft:
+                case SJFLFrameAttributeBottom:
+                case SJFLFrameAttributeRight:
+                case SJFLFrameAttributeWidth:
+                case SJFLFrameAttributeHeight:
+                case SJFLFrameAttributeCenterX:
+                case SJFLFrameAttributeCenterY:
+                    break;
             }
-                break;
-            case SJFLFrameAttributeNone:
-            case SJFLFrameAttributeTop:
-            case SJFLFrameAttributeLeft:
-            case SJFLFrameAttributeBottom:
-            case SJFLFrameAttributeRight:
-            case SJFLFrameAttributeWidth:
-            case SJFLFrameAttributeHeight:
-            case SJFLFrameAttributeCenterX:
-            case SJFLFrameAttributeCenterY:
-                break;
         }
     }
     return self;
@@ -137,7 +138,7 @@ static int call_count04 = 0;
 
 - (void)refreshLayoutIfNeeded:(CGRect *)frame {
     UIView *_Nullable view = _tar_view;
-    if ( !view ) {
+    if ( view == nil ) {
         return;
     }
     
@@ -164,7 +165,7 @@ static int call_count04 = 0;
         case SJFLLayoutAttributeBottom: {
             NSDictionary<SJFLLayoutAttributeKey, SJFLLayoutElement *> *m = SJFLGetElements(view);
             SJFLLayoutElement *_Nullable heightElement = m[SJFLLayoutAttributeKeyHeight];
-            if ( !heightElement ) {
+            if ( heightElement == nil ) {
                 // top + height = bottom
                 // height = bottom - top
                 CGFloat height = newValue - frame->origin.y;
@@ -182,7 +183,7 @@ static int call_count04 = 0;
         case SJFLLayoutAttributeRight: {
             NSDictionary<SJFLLayoutAttributeKey, SJFLLayoutElement *> *m = SJFLGetElements(view);
             SJFLLayoutElement *_Nullable widthElement = m[SJFLLayoutAttributeKeyWidth];
-            if ( !widthElement ) {
+            if ( widthElement == nil ) {
                 // left + width = right
                 // width = right - left
                 CGFloat width = newValue - frame->origin.x;
