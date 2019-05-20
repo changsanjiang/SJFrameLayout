@@ -23,13 +23,13 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 @interface SJFLLayout : NSObject
-- (instancetype)initWithLayoutView:(UIView *)view elements:(SJFL_ElementsMap)elements;
-@property (nonatomic, strong, readonly) SJFL_ElementsMap elements;
+- (instancetype)initWithLayoutView:(UIView *)view elements:(SJFL_ElementsMap_t)elements;
+@property (nonatomic, strong, readonly) SJFL_ElementsMap_t elements;
 @property (nonatomic, strong, readonly) NSArray<SJFLWeakProxy *> *dependentViews;
 @end
 
 @implementation SJFLLayout
-- (instancetype)initWithLayoutView:(UIView *)view elements:(SJFL_ElementsMap)elements {
+- (instancetype)initWithLayoutView:(UIView *)view elements:(SJFL_ElementsMap_t)elements {
     self = [super init];
     if ( self ) {
         _elements = elements;
@@ -63,7 +63,7 @@ __SJFL_GetViewsMap(UIView *dep_view) {
 }
 
 static void
-__SJFL_ViewsMapAdd(UIView *layoutView, SJFL_ElementsMap elements) {
+__SJFL_ViewsMapAdd(UIView *layoutView, SJFL_ElementsMap_t elements) {
     __SJFL_HashKey_t layoutViewKey = @([layoutView hash]);
     SJFLWeakProxy *weakProxy = layoutView.SJFL_weakProxy;
     [elements enumerateKeysAndObjectsUsingBlock:^(SJFLLayoutAttributeKey  _Nonnull key, SJFLLayoutElement * _Nonnull obj, BOOL * _Nonnull stop) {
@@ -76,7 +76,7 @@ __SJFL_ViewsMapAdd(UIView *layoutView, SJFL_ElementsMap elements) {
 
 static void *kAutoremove = &kAutoremove;
 static void
-__SJFL_ViewsMapAutoremove(UIView *layoutView, SJFL_ElementsMap elements) {
+__SJFL_ViewsMapAutoremove(UIView *layoutView, SJFL_ElementsMap_t elements) {
     __SJFL_HashKey_t layoutViewKey = @([layoutView hash]);
     SJFLLayoutDeallocCallbackObject *weak = [[SJFLLayoutDeallocCallbackObject alloc] initWithDeallocCallback:^{
         [elements enumerateKeysAndObjectsUsingBlock:^(SJFLLayoutAttributeKey  _Nonnull key, SJFLLayoutElement * _Nonnull obj, BOOL * _Nonnull stop) {
@@ -91,6 +91,11 @@ __SJFL_ViewsMapRemove(UIView *layoutView) {
     objc_setAssociatedObject(layoutView, kAutoremove, nil, 0);
 }
 
+UIKIT_STATIC_INLINE BOOL
+__SJFL_HasViewsMap(UIView *dep_view) {
+    return __SJFL_GetViewsMap(dep_view) != nil;
+}
+
 UIKIT_STATIC_INLINE void
 __SJFL_ViewsMapUpdate(UIView *dep_view) {
     __SJFL_ViewsMap_t _Nullable map = __SJFL_GetViewsMap(dep_view);
@@ -99,31 +104,54 @@ __SJFL_ViewsMapUpdate(UIView *dep_view) {
     }];
 }
 
+UIKIT_STATIC_INLINE void
+__SJFL_ViewsMapUpdate_Rect(UIView *dep_view, CGRect old, CGRect new) {
+    if ( !CGRectEqualToRect(old, new) ) {
+        __SJFL_ViewsMapUpdate(dep_view);
+    }
+}
+
+UIKIT_STATIC_INLINE void
+__SJFL_ViewsMapUpdate_Point(UIView *dep_view, CGPoint old, CGPoint new) {
+    if ( !CGPointEqualToPoint(old, new) ) {
+        __SJFL_ViewsMapUpdate(dep_view);
+    }
+}
+
 #pragma mark -
 
 static void *kLayoutElements = &kLayoutElements;
+UIKIT_STATIC_INLINE SJFLLayoutElement *_Nullable
+__SJFL_GetLayoutElement(UIView *layoutView, SJFLLayoutAttributeKey attributeKey) {
+    return ((SJFL_ElementsMap_t)objc_getAssociatedObject(layoutView, kLayoutElements))[attributeKey];
+}
+
+UIKIT_STATIC_INLINE SJFL_ElementsMap_t _Nullable
+__SJFL_GetLayoutElements(UIView *layoutView) {
+    return objc_getAssociatedObject(layoutView, kLayoutElements);
+}
+
 void
-SJFL_InstallLayout(UIView *layoutView, SJFL_ElementsMap elements) {
+SJFL_InstallLayouts(UIView *layoutView, SJFL_ElementsMap_t elements) {
+    SJFL_RemoveLayouts(layoutView);
     objc_setAssociatedObject(layoutView, kLayoutElements, elements, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
     __SJFL_ViewsMapAdd(layoutView, elements);
     __SJFL_ViewsMapAutoremove(layoutView, elements);
 }
 
 void
-SJFL_RemoveLayout(UIView *layoutView) {
+SJFL_updateLayouts(UIView *layoutView, SJFL_ElementsMap_t elements) {
+    SJFL_ElementsMutableMap_t map = [__SJFL_GetLayoutElements(layoutView) mutableCopy]?:NSMutableDictionary.new;
+    [map setDictionary:elements];
+    SJFL_InstallLayouts(layoutView, map);
+}
+
+void
+SJFL_RemoveLayouts(UIView *layoutView) {
     __SJFL_ViewsMapRemove(layoutView);
     objc_setAssociatedObject(layoutView, kLayoutElements, nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
 
-UIKIT_STATIC_INLINE SJFLLayoutElement *_Nullable
-__SJFL_GetLayoutElement(UIView *layoutView, SJFLLayoutAttributeKey attributeKey) {
-    return ((SJFL_ElementsMap)objc_getAssociatedObject(layoutView, kLayoutElements))[attributeKey];
-}
-
-UIKIT_STATIC_INLINE SJFL_ElementsMap _Nullable
-__SJFL_GetLayoutElements(UIView *layoutView) {
-    return objc_getAssociatedObject(layoutView, kLayoutElements);
-}
 
 #pragma mark -
 // fix inner size
@@ -458,7 +486,7 @@ __SJFL_InstallElementLayoutIfNeeded(SJFLLayoutElement *element, CGRect *frame) {
 void
 SJFL_LayoutIfNeeded(UIView *layoutView) {
     if ( layoutView != nil ) {
-        SJFL_ElementsMap _Nullable m = __SJFL_GetLayoutElements(layoutView);
+        SJFL_ElementsMap_t _Nullable m = __SJFL_GetLayoutElements(layoutView);
         if ( m != nil ) {
             SJFLLayoutElement *_Nullable top = m[SJFLLayoutAttributeKeyTop];
             SJFLLayoutElement *_Nullable left = m[SJFLLayoutAttributeKeyLeft];
@@ -535,27 +563,68 @@ __SJFL_SwizzleMethod(Class cls, SEL originalSelector, SEL swizzledSelector) {
     __SJFL_SwizzleMethod(cls, @selector(FL_setFrame:), @selector(setFrame:));
     __SJFL_SwizzleMethod(cls, @selector(FL_setCenter:), @selector(setCenter:));
     __SJFL_SwizzleMethod(cls, @selector(FL_setBounds:), @selector(setBounds:));
-    __SJFL_SwizzleMethod(cls, @selector(FL_safeAreaInsetsDidChange), @selector(safeAreaInsetsDidChange));
+    if ( @available(iOS 11.0, *) ) {
+        __SJFL_SwizzleMethod(cls, @selector(FL_safeAreaInsetsDidChange), @selector(safeAreaInsetsDidChange));
+    }
 }
 
 - (void)FL_setFrame:(CGRect)frame {
     [self FL_setFrame:frame];
     __SJFL_ViewsMapUpdate(self);
+
+//    if ( !__SJFL_HasViewsMap(self) ) {
+//        [self FL_setFrame:frame];
+//    }
+//    else {
+//        CGRect old = self.frame;
+//        [self FL_setFrame:frame];
+//        __SJFL_ViewsMapUpdate_Rect(self, old, frame);
+//    }
 }
 
 - (void)FL_setBounds:(CGRect)bounds {
     [self FL_setBounds:bounds];
     __SJFL_ViewsMapUpdate(self);
+
+//    if ( !__SJFL_HasViewsMap(self) ) {
+//        [self FL_setBounds:bounds];
+//    }
+//    else {
+//        CGRect old = self.bounds;
+//        [self FL_setBounds:bounds];
+//        __SJFL_ViewsMapUpdate_Rect(self, old, bounds);
+//    }
 }
 
 - (void)FL_setCenter:(CGPoint)center {
     [self FL_setCenter:center];
     __SJFL_ViewsMapUpdate(self);
+
+//    if ( !__SJFL_HasViewsMap(self) ) {
+//        [self FL_setCenter:center];
+//    }
+//    else {
+//        CGPoint old = self.center;
+//        [self FL_setCenter:center];
+//        __SJFL_ViewsMapUpdate_Point(self, old, center);
+//    }
 }
 
-- (void)FL_safeAreaInsetsDidChange {
+- (void)FL_safeAreaInsetsDidChange NS_AVAILABLE_IOS(11.0) {
     [self FL_safeAreaInsetsDidChange];
     __SJFL_ViewsMapUpdate(self);
+    
+//    if ( __SJFL_HasViewsMap(self) ) {
+//        if ( @available(iOS 11.0, *) ) {
+//            static void *kSafeAreaInsets = &kSafeAreaInsets;
+//            UIEdgeInsets old = [objc_getAssociatedObject(self, kSafeAreaInsets) UIEdgeInsetsValue];
+//            UIEdgeInsets new = self.safeAreaInsets;
+//            if ( !UIEdgeInsetsEqualToEdgeInsets(old, new) ) {
+//                objc_setAssociatedObject(self, kSafeAreaInsets, [NSValue valueWithUIEdgeInsets:new], OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+//                __SJFL_ViewsMapUpdate(self);
+//            }
+//        }
+//    }
 }
 @end
 NS_ASSUME_NONNULL_END

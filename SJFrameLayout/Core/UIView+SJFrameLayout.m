@@ -9,17 +9,26 @@
 
 NS_ASSUME_NONNULL_BEGIN
 @implementation UIView (SJFrameLayout)
-- (void)sj_makeFrameLayout:(void(^)(SJFLLayoutMaker *make))block {
+- (void)SJFL_makeLayouts:(void(^)(SJFLLayoutMaker *make))block {
     SJFLLayoutMaker *maker = [[SJFLLayoutMaker alloc] initWithView:self];
     block(maker);
     [maker install];
 }
-- (void)sj_updateFrameLayout:(void(^)(SJFLLayoutMaker *make))block {
+- (void)SJFL_remakeLayouts:(void(^)(SJFLLayoutMaker *make))block {
+    [self SJFL_makeLayouts:block];
+}
+- (void)SJFL_updateLayouts:(void(^)(SJFLLayoutMaker *make))block {
     SJFLLayoutMaker *maker = [[SJFLLayoutMaker alloc] initWithView:self];
     block(maker);
     [maker update];
 }
-- (void)sj_removeFrameLayouts {
+- (void)SJFL_removeLayouts:(SJFLLayoutAttributeMask)mask remake:(void(^)(SJFLLayoutMaker *make))block {
+    
+}
+- (void)SJFL_removeLayouts:(SJFLLayoutAttributeMask)mask {
+    
+}
+- (void)SJFL_removeAllLayouts {
     [SJFLLayoutMaker removeAllLayouts:self];
 }
 @end

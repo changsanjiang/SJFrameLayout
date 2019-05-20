@@ -10,13 +10,17 @@
 #import "SJFLLayoutElement.h"
 
 NS_ASSUME_NONNULL_BEGIN
-typedef NSDictionary<SJFLLayoutAttributeKey, SJFLLayoutElement *> *SJFL_ElementsMap;
+typedef NSDictionary<SJFLLayoutAttributeKey, SJFLLayoutElement *> *SJFL_ElementsMap_t;
+typedef NSMutableDictionary<SJFLLayoutAttributeKey, SJFLLayoutElement *> *SJFL_ElementsMutableMap_t;
 
 UIKIT_EXTERN void
-SJFL_InstallLayout(UIView *layoutView, SJFL_ElementsMap elements);
+SJFL_InstallLayouts(UIView *layoutView, SJFL_ElementsMap_t elements);
 
 UIKIT_EXTERN void
-SJFL_RemoveLayout(UIView *layoutView);
+SJFL_updateLayouts(UIView *layoutView, SJFL_ElementsMap_t elements);
+
+UIKIT_EXTERN void
+SJFL_RemoveLayouts(UIView *layoutView);
 
 UIKIT_EXTERN void
 SJFL_LayoutIfNeeded(UIView *layoutView);

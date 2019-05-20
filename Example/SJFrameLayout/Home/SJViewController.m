@@ -50,7 +50,7 @@ static NSString *SJHomeTableViewCellID = @"SJHomeTableViewCell";
     [self.view addSubview:_tableView];
     
 #if __has_include(<SJFrameLayout/SJFrameLayout.h>)
-    [_tableView sj_makeFrameLayout:^(SJFLLayoutMaker * _Nonnull make) {
+    [_tableView SJFL_makeLayouts:^(SJFLLayoutMaker * _Nonnull make) {
         make.edges.offset(0);
     }];
 #else

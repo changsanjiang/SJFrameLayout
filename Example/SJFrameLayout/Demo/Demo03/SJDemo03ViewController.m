@@ -32,7 +32,7 @@ static CGFloat inset = 8;
     [self.view addSubview:root];
     
 #if __has_include(<SJFrameLayout/SJFrameLayout.h>)
-    [root sj_makeFrameLayout:^(SJFLLayoutMaker * _Nonnull make) {
+    [root SJFL_makeLayouts:^(SJFLLayoutMaker * _Nonnull make) {
         make.size.offset(200);
         make.top.equalTo(self.view.FL_safeTop).offset(8);
         make.centerX.offset(0);
@@ -46,7 +46,7 @@ static CGFloat inset = 8;
                                            alpha:1];
     [root addSubview:mid];
 #if __has_include(<SJFrameLayout/SJFrameLayout.h>)
-    [mid sj_makeFrameLayout:^(SJFLLayoutMaker * _Nonnull make) {
+    [mid SJFL_makeLayouts:^(SJFLLayoutMaker * _Nonnull make) {
         make.edges.box_offset(UIEdgeInsetsMake(2, 2, 2, 2));
     }];
 #endif
@@ -58,7 +58,7 @@ static CGFloat inset = 8;
                                            alpha:1];
     [mid addSubview:_sub];
 #if __has_include(<SJFrameLayout/SJFrameLayout.h>)
-    [_sub sj_makeFrameLayout:^(SJFLLayoutMaker * _Nonnull make) {
+    [_sub SJFL_makeLayouts:^(SJFLLayoutMaker * _Nonnull make) {
         make.top.left.offset(inset);
         make.right.offset(-inset);
         make.bottom.equalTo(mid.FL_centerY).offset(-inset * 0.5);
@@ -72,7 +72,7 @@ static CGFloat inset = 8;
                                             alpha:1];
     [mid addSubview:_sub2];
 #if __has_include(<SJFrameLayout/SJFrameLayout.h>)
-    [_sub2 sj_makeFrameLayout:^(SJFLLayoutMaker * _Nonnull make) {
+    [_sub2 SJFL_makeLayouts:^(SJFLLayoutMaker * _Nonnull make) {
         make.top.equalTo(mid.FL_centerY).offset(inset * 0.5);
         make.left.offset(inset);
         make.bottom.right.offset(-inset);
@@ -81,18 +81,18 @@ static CGFloat inset = 8;
 
 //    [root layoutIfNeeded];
 //    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-//        [root sj_removeFrameLayouts];
-//        [mid sj_removeFrameLayouts];
-//        [self->_sub sj_removeFrameLayouts];
+//        [root SJFL_removeAllLayouts];
+//        [mid SJFL_removeAllLayouts];
+//        [self->_sub SJFL_removeAllLayouts];
 //    });
 }
 - (IBAction)test2:(id)sender {
     inset += 1;
 #if 0
-    [_sub.superview.superview sj_removeFrameLayouts];
-    [_sub.superview sj_removeFrameLayouts];
+    [_sub.superview.superview SJFL_removeAllLayouts];
+    [_sub.superview SJFL_removeAllLayouts];
     
-    [_sub sj_removeFrameLayouts];
+    [_sub SJFL_removeAllLayouts];
     CGRect frame = _sub.frame;
     frame.origin.x += inset;
     frame.origin.y += inset;
@@ -100,7 +100,7 @@ static CGFloat inset = 8;
     frame.size.height -= inset * 2;
     _sub.frame = frame;
     
-    [_sub2 sj_removeFrameLayouts];
+    [_sub2 SJFL_removeAllLayouts];
     frame = _sub2.frame;
     frame.origin.x += inset;
     frame.origin.y += inset;
@@ -109,13 +109,13 @@ static CGFloat inset = 8;
     _sub2.frame = frame;
     
 #elif __has_include(<SJFrameLayout/SJFrameLayout.h>)
-    [_sub sj_makeFrameLayout:^(SJFLLayoutMaker * _Nonnull make) {
+    [_sub SJFL_makeLayouts:^(SJFLLayoutMaker * _Nonnull make) {
         make.top.left.offset(inset);
         make.right.offset(-inset);
         make.bottom.equalTo(self->_sub.superview.FL_centerY).offset(-inset * 0.5);
     }];
     
-    [_sub2 sj_makeFrameLayout:^(SJFLLayoutMaker * _Nonnull make) {
+    [_sub2 SJFL_makeLayouts:^(SJFLLayoutMaker * _Nonnull make) {
         make.top.equalTo(self->_sub2.superview.FL_centerY).offset(inset * 0.5);
         make.left.offset(inset);
         make.bottom.right.offset(-inset);

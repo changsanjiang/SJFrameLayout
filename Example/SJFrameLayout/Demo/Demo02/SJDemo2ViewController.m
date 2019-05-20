@@ -46,7 +46,7 @@ NS_ASSUME_NONNULL_BEGIN
                                              blue:arc4random() % 256 / 255.0
                                             alpha:1];
     [self.view addSubview:root];
-    [root sj_makeFrameLayout:^(SJFLLayoutMaker * _Nonnull make) {
+    [root SJFL_makeLayouts:^(SJFLLayoutMaker * _Nonnull make) {
         make.center.offset(0);
     }];
     
@@ -57,7 +57,7 @@ NS_ASSUME_NONNULL_BEGIN
                                                   blue:arc4random() % 256 / 255.0
                                                  alpha:1];
     [root addSubview:container];
-    [container sj_makeFrameLayout:^(SJFLLayoutMaker * _Nonnull make) {
+    [container SJFL_makeLayouts:^(SJFLLayoutMaker * _Nonnull make) {
         make.edges.box_equalTo(UIEdgeInsetsMake(8, 8, 8, 8));
         make.width.equalTo(self.view).multipliedBy(Multiplier);
         make.height.equalTo(container.FL_width);
@@ -70,7 +70,7 @@ NS_ASSUME_NONNULL_BEGIN
                                                  blue:arc4random() % 256 / 255.0
                                                 alpha:1];
         [container addSubview:sub];
-        [sub sj_makeFrameLayout:^(SJFLLayoutMaker * _Nonnull make) {
+        [sub SJFL_makeLayouts:^(SJFLLayoutMaker * _Nonnull make) {
             CGFloat inset = 8 + i;
             make.edges.box_equalTo(UIEdgeInsetsMake(inset, inset, inset, inset));
         }];
@@ -153,7 +153,7 @@ NS_ASSUME_NONNULL_BEGIN
                                                  blue:arc4random() % 256 / 255.0
                                                 alpha:1];
         [container addSubview:sub];
-        [sub sj_makeFrameLayout:^(SJFLLayoutMaker * _Nonnull make) {
+        [sub SJFL_makeLayouts:^(SJFLLayoutMaker * _Nonnull make) {
             CGFloat inset = 8 + i;
             make.edges.box_equalTo(UIEdgeInsetsMake(inset, inset, inset, inset));
         }];
@@ -194,7 +194,7 @@ NS_ASSUME_NONNULL_BEGIN
 //                                                 blue:arc4random() % 256 / 255.0
 //                                                alpha:1];
 //        [container addSubview:sub];
-//        [sub sj_makeFrameLayout:^(SJFLLayoutMaker * _Nonnull make) {
+//        [sub SJFL_makeLayouts:^(SJFLLayoutMaker * _Nonnull make) {
 //            CGFloat inset = 8 + i;
 //            make.edges.box_equalTo(UIEdgeInsetsMake(inset, inset, inset, inset));
 //        }];
